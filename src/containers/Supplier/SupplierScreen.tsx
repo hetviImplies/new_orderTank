@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -34,7 +35,11 @@ const SupplierScreen = ({navigation}: any) => {
   const [searchText, setSearchText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
-  const {data: supplierList, isFetching: isProcessing} = useGetSupplierQuery(
+  const {
+    data: supplierList,
+    isFetching: isProcessing,
+    refetch,
+  } = useGetSupplierQuery(
     {search: searchText, status: 'accepted'},
     {
       refetchOnMountOrArgChange: true,
@@ -55,7 +60,7 @@ const SupplierScreen = ({navigation}: any) => {
           })
         }>
         <Image source={{uri: item?.logo}} style={styles.logo} />
-        <View>
+        <View style={{width: '80%'}}>
           <FontText
             name={'lexend-regular'}
             size={fontSize}
@@ -128,7 +133,7 @@ const SupplierScreen = ({navigation}: any) => {
         }
       />
       <Loader loading={isProcessing || isProcess} />
-      <View style={[commonStyle.paddingH4, {marginTop: hp(1)}]}>
+      <View style={[commonStyle.paddingH4, {marginTop: hp(1), flex: 1}]}>
         <Input
           value={search}
           onChangeText={(text: any) => setSearch(text.trimStart())}
@@ -159,6 +164,9 @@ const SupplierScreen = ({navigation}: any) => {
             data={supplierList?.result}
             renderItem={_renderItem}
             contentContainerStyle={styles.containerContent}
+            refreshControl={
+              <RefreshControl refreshing={isProcessing} onRefresh={refetch} />
+            }
           />
         ) : (
           <View style={commonStyle.flexJC}>
@@ -196,7 +204,9 @@ const SupplierScreen = ({navigation}: any) => {
             blurOnSubmit
           />
         }
+        disabled={code !== '' ? false : true}
         rightBtnText={'Apply'}
+        rightBtnColor={code !== '' ? 'orange' : 'gray'}
         rightBtnPress={applyCodePress}
         // onTouchPress={() => setIsOpen(false)}
         rightBtnStyle={{width: '100%'}}
@@ -225,10 +235,11 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(4),
-    paddingVertical: hp(2),
+    paddingVertical: hp(1.8),
     backgroundColor: colors.white,
     borderRadius: normalize(6),
     marginBottom: hp(2),
+    alignItems: 'center',
   },
   logo: {
     width: hp(6.5),

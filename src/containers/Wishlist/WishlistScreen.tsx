@@ -5,7 +5,7 @@ import SvgIcons from '../../assets/SvgIcons';
 import {fontSize, mediumLargeFont} from '../../styles';
 import {wp} from '../../styles/responsiveScreen';
 import commonStyle from '../../styles';
-import WatchList from '../../components/WatchList';
+import WatchList from '../../components/ProductComponent';
 import {
   useAddWishlistsMutation,
   useGetWishlistsQuery,

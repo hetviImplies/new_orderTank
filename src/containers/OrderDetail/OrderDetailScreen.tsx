@@ -5,6 +5,7 @@ import commonStyle, {
   mediumFont,
   mediumLargeFont,
   smallFont,
+  tabIcon,
 } from '../../styles';
 import {Button, FontText, Loader, NavigationBar} from '../../components';
 import SvgIcons from '../../assets/SvgIcons';
@@ -17,98 +18,20 @@ import {useDeleteOrderMutation} from '../../api/order';
 import utils from '../../helper/utils';
 import Popup from '../../components/Popup';
 
-const labels = ['Ordered', 'Shipped', 'Out For Delivery', 'Delivered'];
-const customStyles = {
-  stepIndicatorSize: 30,
-  currentStepIndicatorSize: 30,
-  separatorStrokeWidth: 3,
-  currentStepStrokeWidth: 5,
-  stepStrokeCurrentColor: colors.brown,
-  separatorFinishedColor: colors.brown,
-  separatorUnFinishedColor: '#aaaaaa',
-  stepIndicatorFinishedColor: '#fe7013',
-  stepIndicatorUnFinishedColor: '#aaaaaa',
-  stepIndicatorCurrentColor: '#ffffff',
-  stepIndicatorLabelFontSize: 15,
-  currentStepIndicatorLabelFontSize: 15,
-  stepIndicatorLabelCurrentColor: '#000000',
-  stepIndicatorLabelFinishedColor: '#ffffff',
-  stepIndicatorLabelUnFinishedColor: 'rgba(255,255,255,0.5)',
-  labelColor: '#666666',
-  labelSize: 15,
-  currentStepLabelColor: '#fe7013',
-};
-
 const OrderDetailScreen = ({navigation, route}: any) => {
-  const item = route?.params && route?.params?.data?.item;
-  const product = route?.params && route?.params?.data?.product;
+  // const item = route?.params && route?.params?.data?.item;
+  // const product = route?.params && route?.params?.data?.product;
 
   const [cancelOrder, {isLoading: isFetching}] = useDeleteOrderMutation();
 
   const [currentPosition, setCurrentPosition] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    item?.shipped?.createdAt && setCurrentPosition(1);
-    item?.outForDelivery?.createdAt && setCurrentPosition(2);
-    item?.delivered?.createdAt && setCurrentPosition(3);
-  }, [item]);
-
-  const renderContent = (index: any) => {
-    switch (index) {
-      case 0:
-        return moment(item?.ordered?.createdAt).format('MMM DD, YYYY hh:mm A');
-      case 1:
-        return item?.shipped?.createdAt
-          ? moment(item?.shipped?.createdAt).format('MMM DD, YYYY hh:mm A')
-          : moment(item?.shipped?.expectedDate).format('MMM DD, YYYY hh:mm A');
-      case 2:
-        return item?.outForDelivery?.createdAt
-          ? moment(item?.outForDelivery?.createdAt).format(
-              'MMM DD, YYYY hh:mm A',
-            )
-          : moment(item?.outForDelivery?.expectedDate).format(
-              'MMM DD, YYYY hh:mm A',
-            );
-      case 3:
-        return item?.delivered?.createdAt
-          ? moment(item?.delivered?.createdAt).format('MMM DD, YYYY hh:mm A')
-          : moment(item?.delivered?.expectedDate).format(
-              'MMM DD, YYYY hh:mm A',
-            );
-      default:
-        return;
-    }
-  };
-
-  const _renderItem = ({position, stepStatus, label, currentPosition}: any) => {
-    return (
-      <View
-        style={[
-          commonStyle.marginH2,
-          {
-            alignItems: 'flex-start',
-            justifyContent: 'flex-start',
-          },
-        ]}>
-        <FontText
-          color="black2"
-          name="opensans-semibold"
-          size={mediumFont}
-          pBottom={wp(1)}
-          textAlign={'left'}>
-          {label}
-        </FontText>
-        <FontText
-          color="gray"
-          name="opensans-medium"
-          size={mediumFont}
-          textAlign={'left'}>
-          {renderContent(position)}
-        </FontText>
-      </View>
-    );
-  };
+  // useEffect(() => {
+  //   item?.shipped?.createdAt && setCurrentPosition(1);
+  //   item?.outForDelivery?.createdAt && setCurrentPosition(2);
+  //   item?.delivered?.createdAt && setCurrentPosition(3);
+  // }, [item]);
 
   const cancelOrderHandler = () => {
     setIsOpen(true);
@@ -118,12 +41,12 @@ const OrderDetailScreen = ({navigation, route}: any) => {
     setIsOpen(false);
   };
 
-  const cancelPress = async() => {
-    const {data, error}: any = await cancelOrder({id: item._id});
-    if (data && data.statusCode === 200) {
-      utils.showSuccessToast('Order cancelled Successfully.');
-      navigation.goBack();
-    }
+  const cancelPress = async () => {
+    // const {data, error}: any = await cancelOrder({id: item._id});
+    // if (data && data.statusCode === 200) {
+    //   utils.showSuccessToast('Order cancelled Successfully.');
+    //   navigation.goBack();
+    // }
   };
 
   return (
@@ -135,97 +58,58 @@ const OrderDetailScreen = ({navigation, route}: any) => {
         hasCenter
         style={{marginHorizontal: wp(2)}}
         borderBottomWidth={0}
-        center={
-          <FontText
-            color="black2"
-            name="opensans-semibold"
-            size={mediumLargeFont}
-            textAlign={'center'}>
-            {'Order Detail'}
-          </FontText>
-        }
+        leftStyle={{width: '100%'}}
         left={
-          <TouchableOpacity
-            style={commonStyle.iconView}
-            onPress={() => navigation.goBack()}>
-            <SvgIcons.BackIcon />
-          </TouchableOpacity>
+          <View style={[commonStyle.rowAC]}>
+            <TouchableOpacity
+              style={[commonStyle.iconView, {marginRight: wp(5)}]}
+              onPress={() => navigation.goBack()}>
+              <SvgIcons.BackArrow width={tabIcon} height={tabIcon} />
+            </TouchableOpacity>
+            <FontText
+              name={'lexend-semibold'}
+              size={mediumLargeFont}
+              color={'black'}
+              textAlign={'left'}>
+              {'Order detail'}
+            </FontText>
+          </View>
         }
       />
-      {/* <Loader loading={isFetching} />
-      <View
-        style={[
-          commonStyle.marginT2,
-          commonStyle.shadowContainer,
-          styles.radiusContainer,
-        ]}>
-        <View style={[styles.itemContainer]}>
-          <Image
-            source={{uri: `${BASE_URL}/${product?.productId?.thumbnail}`}}
-            style={[styles.featureImg]}
-          />
-          <View style={styles.contentRowContainer}>
-            <View>
-              <FontText
-                color="black2"
-                name="opensans-semibold"
-                size={mediumFont}
-                pBottom={hp(1)}
-                textAlign={'left'}>
-                {product?.productId?.productName}
-              </FontText>
-              <FontText
-                color="brown"
-                name="opensans-bold"
-                size={mediumLargeFont}
-                pBottom={hp(1)}
-                textAlign={'left'}>
-                {'$'}
-                {product?.productId?.price}
-              </FontText>
-              <FontText
-                color="gray2"
-                name="opensans-semibold"
-                size={smallFont}
-                textAlign={'left'}>
-                {moment(item?.createdAt).format('MMM DD,YYYY hh:mm A')}
-              </FontText>
-            </View>
-          </View>
-        </View>
-        <View style={styles.line} />
-        <View style={styles.indicator}>
-          <StepIndicator
-            customStyles={customStyles}
-            currentPosition={currentPosition}
-            labels={labels}
-            direction="vertical"
-            stepCount={4}
-            renderLabel={_renderItem}
-            renderStepIndicator={val => {
-              return (
-                <View
-                  style={{
-                    backgroundColor:
-                      val?.stepStatus === 'unfinished'
-                        ? colors.gray
-                        : colors.brown,
-                    padding: hp(2),
-                  }}>
-                  {val?.stepStatus !== 'unfinished' && (
-                    <SvgIcons.Check
-                      fill={colors.white}
-                      width={wp(3)}
-                      height={wp(3)}
-                    />
-                  )}
-                </View>
-              );
-            }}
-          />
-        </View>
+      <View style={commonStyle.paddingH4}>
+        <FontText
+          name={'lexend-regular'}
+          size={mediumFont}
+          color={'orange'}
+          textAlign={'left'}>
+          {'Order Date:'}
+          <FontText
+            name={'lexend-regular'}
+            size={mediumFont}
+            color={'black2'}
+            textAlign={'left'}>
+            {' '}
+            {'20-04-2023, 11:48 AM'}
+          </FontText>
+        </FontText>
+        <FontText
+          name={'lexend-regular'}
+          size={mediumFont}
+          color={'orange'}
+          textAlign={'left'}>
+          {'Order Id:'}
+          <FontText
+            name={'lexend-regular'}
+            size={mediumFont}
+            color={'black2'}
+            textAlign={'left'}>
+            {' '}
+            {'#12541RFG'}
+          </FontText>
+        </FontText>
+
       </View>
-      <Popup
+      {/* <Popup
         visible={isOpen}
         onOpen={() => setIsOpen(true)}
         onBackPress={() => setIsOpen(false)}
@@ -246,7 +130,7 @@ const OrderDetailScreen = ({navigation, route}: any) => {
             {'Cancel Order'}
           </FontText>
         </Button>
-      )} */}
+      )}  */}
     </View>
   );
 };

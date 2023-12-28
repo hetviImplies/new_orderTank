@@ -10,7 +10,6 @@ import authSlice from '../slices/authSlice';
 import categorySlice from '../slices/categorySlice';
 import productSlice from '../slices/productSlice';
 import cartSlice from '../slices/cartSlice';
-import {addressApi} from '../../api/address';
 import {notificationApi} from '../../api/notification';
 import {wishlistApi} from '../../api/wishlist';
 import {paymentApi} from '../../api/payemnt';
@@ -31,7 +30,6 @@ export const store = configureStore({
     [cartApi.reducerPath]: cartApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [wishlistApi.reducerPath]: wishlistApi.reducer,
-    [addressApi.reducerPath]: addressApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
   },
@@ -48,7 +46,6 @@ export const store = configureStore({
       .concat(cartApi.middleware)
       .concat(orderApi.middleware)
       .concat(wishlistApi.middleware)
-      .concat(addressApi.middleware)
       .concat(notificationApi.middleware)
       .concat(paymentApi.middleware),
 });

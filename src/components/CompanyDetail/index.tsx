@@ -1,5 +1,5 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import colors from '../../assets/colors';
 import {Button, FontText, Input, Loader, NavigationBar} from '..';
 import SvgIcons from '../../assets/SvgIcons';
@@ -49,19 +49,17 @@ const CompanyDetail = (props: any) => {
   const countryRef: any = useRef();
   const imageRef: any = useRef();
 
-  const addressData = data && data?.result && data?.result?.address[0];
-
   const [checkValid, setCheckValid] = useState(false);
-  const [imageUrl, setImageUrl] = useState(data?.result?.logo);
+  const [imageUrl, setImageUrl] = useState('');
   const [imageRes, setImageRes] = useState<any>({});
   const [registerNo, setRegisterNo] = useState('');
-  const [company, setCompany] = useState(data?.result?.companyName);
-  const [address, setAddress] = useState(addressData?.addressName);
-  const [locality, setLocality] = useState(addressData?.locality);
-  const [pinCode, setPinCode] = useState(addressData?.pincode);
-  const [city, setCity] = useState(addressData?.city);
-  const [state, setState] = useState(addressData?.state);
-  const [country, setCountry] = useState(addressData?.country);
+  const [company, setCompany] = useState('');
+  const [address, setAddress] = useState('');
+  const [locality, setLocality] = useState('');
+  const [pinCode, setPinCode] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [country, setCountry] = useState('');
 
   const isValidRegNo = checkValid && registerNo.length === 0;
   const isValidCompanyName = checkValid && company.length === 0;
@@ -71,6 +69,17 @@ const CompanyDetail = (props: any) => {
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
   const isValidCountry = checkValid && country.length === 0;
+
+  useEffect(() => {
+    setImageUrl(data?.result ? data?.result?.logo : '');
+    setCompany(data?.result ? data?.result?.companyName : '');
+    setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
+    setLocality(data?.result ? data?.result.address[0]?.locality : '');
+    setPinCode(data?.result ? data?.result.address[0]?.pincode : '');
+    setCity(data?.result ? data?.result.address[0]?.city : '');
+    setState(data?.result ? data?.result.address[0]?.state : '');
+    setCountry(data?.result ? data?.result.address[0]?.country : '');
+  }, [data, isFetching]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -139,7 +148,9 @@ const CompanyDetail = (props: any) => {
       const formData = new FormData();
       const addressObj = [
         {
-          addressName: address,
+          isPriority: true,
+          addressName: 'Home',
+          addressLine: address,
           locality: locality,
           pincode: pinCode,
           city: city,
@@ -148,7 +159,8 @@ const CompanyDetail = (props: any) => {
         },
       ];
       formData.append('companyName', company);
-      userInfo?.companyId?._id === undefined && formData.append('registerNo', registerNo);
+      userInfo?.companyId?._id === undefined &&
+        formData.append('registerNo', registerNo);
       Object.keys(imageRes).length !== 0 &&
         formData.append('logo', {
           uri: imageUrl,
@@ -166,7 +178,15 @@ const CompanyDetail = (props: any) => {
           params: formData,
           _id: userInfo?.companyId?._id,
         };
-        const {data, error}: any = updateCompany(body);
+        const {data, error}: any = await updateCompany(body);
+        console.log('DATA', data, error);
+        if (!error && data?.statusCode === 200) {
+          setCheckValid(false);
+          setOpenPopup && setOpenPopup(false);
+          utils.showSuccessToast(data.message);
+        } else {
+          utils.showErrorToast(data.message || error);
+        }
         setBtnText('Edit Details');
         setEditInformation(false);
       } else {
@@ -186,6 +206,14 @@ const CompanyDetail = (props: any) => {
   const onEditPress = () => {
     setBtnText('Save & update');
     setEditInformation(true);
+  };
+
+  const dropdownPress = (ref: any) => {
+    if (from !== 'Profile') {
+      ref?.current?.open();
+    } else {
+      editInformation && ref?.current?.open();
+    }
   };
 
   return (
@@ -220,16 +248,18 @@ const CompanyDetail = (props: any) => {
       />
       <Loader loading={isFetching || isLoading} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View>
             {imageUrl ? (
               <TouchableOpacity
                 style={{marginBottom: hp(2)}}
+                disabled={from === 'Profile' ? !editInformation : false}
                 onPress={imagePress}>
                 <Image source={{uri: imageUrl}} style={styles.avatar} />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
+                disabled={from === 'Profile' ? !editInformation : false}
                 style={styles.uploadImgContainer}
                 onPress={imagePress}>
                 <SvgIcons.Upload width={wp(8)} height={wp(8)} />
@@ -262,9 +292,10 @@ const CompanyDetail = (props: any) => {
                   </FontText>
                 </View>
                 <Input
+                  editable={from === 'Profile' ? editInformation : true}
                   ref={regRef}
                   value={registerNo}
-                  onChangeText={(text: string) => setRegisterNo(text)}
+                  onChangeText={(text: string) => setRegisterNo(text.trim())}
                   placeholder={'Enter Register Number'}
                   autoCapitalize="none"
                   placeholderTextColor={'placeholder'}
@@ -314,9 +345,10 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <Input
+                editable={from === 'Profile' ? editInformation : true}
                 ref={companyRef}
                 value={company}
-                onChangeText={(text: string) => setCompany(text)}
+                onChangeText={(text: string) => setCompany(text.trimStart())}
                 placeholder={'Enter Company Name'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -363,9 +395,10 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <Input
+                editable={from === 'Profile' ? editInformation : true}
                 ref={addressRef}
                 value={address}
-                onChangeText={(text: string) => setAddress(text)}
+                onChangeText={(text: string) => setAddress(text.trimStart())}
                 placeholder={'Enter Address'}
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
@@ -408,9 +441,10 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <Input
+                editable={from === 'Profile' ? editInformation : true}
                 ref={localityRef}
                 value={locality}
-                onChangeText={(text: string) => setLocality(text)}
+                onChangeText={(text: string) => setLocality(text.trimStart())}
                 placeholder={'Enter Locality'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -447,14 +481,15 @@ const CompanyDetail = (props: any) => {
                   color={'gray3'}
                   pLeft={wp(1)}
                   textAlign={'left'}>
-                  {'PinCode:'}
+                  {'Pin Code:'}
                 </FontText>
               </View>
               <Input
+                editable={from === 'Profile' ? editInformation : true}
                 ref={pinCodeRef}
                 value={pinCode}
-                onChangeText={(text: string) => setPinCode(text)}
-                placeholder={'Enter PinCode'}
+                onChangeText={(text: string) => setPinCode(text.trim())}
+                placeholder={'Enter Pin Code'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
@@ -481,8 +516,8 @@ const CompanyDetail = (props: any) => {
                   textAlign="right"
                   name="regular">
                   {checkValid && pinCode.length === 0
-                    ? `PinCode is required.`
-                    : 'Invalid PinCode.'}
+                    ? `Pin Code is required.`
+                    : 'Invalid Pin Code.'}
                 </FontText>
               )}
             </View>
@@ -498,9 +533,10 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <Input
+                editable={from === 'Profile' ? editInformation : true}
                 ref={cityRef}
                 value={city}
-                onChangeText={(text: string) => setCity(text)}
+                onChangeText={(text: string) => setCity(text.trimStart())}
                 placeholder={'Enter City'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -539,7 +575,8 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <TouchableOpacity
-                onPress={() => stateRef?.current?.open()}
+                onPress={() => dropdownPress(stateRef)}
+                disabled={from === 'Profile' ? !editInformation : false}
                 style={styles.dropdownView}>
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
                   <SvgIcons.State width={iconSize} height={iconSize} />
@@ -578,7 +615,8 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <TouchableOpacity
-                onPress={() => countryRef?.current?.open()}
+                onPress={() => dropdownPress(countryRef)}
+                disabled={from === 'Profile' ? !editInformation : false}
                 style={styles.dropdownView}>
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
                   <SvgIcons.Country width={iconSize} height={iconSize} />
@@ -629,7 +667,7 @@ const CompanyDetail = (props: any) => {
           </Button>
         )}
         <BottomSheet
-          height={hp(75)}
+          height={hp(100)}
           sheetRef={stateRef}
           itemPress={(val: any) => {
             setState(val);
@@ -639,13 +677,13 @@ const CompanyDetail = (props: any) => {
           data={STATES_LIST}
         />
         <BottomSheet
-          height={hp(75)}
+          height={hp(100)}
           sheetRef={countryRef}
           itemPress={(val: any) => {
             setCountry(val);
             countryRef.current.close();
           }}
-          selectedItem={state}
+          selectedItem={country}
           data={COUNTRY_LIST}
         />
         <RBSheet

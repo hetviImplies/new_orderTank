@@ -1,28 +1,25 @@
 import {
   Alert,
   ImageBackground,
+  Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import Images from '../../assets/images';
-import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Input, Loader} from '../../components';
 import {
   fontSize,
   iconSize,
-  largeFont,
   mediumFont,
   mediumLarge2Font,
-  mediumLargeFont,
-  smallFont,
   tabIcon,
 } from '../../styles';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
-import {RootScreens} from '../../types/type';
-import {useForgotPasswordMutation, useLoginMutation} from '../../api/auth';
+import {useForgotPasswordMutation} from '../../api/auth';
 import utils from '../../helper/utils';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
@@ -43,10 +40,6 @@ const ForgotPasswordScreen = ({navigation}: any) => {
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
 
-  const onSkipPress = () => {
-    navigation.navigate(RootScreens.Home);
-  };
-
   const onContinuePress = async () => {
     setCheckValid(true);
     if (email.length !== 0 && validationEmail(email)) {
@@ -55,13 +48,8 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         email: email,
       });
       if (!error && data?.statusCode === 200) {
-        let params = {
-          from: 'forgotPassword',
-          email: email,
-        };
-        // navigation.navigate(RootScreens.VerifyOtp, {data: params});
         utils.showSuccessToast(data.message);
-        Alert.alert('OrderTank','Please Check your inbox');
+        Alert.alert('OrderTank', 'Please Check your inbox');
       } else {
         utils.showErrorToast(data.message || error);
       }
@@ -91,14 +79,14 @@ const ForgotPasswordScreen = ({navigation}: any) => {
       </ImageBackground>
       <View style={styles.middleContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-        <SvgIcons.BackRound
-          width={tabIcon}
-          height={tabIcon}
-          style={commonStyle.marginT2}
-        />
+          <SvgIcons.BackRound
+            width={tabIcon}
+            height={tabIcon}
+            style={commonStyle.marginT2}
+          />
         </TouchableOpacity>
         <KeyboardAwareScrollView>
-          <View style={{marginTop:hp(3)}}>
+          <View style={{marginTop: hp(3)}}>
             <View
               style={[
                 commonStyle.rowAC,
@@ -127,6 +115,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
               color={'black'}
               returnKeyType={'next'}
               blurOnSubmit
+              onSubmit={() => Keyboard.dismiss()}
               children={
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
                   <SvgIcons.Email width={iconSize} height={iconSize} />

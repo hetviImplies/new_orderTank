@@ -8,13 +8,12 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
-import {FontText, Button, Loader, NavigationBar, Input} from '../../components';
-import {fontSize, iconSize, mediumFont, smallFont, tabIcon} from '../../styles';
-import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
+import {FontText, Button, NavigationBar, Input} from '../../components';
+import {fontSize, smallFont, tabIcon} from '../../styles';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
-import ImageCarousel from '../../components/ImageCarousel';
 import {BASE_URL, HISTORY_LIST} from '../../types/data';
 import Popup from '../../components/Popup';
 import {useSelector} from 'react-redux';
@@ -24,34 +23,8 @@ import {useCompanyRequestMutation} from '../../api/company';
 
 const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-
-  // const {data: offer, isFetching: isLoading} = useGetOfferQuery(null, {
-  //   refetchOnMountOrArgChange: true,
-  // });
-  // const {data: category, isFetching: isFetching} = useGetCategoryQuery(null, {
-  //   refetchOnMountOrArgChange: true,
-  // });
-  // const {
-  //   data: products,
-  //   isFetching: isProcessing,
-  //   refetch,
-  // } = useGetProductQuery(
-  //   {user: userInfo?._id, withWishList: true},
-  //   {
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  // );
-  // const [addWishlist, {isLoading: isLoad}] = useAddWishlistsMutation();
-  // const [removeWishlist, {isLoading: isFetch}] = useRemoveWishlistsMutation();
-
-  // const {
-  //   data: notificationData,
-  //   isFetching: isProcess,
-  //   refetch: refetchNotification,
-  // } = useGetNotificationQuery(null, {
-  //   refetchOnMountOrArgChange: true,
-  // });
 
   const isGuest =
     (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
@@ -64,23 +37,31 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   const [code, setCode] = useState('');
 
   useEffect(() => {
+    console.log('HomeScreen........');
+    console.log('userInfo?.companyCode', userInfo?.companyCode, userInfo);
     setOpenPopup(userInfo?.companyCode ? false : true);
   }, [userInfo]);
 
-  console.log('userInfo?.companyCode', userInfo?.companyCode, userInfo);
-
-  const offerRenderItem = ({item}: any) => {
-    return (
-      <Image
-        source={require('../../assets/images/image.png')}
-        style={styles.offerImage}
-      />
-    );
+  const onItemPress = (index: any) => {
+    switch (index) {
+      case 0:
+        navigation.navigate(RootScreens.Order);
+        break;
+      case 1:
+        navigation.navigate(RootScreens.Supplier);
+        break;
+      // case 2:
+      //   navigation.navigate(RootScreens.Order);
+      //   break;
+      default:
+        break;
+    }
   };
 
   const _renderItem = ({item, index}: any) => {
     return (
       <TouchableOpacity
+        onPress={() => onItemPress(index)}
         style={[styles.itemContainer, commonStyle.shadowContainer]}>
         {item.icon}
         <FontText
@@ -118,17 +99,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      {/* <Loader
-        loading={
-          (filterRef.current?.state?.modalVisible === undefined &&
-            isFetching) ||
-          isLoading ||
-          isProcessing ||
-          isProcess ||
-          isLoad ||
-          isFetch
-        }
-      /> */}
       <NavigationBar
         hasLeft
         hasRight
@@ -139,7 +109,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           <View style={commonStyle.rowAC}>
             {userInfo && userInfo?.profilePic ? (
               <Image
-                source={{uri: `${BASE_URL}/${userInfo?.profilePic}`}}
+                source={{uri: `${BASE_URL}/${userInfo?.companyId?.logo}`}}
                 style={[styles.avatar]}
               />
             ) : (
@@ -154,7 +124,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
             color={'black'}
             style={{width: '110%'}}
             textAlign={'center'}>
-            {'Welcome to a Ordertank'}
+            {'Welcome to Ordertank'}
           </FontText>
         }
         right={
@@ -170,23 +140,9 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         }
       />
       <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
-        <CompanyDetail setOpenPopup={setOpenPopup} />
+        <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal>
       <View>
-        <ImageCarousel
-          data={[1, 2, 3]}
-          dotsLength={[1, 2, 3]?.length}
-          renderItem={offerRenderItem}
-          itemWidth={wp(70)}
-          autoplay={false}
-          loop={false}
-          inactiveDotOpacity={1}
-          inactiveDotScale={0.6}
-          dotContainerStyle={{width: wp(1)}}
-          containerStyle={styles.paginationContainer}
-          dotStyle={styles.paginationDot}
-          inactiveDotStyle={styles.paginationIADot}
-        />
         <FlatList
           data={HISTORY_LIST}
           renderItem={_renderItem}
@@ -199,7 +155,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           style={styles.buttonContainer}
           onPress={onAddCodePress}>
           <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-            {'Add Supply Code'}
+            {'Add your Supplier'}
           </FontText>
         </Button>
         <Popup
@@ -223,14 +179,16 @@ const HomeScreen = ({navigation, showNotification}: any) => {
               blurOnSubmit
             />
           }
+          disabled={code !== '' ? false : true}
           rightBtnText={'Apply'}
+          rightBtnColor={code !== '' ? 'orange' : 'gray'}
           rightBtnPress={applyCodePress}
           // onTouchPress={() => setIsOpen(false)}
           rightBtnStyle={{width: '100%'}}
         />
       </View>
       <TouchableOpacity
-        onPress={() => navigation.navigate(RootScreens.Cart)}
+        onPress={() => navigation.navigate(RootScreens.CartList)}
         style={styles.floatingButton}>
         <SvgIcons.Buy width={wp(8.5)} height={wp(8.5)} fill={colors.white} />
       </TouchableOpacity>
@@ -242,22 +200,12 @@ const HomeScreen = ({navigation, showNotification}: any) => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white2,
-  },
   avatar: {
     width: hp(6),
     height: hp(6),
     backgroundColor: colors.gray,
     borderRadius: 10,
     marginRight: wp(3),
-  },
-  textHeader: {},
-  searchContainer: {
-    marginHorizontal: wp(4),
-    justifyContent: 'space-between',
-    marginTop: isIOS ? wp(1.5) : 0,
   },
   inputText: {
     borderRadius: 10,
@@ -284,79 +232,6 @@ const styles = StyleSheet.create({
     borderRadius: normalize(6),
     marginBottom: hp(2),
     width: '48%',
-  },
-  icons: {
-    width: hp(4),
-    height: hp(4),
-    resizeMode: 'contain',
-  },
-  offerImage: {
-    width: wp(70),
-    height: hp(15),
-    borderRadius: normalize(10),
-    resizeMode: 'cover',
-    alignItems: 'center',
-  },
-  featureImg: {
-    width: hp(10),
-    height: hp(10),
-    resizeMode: 'contain',
-  },
-  featureContainer: {
-    backgroundColor: colors.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: wp(2),
-    marginBottom: hp(1.5),
-    borderRadius: 12,
-  },
-  paginationContainer: {
-    paddingTop: hp(1),
-    paddingBottom: 0,
-  },
-  categoryCC: {
-    paddingVertical: hp(0.5),
-    paddingLeft: wp(4),
-  },
-  paginationDot: {
-    width: hp(2.25),
-    height: hp(0.7),
-    borderRadius: 17,
-    backgroundColor: colors.orange,
-  },
-  paginationIADot: {
-    backgroundColor: colors.orange,
-    width: hp(1.2),
-    height: hp(1.2),
-    borderRadius: hp(1),
-  },
-  listContainer: {
-    backgroundColor: colors.grayOpacity,
-    marginTop: hp(2),
-    paddingVertical: wp(4),
-  },
-  product2CC: {
-    paddingHorizontal: wp(4),
-    paddingTop: hp(1.5),
-  },
-  btSheetContainer: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  contentRowContainer: {
-    marginLeft: wp(4),
-    flexDirection: 'row',
-    width: '68%',
-    justifyContent: 'space-between',
-  },
-  dropdownView: {
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: hp(6),
-    paddingHorizontal: wp(3),
-    width: '80%',
-    backgroundColor: colors.white,
   },
   iconView: {
     backgroundColor: colors.white2,

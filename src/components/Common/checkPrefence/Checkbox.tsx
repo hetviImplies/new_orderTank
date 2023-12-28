@@ -16,9 +16,9 @@ const Checkbox = (props:any) => {
       ]}>
       {props.radio ? (
         props.checked ? (
-          <SvgIcons.FillBox />
+          <SvgIcons.FillRound />
         ) : (
-          <SvgIcons.EmptyBox />
+          <SvgIcons.EmptyRound />
         )
       ) : props.checked ? (
         <SvgIcons.FillBox />

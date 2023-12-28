@@ -5,17 +5,18 @@ import {BASE_URL} from '../types/data';
 export const orderApi = createApi({
   reducerPath: 'orderApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/order/`,
+    baseUrl: `${BASE_URL}/order`,
     prepareHeaders,
   }),
   tagTypes: ['orders'],
   refetchOnMountOrArgChange: true,
   endpoints: builder => ({
     getOrders: builder.query({
-      query: () => {
+      query: params => {
         return {
-          url: 'get-all-my-order',
+          url: '',
           method: 'GET',
+          params,
         };
       },
       providesTags: ['orders'],
@@ -23,7 +24,7 @@ export const orderApi = createApi({
     addOrder: builder.mutation({
       query: body => {
         return {
-          url: 'add-order',
+          url: '/',
           method: 'POST',
           body,
         };
@@ -33,9 +34,8 @@ export const orderApi = createApi({
     updateOrder: builder.mutation({
       query: body => {
         return {
-          url: 'update-order',
+          url: `${body.id}`,
           method: 'PUT',
-          params: {id : body.id},
           body: body.data,
         };
       },
@@ -44,19 +44,18 @@ export const orderApi = createApi({
     updateOrderStatus: builder.mutation({
       query: body => {
         return {
-          url: 'update-order-status',
+          url: `${body.id}/status`,
           method: 'PUT',
-          body,
+          body: body.data,
         };
       },
       invalidatesTags: ['orders'],
     }),
     deleteOrder: builder.mutation({
-      query: body => {
+      query: id => {
         return {
-          url: 'delete-order',
+          url: id,
           method: 'DELETE',
-          params: body,
         };
       },
       invalidatesTags: ['orders'],
@@ -69,5 +68,5 @@ export const {
   useUpdateOrderMutation,
   useAddOrderMutation,
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation,
+  useDeleteOrderMutation
 } = orderApi;

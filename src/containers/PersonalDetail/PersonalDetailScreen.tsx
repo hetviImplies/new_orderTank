@@ -1,10 +1,6 @@
 import {
-  Alert,
   BackHandler,
-  FlatList,
-  Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -17,11 +13,9 @@ import commonStyle, {
   tabIcon,
   fontSize,
   iconSize,
-  smallFont,
   mediumFont,
 } from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {RootScreens} from '../../types/type';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {useUpdateProfileMutation} from '../../api/profile';
@@ -38,7 +32,6 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
   const emailRef: any = useRef();
   const phonNoRef: any = useRef();
-  const passwordRef: any = useRef();
   const [userName, setUserName] = useState(data?.result?.name);
   const [email, setEmail] = useState(data?.result?.email);
   const [phoneNo, setPhoneNo] = useState(data?.result?.phone);
@@ -56,7 +49,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const isValidUserName = checkValid && userName.length === 0;
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
-  const isValidPhoneNo = checkValid && phoneNo.length === 0;
+  const isValidPhoneNo = checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
 
   useEffect(() => {
     dispatch(setCurrentUser(data?.result));
@@ -156,7 +149,6 @@ const PersonalDetailScreen = ({navigation}: any) => {
             value={userName}
             onChangeText={(text: string) => {
               setUserName(text.trimStart());
-              console.log('cdfjeuffhr');
             }}
             autoCapitalize="none"
             placeholder={'Enter Your Name'}
@@ -198,7 +190,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
               editable={editInformation}
               ref={phonNoRef}
               value={phoneNo}
-              onChangeText={(text: string) => setPhoneNo(text)}
+              onChangeText={(text: string) => setPhoneNo(text.trim())}
               placeholder={'Enter Your Mobile Number'}
               autoCapitalize="none"
               placeholderTextColor={'placeholder'}
@@ -209,9 +201,10 @@ const PersonalDetailScreen = ({navigation}: any) => {
               returnKeyType={'done'}
               maxLength={10}
               keyboardType={'numeric'}
-              onSubmit={() => {
-                emailRef?.current.focus();
-              }}
+              blurOnSubmit
+              // onSubmit={() => {
+              //   emailRef?.current.focus();
+              // }}
               children={
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
                   <SvgIcons.Phone width={iconSize} height={iconSize} />

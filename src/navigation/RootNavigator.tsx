@@ -7,11 +7,10 @@ import LoginScreen from '../containers/Login/LoginScreen';
 import SignUpScreen from '../containers/SignUp/SignUpScreen';
 import VerifyOtpScreen from '../containers/VerifyOtp/VerifyOtpScreen';
 import ResetPasswordScreen from '../containers/ResetPassword/ResetPasswordScreen';
-import CategoryScreen from '../containers/Category/CategoryScreen';
+import CartListScreen from '../containers/CartList/CartListScreen';
 import CartScreen from '../containers/Cart/CartScreen';
 import ProfileScreen from '../containers/Profile/ProfileScreen';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useFocusEffect} from '@react-navigation/native';
 import CustomeBottomTab from '../components/Common/CustomeBottomTab';
 import {useDispatch, useSelector} from 'react-redux';
 import {useGetCurrentUserQuery} from '../api/auth';
@@ -91,6 +90,7 @@ const RootNavigator = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    console.log('RootNavigator', userInfo)
     if (
       (userInfo && Object.keys(userInfo).length === 0) ||
       userInfo === undefined
@@ -131,6 +131,7 @@ const RootNavigator = () => {
       <RootStack.Screen name={RootScreens.PersonalDetail} component={PersonalDetailScreen} />
       <RootStack.Screen name={RootScreens.CompanyDetail} component={CompanyDetailScreen} />
       <RootStack.Screen name={RootScreens.Cart} component={CartScreen} />
+      <RootStack.Screen name={RootScreens.CartList} component={CartListScreen} />
       <RootStack.Screen name={RootScreens.SecureCheckout} component={SecureCheckoutScreen} />
       <RootStack.Screen
         name={RootScreens.ProductDetail}

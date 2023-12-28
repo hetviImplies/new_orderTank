@@ -23,6 +23,7 @@ import {RootScreens} from '../../types/type';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import FilterModal from '../../components/FilterModal';
 import {useGetAllProductsQuery} from '../../api/product';
+import ProductComponent from '../../components/ProductComponent';
 
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route.params.id;
@@ -34,31 +35,37 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [productListData, setProductListData] = useState([]);
   const filterRef: any = useRef(null);
 
-  const {data: productList, isFetching: isProcessing} = useGetAllProductsQuery(
-    {isBuyer: true, companyId: id, categoryId: selectedItems, search: searchText},
+  const {data: productList, isFetching: isProcessing, refetch} = useGetAllProductsQuery(
+    {
+      isBuyer: true,
+      companyId: id,
+      categoryId: selectedItems,
+      search: searchText,
+    },
     {
       refetchOnMountOrArgChange: true,
     },
   );
 
+  console.log('companyId', id);
+
   useEffect(() => {
     setProductListData(productList?.result);
   }, [isProcessing, selectedItems]);
 
-  const onProductPress = (item:any) => {
-    navigation.navigate(RootScreens.ProductDetail,{data: item});
+  const onProductPress = (item: any) => {
+    navigation.navigate(RootScreens.ProductDetail, {
+      data: {item: item, companyId: id},
+    });
   };
 
   const _renderItem = ({item, index}: any) => {
-    console.log('item',item)
+    console.log('item', item);
     return (
       <TouchableOpacity
         onPress={() => onProductPress(item)}
         style={[styles.itemContainer, commonStyle.shadowContainer]}>
-        <Image
-          source={{uri: item.image}}
-          style={styles.logo}
-        />
+        <Image source={{uri: item.image}} style={styles.logo} />
         <FontText
           name={'lexend-regular'}
           size={smallFont}
@@ -74,7 +81,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
           pTop={wp(1)}
           //   pBottom={wp(2)}
           textAlign={'left'}>
-          {'$'}{item?.price}
+          {'$'}
+          {item?.price}
         </FontText>
         {/* <Button bgColor={'orange'} style={styles.buttonContainer}>
           <FontText name={'lexend-regular'} size={normalize(9)} color={'white'}>
@@ -88,7 +96,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const onSearch = (selectedItems: any) => {
     setSelectedItems(selectedItems);
     filterRef.current.close();
-  }
+  };
 
   return (
     <View style={commonStyle.container}>
@@ -124,14 +132,15 @@ const ProductListingScreen = ({navigation, route}: any) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={commonStyle.iconView}
-              onPress={() => navigation.navigate(RootScreens.Cart)}>
+              onPress={() => navigation.navigate(RootScreens.CartList)}>
               <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
             </TouchableOpacity>
           </View>
         }
       />
-      <Loader loading={isProcessing}/>
-      <View style={[commonStyle.paddingH4, commonStyle.flex,{marginTop: hp(1)}]}>
+      <Loader loading={isProcessing} />
+      <View
+        style={[commonStyle.paddingH4, commonStyle.flex, {marginTop: hp(1)}]}>
         <Input
           value={search}
           onChangeText={(text: any) => setSearch(text.trimStart())}
@@ -156,12 +165,19 @@ const ProductListingScreen = ({navigation, route}: any) => {
           }
         />
         {productListData && productListData.length !== 0 ? (
-          <FlatList
+          // <FlatList
+          //   data={productListData}
+          //   renderItem={_renderItem}
+          //   numColumns={2}
+          //   contentContainerStyle={styles.productContentContainer}
+          //   columnWrapperStyle={[commonStyle.colJB]}
+          // />
+          <ProductComponent
             data={productListData}
-            renderItem={_renderItem}
-            numColumns={2}
-            contentContainerStyle={styles.productContentContainer}
-            columnWrapperStyle={[commonStyle.colJB]}
+            productPress={onProductPress}
+            navigation={navigation}
+            onRefresh={refetch}
+            refresh={isProcessing}
           />
         ) : (
           <View style={[commonStyle.allCenter, commonStyle.flex]}>

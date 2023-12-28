@@ -14,7 +14,7 @@ import {RootScreens} from '../../types/type';
 import moment from 'moment';
 
 const OrderPlacedScreen = ({navigation, route}: any) => {
-  // const data = route?.params?.item;
+  const data = route?.params?.data;
   return (
     <ScrollView
       contentContainerStyle={[
@@ -47,7 +47,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
         size={mediumFont}
         pBottom={wp(20)}
         textAlign={'center'}>
-        {`Your order ID is : #9854721`}
+        {`Your order ID is : ${data?.orderId}`}
       </FontText>
       <TouchableOpacity
         style={styles.buttonContainer}

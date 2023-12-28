@@ -44,6 +44,8 @@ const Popup = (props: any) => {
     style,
     leftBtnTextStyle,
     rightBtnTextStyle,
+    disabled,
+    rightBtnColor
   } = props;
   return (
     <Modal
@@ -60,7 +62,7 @@ const Popup = (props: any) => {
               <SvgIcons.Close
                 width={tabIcon}
                 height={tabIcon}
-                style={{alignSelf: 'flex-end', marginRight: wp(-2)}}
+                style={{alignSelf: 'flex-end'}}
               />
             </TouchableOpacity>
             {image}
@@ -104,7 +106,8 @@ const Popup = (props: any) => {
               {rightBtnPress && (
                 <Button
                   onPress={rightBtnPress}
-                  bgColor={'orange'}
+                  bgColor={rightBtnColor}
+                  disabled={disabled}
                   style={[styles.rightBtn, rightBtnStyle]}>
                   <FontText
                     name={'lexend-semibold'}

@@ -32,7 +32,7 @@ const PendingRequestScreen = ({navigation}: any) => {
 
   const _renderItem = ({item, index}: any) => {
     return (
-      <TouchableOpacity
+      <View
         style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
           <Image source={{uri: item?.logo}} style={styles.logo} />
@@ -59,7 +59,7 @@ const PendingRequestScreen = ({navigation}: any) => {
             {'Pending'}
           </FontText>
         </Button>
-      </TouchableOpacity>
+      </View>
     );
   };
 

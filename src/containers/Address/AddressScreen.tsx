@@ -26,39 +26,65 @@ import SvgIcons from '../../assets/SvgIcons';
 import {hp, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
-import {useGetAddressQuery} from '../../api/address';
+import {useSelector} from 'react-redux';
+import {useGetCompanyQuery} from '../../api/company';
+import AddressComponent from '../../components/AddressComponent';
+import {useGetCartsQuery} from '../../api/cart';
 
 const AddressScreen = ({navigation, route}: any) => {
   const from = route?.params?.data?.from;
-  const address = route?.params?.data?.address;
-  const {data, isFetching: isProcessing} = useGetAddressQuery(null, {
+  const companyId = route?.params?.data?.companyId;
+  const cartData = route?.params?.data?.cartData;
+  const deliveryAdd = route?.params?.data.deliveryAdd;
+  const billingAdd = route?.params?.data.billingAdd;
+  const type = route?.params?.data?.type;
+  const {
+    data: carts,
+    isFetching: isLoading,
+    refetch,
+  } = useGetCartsQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
+  const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
   });
 
   const [addressData, setAddressData] = useState<any>([]);
-  const [checkedData, setCheckedData] = useState(
-    address !== undefined ? address : {},
-  );
+  const [checkedData, setCheckedData] = useState({});
 
   useEffect(() => {
-    setAddressData(data?.result?.data);
-  }, [data, isProcessing]);
+    setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
+  }, [type]);
+
+  useEffect(() => {
+    setAddressData(data?.result?.address);
+  }, [data, isFetching]);
 
   const handleCheck = (item: any) => {
     setCheckedData(item);
   };
 
   const continuePress = () => {
-    navigation.navigate(RootScreens.OrderSummary, {
-      addressData: checkedData,
-      orderData: route?.params?.data?.order,
+    navigation.navigate(RootScreens.SecureCheckout, {
+      deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
+      billingAdd: type === 'Billing address' ? checkedData : billingAdd,
+      data: cartData,
+      companyId: companyId,
+      from: RootScreens.Address
     });
   };
 
   const _renderItem = ({item, index}: any) => {
+    console.log(
+      'item === checkedData',
+      item === checkedData,
+      item,
+      checkedData,
+    );
     return (
       <CheckPreferenceItem
-        radio={from === 'OrderSummary' ? true : false}
+        radio={from === RootScreens.SecureCheckout ? true : false}
         listStyle={{
           ...commonStyle.shadowContainer,
           backgroundColor: colors.white,
@@ -68,55 +94,18 @@ const AddressScreen = ({navigation, route}: any) => {
         }}
         key={index}
         children={
-          <View style={{flex: 1}}>
-            <View style={[commonStyle.rowAC, {marginBottom: wp(1)}]}>
-              {item?.addressType === 'Office' ? (
-                <SvgIcons.Employee
-                  width={tabIcon}
-                  height={tabIcon}
-                  fill={colors.orange}
-                />
-              ) : (
-                <SvgIcons.Employee
-                  width={iconSize}
-                  height={iconSize}
-                  fill={colors.orange}
-                />
-              )}
-              <FontText
-                name={'opensans-semibold'}
-                size={mediumFont}
-                color={'black2'}
-                pLeft={wp(2)}>
-                {item?.addressType}
-              </FontText>
-            </View>
-            <FontText
-              name={'opensans-bold'}
-              size={smallFont}
-              color={'brown'}
-              pLeft={wp(1)}
-              pBottom={wp(2)}>
-              {item?.fullName}
-            </FontText>
-            <FontText
-              name={'opensans-medium'}
-              size={smallFont}
-              pLeft={wp(1)}
-              pBottom={wp(2)}
-              color={'black2'}>
-              {item?.address}
-            </FontText>
-            <FontText
-              name={'opensans-medium'}
-              size={smallFont}
-              pLeft={wp(1)}
-              color={'black2'}>
-              {item?.phone}
-            </FontText>
-          </View>
+          <AddressComponent
+            item={item}
+            from={from}
+            onEditPress={() =>
+              navigation.navigate(RootScreens.AddAddress, {
+                data: item,
+                address: data?.result?.address,
+              })
+            }
+          />
         }
-        disabled={from === 'OrderSummary' ? false : true}
+        disabled={from === RootScreens.SecureCheckout ? false : true}
         handleCheck={() => handleCheck(item)}
         checked={item === checkedData}
       />
@@ -125,7 +114,7 @@ const AddressScreen = ({navigation, route}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <Loader loading={isProcessing} />
+      <Loader loading={isFetching} />
       <NavigationBar
         hasCenter
         hasLeft
@@ -151,21 +140,27 @@ const AddressScreen = ({navigation, route}: any) => {
         borderBottomWidth={0}
       />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
-        <FlatList data={[1, 2]} renderItem={_renderItem} />
-        <TouchableOpacity onPress={() => {}} style={styles.floatingButton}>
+        <FlatList data={addressData} renderItem={_renderItem} />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate(RootScreens.AddAddress, {
+              address: data?.result?.address,
+            });
+          }}
+          style={styles.floatingButton}>
           <SvgIcons.Plus width={tabIcon} height={tabIcon} fill={colors.white} />
         </TouchableOpacity>
+        {from === RootScreens.SecureCheckout ? (
+          <Button
+            onPress={continuePress}
+            bgColor={'orange'}
+            style={[styles.buttonStyle]}>
+            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+              {'Continue'}
+            </FontText>
+          </Button>
+        ) : null}
       </View>
-      {from === 'OrderSummary' ? (
-        <Button
-          onPress={continuePress}
-          bgColor={'brown'}
-          style={[styles.buttonStyle]}>
-          <FontText name={'opensans-semibold'} size={fontSize} color={'white'}>
-            {'Continue'}
-          </FontText>
-        </Button>
-      ) : null}
     </View>
   );
 };
@@ -190,10 +185,10 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     borderRadius: 12,
-    width: '65%',
+    width: '80%',
     alignSelf: 'center',
     position: 'absolute',
-    bottom: hp(4),
+    bottom: hp(15),
   },
   floatingButton: {
     width: hp(6),
@@ -205,5 +200,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: wp(7),
     right: wp(5),
+  },
+  childContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    backgroundColor: 'red',
   },
 });

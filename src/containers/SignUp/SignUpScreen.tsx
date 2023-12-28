@@ -1,26 +1,21 @@
 import {
-  Alert,
   ImageBackground,
-  KeyboardAvoidingView,
-  ScrollView,
+  Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import {useLoginMutation, useRegisterMutation} from '../../api/auth';
+import { useRegisterMutation} from '../../api/auth';
 import {useDispatch} from 'react-redux';
 import Images from '../../assets/images';
-import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
+import {hp,  normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Input, Loader} from '../../components';
 import {
   fontSize,
   iconSize,
-  largeFont,
   mediumFont,
   mediumLarge2Font,
-  mediumLargeFont,
-  smallFont,
 } from '../../styles';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
@@ -31,7 +26,6 @@ import commonStyle from '../../styles';
 import Popup from '../../components/Popup';
 
 const SignUpScreen = ({navigation}: any) => {
-  const dispatch = useDispatch();
   const [register, {isLoading}] = useRegisterMutation();
   const emailRef: any = useRef();
   const phonNoRef: any = useRef();
@@ -42,7 +36,7 @@ const SignUpScreen = ({navigation}: any) => {
   const [password, setPassword] = useState('');
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
-  const [isCheck, setIsCheck] = useState(false);
+  // const [isCheck, setIsCheck] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const emailRegx =
@@ -56,13 +50,9 @@ const SignUpScreen = ({navigation}: any) => {
   const isValidUserName = checkValid && userName.length === 0;
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
-  const isValidPhoneNo = checkValid && phoneNo.length === 0;
+  const isValidPhoneNo = checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
   const isValidPassword =
     checkValid && (password.length === 0 || password.length < 6);
-
-  const onSkipPress = () => {
-    navigation.navigate(RootScreens.DashBoard);
-  };
 
   const clearData = async () => {
     setUserName('');
@@ -82,8 +72,8 @@ const SignUpScreen = ({navigation}: any) => {
       email.length !== 0 &&
       validationEmail(email) &&
       phoneNo.length !== 0 &&
-      password.length !== 0 &&
-      isCheck === true
+      password.length !== 0 
+      // && isCheck === true
     ) {
       const params: any = {
         name: userName,
@@ -91,7 +81,6 @@ const SignUpScreen = ({navigation}: any) => {
         phone: phoneNo,
         password: password,
       };
-      // phoneNo.length === 0 && delete params.phone;
       console.log('params', params);
 
       const {data, error}: any = await register(params);
@@ -104,12 +93,10 @@ const SignUpScreen = ({navigation}: any) => {
         };
         clearData();
         setCheckValid(false);
-        // navigation.navigate(RootScreens.VerifyOtp, {data: param});
-        // navigation.navigate(RootScreens.Login);
-        // Alert.alert('Success', data?.message);
+        navigation.navigate(RootScreens.Login);
         utils.showSuccessToast(data.message);
       } else {
-        utils.showErrorToast(data.message || error);
+        utils.showErrorToast(error?.data?.message[0]);
         // Alert.alert('Error', data?.message || error);
       }
     }
@@ -141,7 +128,7 @@ const SignUpScreen = ({navigation}: any) => {
         </FontText>
       </ImageBackground>
       <View style={styles.middleContainer}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={{marginTop: wp(6)}}>
             <View style={commonStyle.rowACMB1}>
               <FontText
@@ -165,7 +152,7 @@ const SignUpScreen = ({navigation}: any) => {
               color={'black'}
               returnKeyType={'next'}
               onSubmit={() => {
-                emailRef?.current.focus();
+                phonNoRef?.current.focus();
               }}
               children={
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -195,7 +182,7 @@ const SignUpScreen = ({navigation}: any) => {
               <Input
                 ref={phonNoRef}
                 value={phoneNo}
-                onChangeText={(text: string) => setPhoneNo(text)}
+                onChangeText={(text: string) => setPhoneNo(text.trim())}
                 placeholder={'Enter Mobile Number'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -207,7 +194,7 @@ const SignUpScreen = ({navigation}: any) => {
                 maxLength={10}
                 keyboardType={'numeric'}
                 onSubmit={() => {
-                  passwordRef?.current.focus();
+                  emailRef?.current.focus();
                 }}
                 children={
                   <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -252,7 +239,7 @@ const SignUpScreen = ({navigation}: any) => {
                 color={'black'}
                 returnKeyType={'next'}
                 onSubmit={() => {
-                  phonNoRef?.current.focus();
+                  passwordRef?.current.focus();
                 }}
                 children={
                   <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -287,7 +274,7 @@ const SignUpScreen = ({navigation}: any) => {
               <Input
                 ref={passwordRef}
                 value={password}
-                onChangeText={(text: string) => setPassword(text)}
+                onChangeText={(text: string) => setPassword(text.trim())}
                 placeholder={'Enter Password'}
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
@@ -297,7 +284,7 @@ const SignUpScreen = ({navigation}: any) => {
                 secureTextEntry={!eyeIcon}
                 returnKeyType={'done'}
                 blurOnSubmit
-                onSubmit={onSignUpPress}
+                onSubmit={() => Keyboard.dismiss()}
                 children={
                   <View
                     style={[
@@ -330,7 +317,7 @@ const SignUpScreen = ({navigation}: any) => {
               )}
             </View>
           </View>
-          <View style={[commonStyle.rowJC, styles.agreeContainer]}>
+          {/* <View style={[commonStyle.rowJC, styles.agreeContainer]}>
             <TouchableOpacity
               onPress={() => setIsCheck(!isCheck)}
               style={{marginRight: wp(2)}}>
@@ -370,11 +357,12 @@ const SignUpScreen = ({navigation}: any) => {
               textAlign={'center'}>
               {'terms condition'}
             </FontText>
-          </View>
+          </View> */}
           <Button
             onPress={onSignUpPress}
-            bgColor={isCheck ? 'orange' : 'gray'}
-            disabled={!isCheck}
+            // bgColor={isCheck ? 'orange' : 'gray'}
+            bgColor={'orange'}
+            // disabled={!isCheck}
             style={styles.buttonContainer}>
             <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
               {'Sign up'}

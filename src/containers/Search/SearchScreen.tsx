@@ -12,7 +12,7 @@ import {
   mediumLargeFont,
 } from '../../styles';
 import SvgIcons from '../../assets/SvgIcons';
-import WatchList from '../../components/WatchList';
+import WatchList from '../../components/ProductComponent';
 import {useGetProductQuery} from '../../api/product';
 import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';

@@ -15,6 +15,7 @@ export enum RootScreens {
   Order = 'Order',
   Category = 'Category',
   Cart = 'Cart',
+  CartList = 'CartList',
   Profile = 'Profile',
   AllProduct = 'AllProduct',
   ProductDetail = 'ProductDetail',
@@ -51,6 +52,7 @@ export type RootStackParamList = {
   Order: undefined;
   Category: undefined;
   Cart: undefined;
+  CartList: undefined;
   Profile: undefined;
   AllProduct: undefined;
   ProductDetail: undefined;

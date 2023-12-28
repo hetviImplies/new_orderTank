@@ -5,17 +5,18 @@ import {BASE_URL} from '../types/data';
 export const cartApi = createApi({
   reducerPath: 'cartApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/cart`,
+    baseUrl: `${BASE_URL}/company`,
     prepareHeaders,
   }),
   tagTypes: ['carts'],
   refetchOnMountOrArgChange: true,
   endpoints: builder => ({
     getCarts: builder.query({
-      query: () => {
+      query: (params) => {
         return {
-          url: 'get-all-user-cart',
+          url: 'get/cart',
           method: 'GET',
+          params
         };
       },
       providesTags: ['carts'],
@@ -23,7 +24,7 @@ export const cartApi = createApi({
     addCart: builder.mutation({
       query: body => {
         return {
-          url: 'add-cart',
+          url: 'add/cart',
           method: 'POST',
           body,
         };
@@ -33,8 +34,8 @@ export const cartApi = createApi({
     removeCart: builder.mutation({
       query: body => {
         return {
-          url: 'remove-cart',
-          method: 'PUT',
+          url: `delete/cart`,
+          method: 'DELETE',
           body,
         };
       },
@@ -43,7 +44,7 @@ export const cartApi = createApi({
     updateCart: builder.mutation({
       query: params => {
         return {
-          url: `update-cart?id=${params?._id}`,
+          url: `update/cart/${params?._id}`,
           method: 'PUT',
           body: params.body,
         };

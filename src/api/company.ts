@@ -1,12 +1,16 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
 import {BASE_URL} from '../types/data';
+import queryString from 'query-string';
 
 export const companyApi = createApi({
   reducerPath: 'companyApi',
   baseQuery: baseQueryWithAuthInterceptor({
     baseUrl: `${BASE_URL}/company`,
     prepareHeaders,
+    paramsSerializer: function (params: any) {
+      return queryString.stringify(params, {arrayFormat: 'index'});
+    },
   }),
   tagTypes: ['company'],
   refetchOnMountOrArgChange: true,
@@ -23,6 +27,7 @@ export const companyApi = createApi({
     addCompany: builder.mutation({
       query: body => {
         return {
+          url:'',
           method: 'POST',
           body,
         };
@@ -59,6 +64,26 @@ export const companyApi = createApi({
       },
       invalidatesTags: ['company'],
     }),
+    createAddress: builder.mutation({
+      query: body => {
+        return {
+          url: `${body.companyId}/add/address`,
+          method: 'POST',
+          body: body.params,
+        };
+      },
+      invalidatesTags: ['company'],
+    }),
+    updateAddress: builder.mutation({
+      query: body => {
+        return {
+          url: `${body.companyId}/updateAddress/${body.addressId}`,
+          method: 'PUT',
+          body: body.params,
+        };
+      },
+      invalidatesTags: ['company'],
+    }),
   }),
 });
 
@@ -67,5 +92,7 @@ export const {
   useAddCompanyMutation,
   useUpdateCompanyMutation,
   useGetSupplierQuery,
-  useCompanyRequestMutation
+  useCompanyRequestMutation,
+  useCreateAddressMutation,
+  useUpdateAddressMutation
 } = companyApi;

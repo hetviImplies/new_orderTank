@@ -1,16 +1,13 @@
 import {
   FlatList,
   Image,
-  ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import commonStyle, {
   fontSize,
-  iconSize,
   largeFont,
   mediumFont,
   mediumLarge1Font,
@@ -18,179 +15,89 @@ import commonStyle, {
   smallFont,
   tabIcon,
 } from '../../styles';
-import {Button, FontText, Input, Loader, NavigationBar} from '../../components';
+import {Button, FontText, Loader, NavigationBar} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
-import {BASE_URL, PROFILE_LIST} from '../../types/data';
 import {
   useGetCartsQuery,
   useRemoveCartMutation,
   useUpdateCartMutation,
 } from '../../api/cart';
 import {RootScreens} from '../../types/type';
-import {useGetCurrentUserQuery} from '../../api/auth';
-import {useGetAddressQuery} from '../../api/address';
 import Popup from '../../components/Popup';
-import {useAddWishlistsMutation} from '../../api/wishlist';
 import utils from '../../helper/utils';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import CartCountModule from '../../components/CartCountModule';
+import {useSelector} from 'react-redux';
 
-const CartScreen = ({navigation}: any) => {
+const CartScreen = ({navigation, route}: any) => {
+  const companyId = route.params.companyId;
+
   const {
     data: carts,
     isFetching,
     refetch,
-  } = useGetCartsQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
-  const {data: address, isFetching: isProcessing} = useGetAddressQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
+  } = useGetCartsQuery(
+    {companyId: companyId},
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  const userInfo = useSelector((state: any) => state.auth.userInfo);
   const [updateCart, {isLoading: isLoad}] = useUpdateCartMutation();
   const [removeCart, {isLoading: isFetch}] = useRemoveCartMutation();
-  const [addWishlist, {isLoading}] = useAddWishlistsMutation();
 
   const quantityRef: any = useRef();
   const [cartData, setCartData] = useState<any>([]);
-  const [couponCode, setCouponCode] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>({});
-  const [selectedCartID, setSelectedCartID] = useState<any>('');
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setCartData(carts?.result?.cartList?.data);
-  }, [carts, isFetching]);
+    setCartData(carts?.result?.cart);
+  }, [isFetching, carts, companyId]);
 
   const placeOrderPress = () => {
-    // if (
-    //   address?.result &&
-    //   address?.result?.data &&
-    //   address?.result?.data?.length > 0
-    // ) {
-    //   navigation.navigate(RootScreens.OrderSummary, {
-    //     addressData: address?.result?.data[0],
-    //   });
-    // } else {
-    //   navigation.navigate(RootScreens.AddAddress);
-    // }
-    navigation.navigate(RootScreens.SecureCheckout)
+    const address = userInfo?.companyId?.address.find(
+      (item: any) => item.isPriority,
+    );
+    navigation.navigate(RootScreens.SecureCheckout, {
+      data: carts?.result,
+      deliveryAdd: address,
+      billingAdd: address,
+      companyId: companyId,
+      from: RootScreens.Cart,
+    });
   };
 
   const quantityIncrement = async (itm: any) => {
-    if (itm.productId.stock > itm.quantity) {
-      let data = {
-        ...itm,
-        quantity: itm.quantity >= 0 ? itm.quantity + 1 : 0,
-      };
-      setSelectedItem(data);
-    } else {
-      setSelectedItem(itm);
-    }
-
-    // const updatedCartItems = cartData.map((item: any, index: any) =>
-    //   item.products.productId._id === itm.productId._id
-    //     ? {
-    //         ...item,
-    //         products: {
-    //           _id: item.products._id,
-    //           productId: item.products.productId,
-    //           quantity: item.products.quantity + 1,
-    //         },
-    //       }
-    //     : item,
-    // );
-
-    // let body: any = {};
-    // body.products = updatedCartItems.map((item: any, index: any) => {
-    //   return {
-    //     productId: item?.products.productId._id,
-    //     quantity: item?.products.quantity,
-    //   };
-    // });
-    // let params = {
-    //   body: body,
-    //   _id: itm?._id,
-    // };
-
-    // const {data, error}: any = await updateCart(params);
-    // if (!error && data?.statusCode === 200) {
-    //   // utils.showSuccessToast(data.message);
-    // } else {
-    //   // utils.showErrorToast(data.message || error);
-    // }
-    // setCartData(updatedCartItems);
+    let qua = {
+      ...itm,
+      quantity: itm.quantity >= 0 ? itm.quantity + 1 : 0,
+    };
+    setSelectedItem(qua);
   };
 
   const quantityDecrement = async (itm: any) => {
     let data = {
       ...itm,
-      quantity: itm.quantity > 0 ? itm.quantity - 1 : 0,
+      quantity: itm.quantity > 1 ? itm.quantity - 1 : 1,
     };
     setSelectedItem(data);
-    // const updatedCartItems = cartData.map((item: any) =>
-    //   item.products.productId._id === itm.productId._id &&
-    //   item.products.quantity > 0
-    //     ? {
-    //         ...item.products,
-    //         products: {
-    //           _id: item.products._id,
-    //           productId: item.products.productId,
-    //           quantity: item.products.quantity - 1,
-    //         },
-    //       }
-    //     : item,
-    // );
-
-    // let body: any = {};
-    // body.products = updatedCartItems.map((item: any, index: any) => {
-    //   return {
-    //     productId: item?.products.productId._id,
-    //     quantity: item?.products.quantity,
-    //   };
-    // });
-    // let params = {
-    //   body: body,
-    //   _id: itm?._id,
-    // };
-
-    // const {data, error}: any = await updateCart(params);
-    // if (!error && data?.statusCode === 200) {
-    //   // utils.showSuccessToast(data.message);
-    // } else {
-    //   // utils.showErrorToast(data.message || error);
-    // }
-
-    // setCartData(updatedCartItems);
   };
 
   const quantityDoneHandler = async () => {
-    const updatedCartItems = await cartData.map((item: any) => {
-      return {
-        ...item,
-        products: {
-          ...item.products,
-          quantity:
-            String(item.products.productId._id) ==
-            String(selectedItem.productId._id)
-              ? selectedItem.quantity
-              : item.products.quantity,
-        },
-      };
-    });
-    let body: any = {};
-    body.products = updatedCartItems.map((item: any, index: any) => {
-      return {
-        productId: item?.products.productId._id,
-        quantity: item?.products.quantity,
-      };
-    });
+    let body: any = {
+      quantity: selectedItem.quantity,
+    };
     let params = {
       body: body,
-      _id: selectedCartID,
+      _id: selectedItem?._id,
     };
-
+    console.log('Params', params);
     const {data, error}: any = await updateCart(params);
+    console.log('UPDATA', data, error);
+
     if (!error && data?.statusCode === 200) {
       quantityRef.current.close();
       utils.showSuccessToast(data.message);
@@ -199,138 +106,77 @@ const CartScreen = ({navigation}: any) => {
     }
   };
 
+  const removeCartItem = async () => {
+    setIsOpen(false);
+    console.log('productId', [selectedItem?._id]);
+    const {data, error}: any = await removeCart({ids: [selectedItem?._id]});
+    console.log('DATA', data, error);
+    if (!error) {
+      refetch();
+      utils.showSuccessToast(data.message);
+    } else {
+      utils.showErrorToast(error.message);
+    }
+  };
+
   const _renderItem = ({item, index}: any) => {
     return (
-      <View style={[styles.cartContainer, commonStyle.shadowContainer]}>
-        <Image
-          source={{uri: `${BASE_URL}/${item?.products?.productId?.thumbnail}`}}
-          style={[styles.cartImage]}
-        />
-        <View style={styles.contentRowContainer}>
-          <View style={{width: '70%'}}>
+      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
+        <View style={[commonStyle.rowAC, commonStyle.flex]}>
+          <Image source={{uri: item?.productData?.image}} style={styles.logo} />
+          <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
-              color="black2"
-              name="lexend-medium"
+              name={'lexend-regular'}
               size={mediumFont}
-              pBottom={hp(1)}
+              color={'gray4'}
+              // pTop={wp(2)}
               textAlign={'left'}>
-              {item?.products?.productId?.productName}
+              {item?.productData?.name}
             </FontText>
             <FontText
-              color="brown"
-              name="lexend-bold"
-              size={mediumFont}
-              pBottom={hp(1)}
+              name={'lexend-regular'}
+              size={fontSize}
+              color={'black2'}
+              pTop={wp(2)}
               textAlign={'left'}>
               {'$'}
-              {item?.products?.productId?.price}
+              {item?.productData?.price}
             </FontText>
-            <View style={commonStyle.rowAC}>
-              {/* <SvgIcons.Star width={wp(4)} height={wp(4)} /> */}
-              <FontText
-                color="black2"
-                name="lexend-medium"
-                size={mediumFont}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {item?.products?.productId?.rating}
-              </FontText>
-            </View>
           </View>
-          <View style={[commonStyle.colJB, {width: '30%'}]}>
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedItem(item?.products);
-                setIsOpen(true);
-              }}>
-              <SvgIcons.Trash
-                width={iconSize}
-                height={iconSize}
-                style={commonStyle.end}
-              />
-            </TouchableOpacity>
-            <Button
-              onPress={() => {
-                setSelectedItem(item?.products);
-                setSelectedCartID(item?._id);
-                quantityRef.current.open();
-              }}
-              bgColor={'brownOpacity'}
-              style={{
-                height: hp(3),
-                width: 'auto',
-                justifyContent: 'space-between',
-              }}>
-              <FontText
-                name={'lexend-medium'}
-                size={smallFont}
-                pLeft={wp(0.5)}
-                // pRight={wp(2)}
-                color={'brown'}>
-                {`Qty ${item.products.quantity}`}
-              </FontText>
-              <SvgIcons.DownArrow
-                height={wp(5)}
-                width={wp(5)}
-                fill={colors.brown}
-              />
-            </Button>
-            {/* <View style={[commonStyle.rowJB]}>
-              <TouchableOpacity
-                onPress={() => {
-                  quantityRef.current.open();
-                  // quantityDecrement(item);
-                }}>
-                <SvgIcons.Remove
-                  width={iconSize}
-                  height={iconSize}
-                  style={commonStyle.start}
-                />
-              </TouchableOpacity>
-              <FontText
-                color="black2"
-                name="lexend-medium"
-                size={mediumFont}
-                textAlign={'left'}>
-                {item.products.quantity}
-              </FontText>
-              <TouchableOpacity
-                onPress={() => {
-                  quantityRef.current.open();
-                  // quantityIncrement(item);
-                }}>
-                <SvgIcons.Add
-                  width={iconSize}
-                  height={iconSize}
-                  style={commonStyle.start}
-                />
-              </TouchableOpacity>
-            </View> */}
-          </View>
+        </View>
+        <View style={{justifyContent: 'space-between'}}>
+          <TouchableOpacity
+            style={styles.trash}
+            onPress={() => {
+              setSelectedItem(item);
+              setIsOpen(true);
+            }}>
+            <SvgIcons.Trash width={wp(4)} height={wp(4)} />
+          </TouchableOpacity>
+          <Button
+            onPress={() => {
+              setSelectedItem(item);
+              quantityRef.current.open();
+            }}
+            bgColor={'orange'}
+            style={styles.quantityBtn}>
+            <FontText
+              name={'lexend-medium'}
+              size={smallFont}
+              pLeft={wp(0.5)}
+              pRight={wp(2)}
+              color={'white'}>
+              {`Qty ${item.quantity}`}
+            </FontText>
+            <SvgIcons.DownArrow
+              height={wp(3)}
+              width={wp(3)}
+              fill={colors.white}
+            />
+          </Button>
         </View>
       </View>
     );
-  };
-
-  const removeCartItem = async () => {
-    setIsOpen(false);
-    const {data, error}: any = await removeCart({
-      productId: selectedItem?.productId,
-    });
-    refetch();
-  };
-
-  const addToWishlist = async () => {
-    setIsOpen(false);
-    const {data, error}: any = await addWishlist({
-      product: selectedItem?.productId?._id,
-    });
-    if (!error) {
-      const {data, error: err}: any = await removeCart({
-        productId: selectedItem?.productId,
-      });
-    }
-    refetch();
   };
 
   return (
@@ -360,66 +206,13 @@ const CartScreen = ({navigation}: any) => {
         }
       />
       <Loader loading={isFetching || isLoad || isFetch} />
-
-      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
-        <View style={commonStyle.rowAC}>
-          <Image
-            source={require('../../assets/images/image.png')}
-            style={styles.logo}
-          />
-          <View style={{marginLeft: wp(4), width: '64%'}}>
-            <FontText
-              name={'lexend-regular'}
-              size={normalize(13)}
-              color={'gray4'}
-              // pTop={wp(2)}
-              textAlign={'left'}>
-              {'Bread spread (250 gm)'}
-            </FontText>
-            <FontText
-              name={'lexend-regular'}
-              size={fontSize}
-              color={'black2'}
-              pTop={wp(1.5)}
-              pBottom={wp(1.5)}
-              textAlign={'left'}>
-              {'₹250'}
-            </FontText>
-            <View style={[commonStyle.rowAC, styles.countContainer]}>
-              <TouchableOpacity style={styles.iconContainer}>
-                <SvgIcons.Remove width={wp(3.5)} height={wp(3.5)} />
-              </TouchableOpacity>
-              <FontText
-                name={'lexend-regular'}
-                size={normalize(13)}
-                color={'white'}
-                // pTop={wp(2)}
-                textAlign={'left'}>
-                {'1'}
-              </FontText>
-              <TouchableOpacity style={styles.iconContainer}>
-                <SvgIcons.Plus
-                  width={wp(3.5)}
-                  height={wp(3.5)}
-                  fill={colors.orange}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-        <TouchableOpacity style={styles.trash} onPress={() => setIsOpen(true)}>
-          <SvgIcons.Trash width={wp(4)} height={wp(4)} />
-        </TouchableOpacity>
-      </View>
-      {/* <View style={[commonStyle.paddingH4, {flex: 1}]}>
+      <View style={commonStyle.flex}>
         {cartData && cartData?.length !== 0 ? (
-          <View>
-            <FlatList
-              data={cartData}
-              renderItem={_renderItem}
-              contentContainerStyle={styles.product2CC}
-            />
-          </View>
+          <FlatList
+            data={cartData}
+            renderItem={_renderItem}
+            contentContainerStyle={styles.product2CC}
+          />
         ) : (
           <View style={styles.emptyCart}>
             <SvgIcons.EmptyCart width={wp(40)} height={wp(40)} />
@@ -439,8 +232,8 @@ const CartScreen = ({navigation}: any) => {
               textAlign={'center'}>
               {`Looks like you haven’t added\n anything to your cart yet`}
             </FontText>
-            <TouchableOpacity
-              onPress={() => navigation.navigate(RootScreens.Home)}>
+            {/* <TouchableOpacity
+              onPress={() => navigation.navigate(RootScreens.DashBoard)}>
               <FontText
                 color="orange"
                 name="lexend-medium"
@@ -451,93 +244,17 @@ const CartScreen = ({navigation}: any) => {
                 textAlign={'center'}>
                 {'Continue Shopping'}
               </FontText>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         )}
-      </View> */}
-      {/* {cartData && cartData?.length !== 0 && (
-        <> */}
-      <View style={[styles.totalContainer]}>
-        <View style={{padding: wp(3)}}>
-          <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {`Sub Total (${cartData?.length} items)`}
-            </FontText>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {`$${carts?.result?.subAmount}`}
-            </FontText>
-          </View>
-          <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {'Discount'}
-            </FontText>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {`$${carts?.result?.totalDiscount}`}
-            </FontText>
-          </View>
-          <View style={[commonStyle.rowJB]}>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {'Shipping Charge'}
-            </FontText>
-            <FontText
-              color="black2"
-              name="lexend-regular"
-              size={mediumFont}
-              textAlign={'left'}>
-              {`$${carts?.result?.shippingCharges}`}
-            </FontText>
-          </View>
-        </View>
-        <View style={[commonStyle.rowJB, styles.totalSubContainer]}>
-          <FontText
-            color="white"
-            name="lexend-regular"
-            size={mediumFont}
-            textAlign={'left'}>
-            {'Subtotal'}
-          </FontText>
-          <FontText
-            color="white"
-            name="lexend-regular"
-            size={mediumFont}
-            textAlign={'left'}>
-            {`$${carts?.result?.grandTotal}`}
-          </FontText>
-        </View>
-        <View style={commonStyle.flexA}>
-        <Button
+        <CartCountModule
+          btnText={'Secure Checkout'}
+          btnColor={'orange'}
+          cartData={carts?.result}
           onPress={placeOrderPress}
-          bgColor={'orange'}
-          style={[styles.buttonContainer]}>
-          <FontText name={'lexend-medium'} size={fontSize} color={'white'}>
-            {'Secure checkout'}
-          </FontText>
-        </Button>
-        </View>
+          isShow={true}
+        />
       </View>
-
-      {/* </>
-      )} */}
       <Popup
         visible={isOpen}
         onOpen={() => setIsOpen(true)}
@@ -546,16 +263,19 @@ const CartScreen = ({navigation}: any) => {
         titleStyle={{fontSize: normalize(14)}}
         leftBtnText={'No, don’t cancel'}
         rightBtnText={'Yes, cancel'}
-        leftBtnPress={addToWishlist}
+        leftBtnPress={() => setIsOpen(false)}
         rightBtnPress={removeCartItem}
         onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{width: '48%'}}
+        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
-        leftBtnTextStyle={{color: colors.blue, fontSize: mediumFont}}
+        leftBtnTextStyle={{
+          color: colors.blue,
+          fontSize: mediumFont,
+        }}
         rightBtnTextStyle={{fontSize: mediumFont}}
         style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
       />
-      {/* <RBSheet
+      <RBSheet
         ref={quantityRef}
         height={hp(25)}
         closeOnPressMask
@@ -573,39 +293,44 @@ const CartScreen = ({navigation}: any) => {
             textAlign={'left'}>
             {'Add Quantity'}
           </FontText>
-          <View style={[commonStyle.rowJB, {marginTop: hp(2), width: '20%'}]}>
+          <View style={[commonStyle.rowAC, styles.countContainer]}>
             <TouchableOpacity
+              style={styles.iconContainer}
               onPress={() => {
                 quantityDecrement(selectedItem);
               }}>
-              <SvgIcons.Remove width={wp(10)} height={wp(10)} />
+              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
             </TouchableOpacity>
             <FontText
-              color="black2"
-              name="lexend-medium"
-              size={fontSize}
-              pLeft={wp(5)}
-              pRight={wp(5)}
+              name={'lexend-regular'}
+              size={mediumLargeFont}
+              color={'orange'}
+              // pTop={wp(2)}
               textAlign={'left'}>
               {selectedItem.quantity}
             </FontText>
             <TouchableOpacity
+              style={styles.iconContainer}
               onPress={() => {
                 quantityIncrement(selectedItem);
               }}>
-              <SvgIcons.Plus width={wp(10)} height={wp(10)} />
+              <SvgIcons.Plus
+                width={wp(4)}
+                height={wp(4)}
+                fill={colors.orange}
+              />
             </TouchableOpacity>
           </View>
           <Button
             onPress={quantityDoneHandler}
-            bgColor={'brown'}
-            style={[styles.buttonContainer, {width: '100%'}]}>
+            bgColor={'orange'}
+            style={[styles.buttonContainer]}>
             <FontText name={'lexend-medium'} size={fontSize} color={'white'}>
               {'Done'}
             </FontText>
           </Button>
         </View>
-      </RBSheet> */}
+      </RBSheet>
     </View>
   );
 };
@@ -613,110 +338,68 @@ const CartScreen = ({navigation}: any) => {
 export default CartScreen;
 
 const styles = StyleSheet.create({
-  contentRowContainer: {
-    marginLeft: wp(4),
-    flexDirection: 'row',
-    width: '68%',
-    justifyContent: 'space-between',
-  },
   product2CC: {
     paddingTop: hp(0.5),
-    paddingHorizontal: wp(0.5),
-  },
-  cartImage: {
-    width: hp(10),
-    height: hp(10),
-    resizeMode: 'contain',
-  },
-  cartContainer: {
-    backgroundColor: colors.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: wp(2),
-    marginBottom: hp(1.5),
-    borderRadius: 12,
-  },
-  inputText: {
-    paddingLeft: wp(3),
-    color: 'black',
-    fontSize: normalize(12),
-    fontFamily: 'lexend-medium',
-  },
-  input: {
-    borderRadius: 10,
-    justifyContent: 'center',
-    height: hp(6),
-    borderWidth: 1,
-    borderColor: colors.gray,
+    paddingHorizontal: wp(4),
   },
   buttonContainer: {
     borderRadius: normalize(6),
-    marginVertical: hp(3),
-    position: 'absolute',
-    bottom: 0,
-    width:'88%'
+    marginTop: hp(1.5),
+    // marginVertical: hp(3),
+    width: '88%',
   },
   emptyCart: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  totalContainer: {
-    flex: 1,
-    backgroundColor: colors.white2,
-    marginTop: hp(1),
-  },
-  totalSubContainer: {
-    backgroundColor: colors.orange,
-    padding: wp(3),
-  },
   btSheetContainer: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
-  qtyBtn: {
-    borderRadius: 6,
-    // width: '16%',
-    height: hp(3.5),
-  },
   quantitySheet: {
     marginHorizontal: wp(6),
     marginVertical: hp(1),
+    alignItems: 'center',
   },
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     padding: hp(1.5),
     backgroundColor: colors.white,
     borderRadius: normalize(10),
     marginBottom: hp(1.5),
-    // width: '90%',
-    marginHorizontal: wp(4),
   },
   logo: {
-    width: hp(12),
-    height: hp(12),
+    width: hp(8.5),
+    height: hp(8.5),
     resizeMode: 'cover',
     borderRadius: normalize(6),
   },
   iconContainer: {
-    width: hp(2.8),
-    height: hp(2.8),
+    width: hp(4),
+    height: hp(4),
     borderRadius: normalize(3),
-    backgroundColor: colors.white,
+    backgroundColor: colors.white2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   countContainer: {
-    backgroundColor: colors.orange,
+    // backgroundColor: colors.orange,
     borderRadius: normalize(4),
     justifyContent: 'space-between',
     width: '50%',
-    padding: hp(0.5),
+    padding: hp(0.8),
+    marginTop: hp(2),
   },
   trash: {
     padding: wp(1),
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-end',
+  },
+  quantityBtn: {
+    height: hp(3),
+    width: 'auto',
+    justifyContent: 'space-between',
+    marginTop: hp(0.5),
   },
 });

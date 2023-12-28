@@ -15,12 +15,12 @@ export const baseQueryWithAuthInterceptor = (args: any) => {
     return result;
   };
 };
-export const prepareHeaders = async(headers: any, {getState}: any) => {
-  const token = getState().auth.token || await AsyncStorage.getItem("token");
-  console.log('token......////////',token)
+export const prepareHeaders = async (headers: any, {getState}: any) => {
+  // getState().auth.token ||
+  const token = await AsyncStorage.getItem('token');
   // if (token) headers.set('token', `${token}`);
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+  if (getState().auth.token || await AsyncStorage.getItem('token')) {
+    headers.set('Authorization', `Bearer ${getState().auth.token || await AsyncStorage.getItem('token')}`);
   }
   return headers;
 };

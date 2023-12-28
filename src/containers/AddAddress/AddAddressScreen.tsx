@@ -1,431 +1,496 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useRef, useState} from 'react';
-import commonStyle, {fontSize, mediumLargeFont, smallFont} from '../../styles';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import colors from '../../assets/colors';
 import {Button, FontText, Input, Loader, NavigationBar} from '../../components';
 import SvgIcons from '../../assets/SvgIcons';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import {Pressable} from 'react-native';
-import BottomSheet from '../../components/BottomSheet';
-import {ADDRESS_TYPE, STATES} from '../../types/data';
-import utils from '../../helper/utils';
 import {
+  iconSize,
+  fontSize,
+  mediumLarge1Font,
+  mediumFont,
+  smallFont,
+  tabIcon,
+  mediumLargeFont,
+} from '../../styles';
+import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import commonStyle from '../../styles';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import imageCompress from 'react-native-compressor';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {COUNTRY_LIST, STATES_LIST} from '../../types/data';
+import {
+  useAddCompanyMutation,
   useCreateAddressMutation,
+  useGetCompanyQuery,
   useUpdateAddressMutation,
-} from '../../api/address';
-import { RootScreens } from '../../types/type';
+  useUpdateCompanyMutation,
+} from '../../api/company';
+import utils from '../../helper/utils';
+import {useSelector} from 'react-redux';
+import BottomSheet from '../../components/BottomSheet';
 
-const AddAddressScreen = ({navigation, route}: any) => {
-  const [createAdd, {isLoading}] = useCreateAddressMutation();
-  const [updateAdd, {isLoading: isProcessing}] = useUpdateAddressMutation();
+const AddAddressScreen = (props: any) => {
+  const {from, navigation, route} = props;
+  const item = route?.params?.data;
+  const addressList = route?.params?.address;
 
-  const item: any = route?.params?.data;
+  const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
+    refetchOnMountOrArgChange: true,
+  });
+  const [addAddress, {isLoading}] = useCreateAddressMutation();
+  const [updateAddress, {isLoading: isProcess}] = useUpdateAddressMutation();
 
-  const [fullName, setFullName] = useState(
-    item ? item?.fullName : item ? item?.fullName : '',
-  );
-  const [phoneNumber, setPhoneNumber] = useState(item ? item?.phone : '');
-  const [addressType, setAddressType] = useState(item ? item?.addressType : '');
-  const [address, setAddress] = useState(item ? item?.address : '');
-  const [pincode, setPincode] = useState(item ? item?.pincode : '');
-  const [city, setCity] = useState(item ? item?.city : '');
-  const [state, setState] = useState(item ? item?.state : '');
-  const [checkValid, setCheckValid] = useState(false);
-
-  const nameRef: any = useRef();
-  const phnNoRef: any = useRef();
+  const addressNameRef: any = useRef();
   const addressRef: any = useRef();
-  const addressTypeRef: any = useRef();
-  const pincodeRef: any = useRef();
+  const localityRef: any = useRef();
+  const pinCodeRef: any = useRef();
   const cityRef: any = useRef();
   const stateRef: any = useRef();
+  const countryRef: any = useRef();
 
-  const isValidName = checkValid && fullName.length === 0;
-  const isValidPhoneNo =
-    checkValid && (phoneNumber.length === 0 || phoneNumber.length < 10);
+  const [checkValid, setCheckValid] = useState(false);
+  const [addressName, setAddressName] = useState(item ? item?.addressName : '');
+  const [address, setAddress] = useState(item ? item?.addressLine : '');
+  const [locality, setLocality] = useState(item ? item?.locality : '');
+  const [pinCode, setPinCode] = useState(item ? item?.pincode : '');
+  const [city, setCity] = useState(item ? item?.city : '');
+  const [state, setState] = useState(item ? item?.state : '');
+  const [country, setCountry] = useState(item ? item?.country : '');
+
+  const isValidAddressName = checkValid && addressName.length === 0;
   const isValidAddress = checkValid && address.length === 0;
-  const isValidPincode = checkValid && pincode.length === 0;
+  const isValidPinCode = checkValid && pinCode.length === 0;
+  const isValidLocality = checkValid && locality.length === 0;
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
-  const isValidAddressType = checkValid && addressType.length === 0;
+  const isValidCountry = checkValid && country.length === 0;
 
-  const savePress = async () => {
+  console.log('addressList', addressList, item);
+
+  const submitPress = async () => {
     setCheckValid(true);
     if (
-      fullName.length !== 0 &&
-      phoneNumber.length !== 0 &&
-      addressType.length !== 0 &&
+      addressName.length !== 0 &&
       address.length !== 0 &&
-      pincode.length !== 0 &&
+      locality.length !== 0 &&
       city.length !== 0 &&
-      state.length !== 0
+      pinCode.length !== 0 &&
+      state.length !== 0 &&
+      country.length !== 0
     ) {
-      let params = {
-        fullName: fullName,
-        phone: phoneNumber,
-        addressType: addressType,
-        address: address,
-        pincode: pincode,
+      const formData = new FormData();
+
+      const addressObj = {
+        addressName: addressName,
+        addressLine: address,
+        locality: locality,
+        pincode: pinCode,
         city: city,
         state: state,
+        country: country,
       };
+      console.log('address../...........', addressObj);
+      // addressObj.forEach((value: any, index: any) => {
+      //   for (var key in value) {
+      //     formData.append(`address[${[index]}][${key}]`, value[key]);
+      //   }
+      // });
 
+      let body = {
+        params: addressObj,
+        companyId: userInfo?.companyId?._id,
+        addressId: item?._id,
+      };
+      item === undefined && delete body.addressId;
+      console.log('body', body);
       if (item) {
-        const param = {
-          id: item._id,
-          params: params,
-        };
-        const {data,error}: any = await updateAdd(param);
-
+        const {data, error}: any = await updateAddress(body);
+        console.log('updateAddress', data);
         if (!error && data?.statusCode === 200) {
-          setCheckValid(false);
           navigation.goBack();
+          setCheckValid(false);
           utils.showSuccessToast(data.message);
         } else {
           utils.showErrorToast(data.message || error);
         }
       } else {
-        const {data, error}: any = await createAdd(params);
-        if (!error) {
-          setCheckValid(false);
-          // navigation.navigate(RootScreens.OrderSummary);
-          navigation.goBack();
-          utils.showSuccessToast(data.message);
-        } else {
-          utils.showErrorToast(data.message || error);
-        }
+        const {data, error}: any = await addAddress(body);
+        console.log('addAddress', data, error);
+        navigation.goBack();
       }
     }
   };
 
   return (
     <View style={commonStyle.container}>
-      <Loader loading={isLoading} />
       <NavigationBar
-        hasLeft
-        hasRight
         hasCenter
-        style={{marginHorizontal: wp(2)}}
-        borderBottomWidth={0}
-        center={
-          <FontText
-            color="black2"
-            name="opensans-semibold"
-            size={mediumLargeFont}
-            textAlign={'center'}>
-            {item ? 'Edit Address' : 'Add Address'}
-          </FontText>
-        }
+        hasLeft
         left={
-          <TouchableOpacity
-            style={commonStyle.iconView}
-            onPress={() => navigation.goBack()}>
-            <SvgIcons.BackIcon />
-          </TouchableOpacity>
+          <View style={[commonStyle.rowAC]}>
+            <TouchableOpacity
+              style={[commonStyle.iconView, {marginRight: wp(5)}]}
+              onPress={() => navigation.goBack()}>
+              <SvgIcons.BackArrow width={tabIcon} height={tabIcon} />
+            </TouchableOpacity>
+            <FontText
+              name={'lexend-semibold'}
+              size={mediumLargeFont}
+              color={'black'}
+              textAlign={'left'}>
+              {item ? 'Edit Address' : 'Add Address'}
+            </FontText>
+          </View>
         }
+        leftStyle={{width: '100%'}}
+        hasRight
+        style={{marginHorizontal: wp(2.5)}}
+        borderBottomWidth={0}
       />
-      <KeyboardAwareScrollView
-        style={[commonStyle.paddingH4, commonStyle.marginT2]}>
-        <FontText
-          name={'opensans-semibold'}
-          size={smallFont}
-          color={'black2'}
-          pLeft={wp(1)}
-          pBottom={wp(2)}
-          textAlign={'left'}>
-          {'Full Name'}
-        </FontText>
-        <Input
-          ref={nameRef}
-          value={fullName}
-          onChangeText={(text: string) => setFullName(text.trimStart())}
-          autoCapitalize="none"
-          placeholder={'Enter Full name'}
-          placeholderTextColor={'placeholder'}
-          fontSize={fontSize}
-          inputStyle={styles.inputText}
-          color={'black'}
-          returnKeyType={'next'}
-          style={[styles.input]}
-          onSubmit={() => {
-            phnNoRef?.current.focus();
+      <Loader loading={isFetching || isProcess} />
+      <View style={[commonStyle.paddingH4, commonStyle.flex]}>
+        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.marginTopView}>
+            <View
+              style={[
+                commonStyle.rowAC,
+                {
+                  marginBottom: hp(1),
+                },
+              ]}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'Address name:'}
+              </FontText>
+            </View>
+            <Input
+              ref={addressNameRef}
+              value={addressName}
+              onChangeText={(text: string) => setAddressName(text.trimStart())}
+              placeholder={'Enter Address Name'}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              onSubmit={() => {
+                addressRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.Location width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {isValidAddressName && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'Address Name is required.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View
+              style={[
+                commonStyle.rowAC,
+                {
+                  marginBottom: hp(1),
+                },
+              ]}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'Address Line:'}
+              </FontText>
+            </View>
+            <Input
+              ref={addressRef}
+              value={address}
+              onChangeText={(text: string) => setAddress(text.trimStart())}
+              placeholder={'Enter Address'}
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              color={'black'}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              returnKeyType={'next'}
+              multiline
+              multilineHeight={null}
+              blurOnSubmit
+              onSubmit={() => {
+                localityRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.Location width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {isValidAddress && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'Address is required.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View style={commonStyle.rowACMB1}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'Locality:'}
+              </FontText>
+            </View>
+            <Input
+              ref={localityRef}
+              value={locality}
+              onChangeText={(text: string) => setLocality(text.trimStart())}
+              placeholder={'Enter Locality'}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              onSubmit={() => {
+                pinCodeRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.Location width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {isValidLocality && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'Locality is required.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View style={commonStyle.rowACMB1}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'Pin Code:'}
+              </FontText>
+            </View>
+            <Input
+              ref={pinCodeRef}
+              value={pinCode}
+              onChangeText={(text: string) => setPinCode(text.trim())}
+              placeholder={'Enter Pin Code'}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              keyboardType={'numeric'}
+              maxLength={6}
+              onSubmit={() => {
+                cityRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.PinCode width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {isValidPinCode && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {checkValid && pinCode.length === 0
+                  ? `Pin Code is required.`
+                  : 'Invalid Pin Code.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View style={commonStyle.rowACMB1}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'City:'}
+              </FontText>
+            </View>
+            <Input
+              ref={cityRef}
+              value={city}
+              onChangeText={(text: string) => setCity(text.trimStart())}
+              placeholder={'Enter City'}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'done'}
+              blurOnSubmit
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.City width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {isValidCity && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'City is required.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View style={[commonStyle.rowACMB1]}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'State:'}
+              </FontText>
+            </View>
+            <TouchableOpacity
+              onPress={() => stateRef?.current?.open()}
+              style={styles.dropdownView}>
+              <View style={[commonStyle.abs, {left: wp(4)}]}>
+                <SvgIcons.State width={iconSize} height={iconSize} />
+              </View>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={state ? 'black' : 'gray'}
+                pLeft={wp(9)}
+                textAlign={'left'}>
+                {state ? state : 'Select State'}
+                {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
+              </FontText>
+              <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
+            </TouchableOpacity>
+            {isValidState && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'State is required.'}
+              </FontText>
+            )}
+          </View>
+          <View style={styles.marginTopView}>
+            <View style={commonStyle.rowACMB1}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {'Country:'}
+              </FontText>
+            </View>
+            <TouchableOpacity
+              onPress={() => countryRef?.current?.open()}
+              style={styles.dropdownView}>
+              <View style={[commonStyle.abs, {left: wp(4)}]}>
+                <SvgIcons.Country width={iconSize} height={iconSize} />
+              </View>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={country ? 'black' : 'gray'}
+                pLeft={wp(9)}
+                textAlign={'left'}>
+                {country ? country : 'Select Country'}
+                {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
+              </FontText>
+              <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
+            </TouchableOpacity>
+            {isValidCountry && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {'Country is required.'}
+              </FontText>
+            )}
+          </View>
+        </KeyboardAwareScrollView>
+        <Button
+          onPress={submitPress}
+          bgColor={'orange'}
+          style={styles.buttonContainer}>
+          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            {item ? 'Update' : 'Add address'}
+          </FontText>
+        </Button>
+        <BottomSheet
+          height={hp(75)}
+          sheetRef={stateRef}
+          itemPress={(val: any) => {
+            setState(val);
+            stateRef.current.close();
           }}
+          selectedItem={state}
+          data={STATES_LIST}
         />
-        {isValidName && (
-          <FontText
-            size={normalize(12)}
-            color={'red'}
-            pTop={wp(1)}
-            textAlign="right"
-            name="regular">{`Full Name is Required.`}</FontText>
-        )}
-
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'Phone number'}
-          </FontText>
-          <Input
-            ref={phnNoRef}
-            value={phoneNumber}
-            onChangeText={(text: string) => setPhoneNumber(text.trimStart())}
-            autoCapitalize="none"
-            placeholder={'Enter Phone number'}
-            placeholderTextColor={'placeholder'}
-            fontSize={fontSize}
-            inputStyle={styles.inputText}
-            color={'black'}
-            returnKeyType={'next'}
-            maxLength={10}
-            keyboardType="numeric"
-            style={[styles.input]}
-            onSubmit={() => {
-              addressRef?.current.focus();
-            }}
-          />
-          {isValidPhoneNo && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`Phone Number is Required.`}</FontText>
-          )}
-        </View>
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'Address Type'}
-          </FontText>
-          <Pressable
-            onPress={() => addressTypeRef.current.open()}
-            style={styles.dropdownView}>
-            <FontText
-              name={'opensans-medium'}
-              size={smallFont}
-              color={addressType ? 'black2' : 'gray'}
-              pLeft={wp(1)}
-              textAlign={'left'}>
-              {addressType ? addressType : 'Select Address Type'}
-              {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
-            </FontText>
-            <SvgIcons.DownArrow height={wp(7)} width={wp(7)} fill={colors.black2}/>
-          </Pressable>
-          {isValidAddressType && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`Address Type is Required.`}</FontText>
-          )}
-        </View>
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'Address'}
-          </FontText>
-          <Input
-            ref={addressRef}
-            value={address}
-            onChangeText={(text: string) => setAddress(text.trimStart())}
-            autoCapitalize="none"
-            placeholder={'Enter Address'}
-            placeholderTextColor={'placeholder'}
-            fontSize={fontSize}
-            inputStyle={[styles.inputText]}
-            color={'black'}
-            returnKeyType={'next'}
-            multiline={true}
-            multilineHeight={null}
-            style={[styles.input]}
-            onSubmit={() => {
-              pincodeRef?.current.focus();
-            }}
-          />
-          {isValidAddress && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`Address is Required.`}</FontText>
-          )}
-        </View>
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'Pincode'}
-          </FontText>
-          <Input
-            ref={pincodeRef}
-            value={pincode}
-            onChangeText={(text: string) => setPincode(text.trimStart())}
-            autoCapitalize="none"
-            placeholder={'Enter Pincode'}
-            placeholderTextColor={'placeholder'}
-            fontSize={fontSize}
-            inputStyle={styles.inputText}
-            color={'black'}
-            returnKeyType={'next'}
-            keyboardType="numeric"
-            maxLength={6}
-            style={[styles.input]}
-            onSubmit={() => {
-              cityRef?.current.focus();
-            }}
-          />
-          {isValidPincode && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`Pincode is Required.`}</FontText>
-          )}
-        </View>
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'City'}
-          </FontText>
-          <Input
-            ref={cityRef}
-            value={city}
-            onChangeText={(text: string) => setCity(text.trimStart())}
-            autoCapitalize="none"
-            placeholder={'Enter City'}
-            placeholderTextColor={'placeholder'}
-            fontSize={fontSize}
-            inputStyle={styles.inputText}
-            color={'black'}
-            returnKeyType={'done'}
-            style={[styles.input]}
-            blurOnSubmit
-          />
-          {isValidCity && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`City is Required.`}</FontText>
-          )}
-        </View>
-        {/* <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}               
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'City'}
-          </FontText>
-          <TouchableOpacity
-            // onPress={() => companyListRef?.current?.open()}
-            style={styles.dropdownView}>
-            <FontText
-              name={'opensans-semibold'}
-              size={smallFont}
-              color={city ? 'black2' : 'gray'}
-              pLeft={wp(1)}
-              textAlign={'left'}>
-              {'Select City'}
-            </FontText>
-            <SvgIcons.DownArrow height={wp(7)} width={wp(7)} />
-          </TouchableOpacity>
-        </View> */}
-        <View style={styles.marginTopView}>
-          <FontText
-            name={'opensans-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(1)}
-            pBottom={wp(2)}
-            textAlign={'left'}>
-            {'State'}
-          </FontText>
-          <TouchableOpacity
-            onPress={() => stateRef?.current?.open()}
-            style={styles.dropdownView}>
-            <FontText
-              name={'opensans-medium'}
-              size={smallFont}
-              color={state ? 'black2' : 'gray'}
-              pLeft={wp(1)}
-              textAlign={'left'}>
-              {state ? state : 'Select State'}
-              {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
-            </FontText>
-            <SvgIcons.DownArrow height={wp(7)} width={wp(7)} fill={colors.black2}/>
-          </TouchableOpacity>
-          {isValidState && (
-            <FontText
-              size={normalize(12)}
-              color={'red'}
-              pTop={wp(1)}
-              textAlign="right"
-              name="regular">{`State is Required.`}</FontText>
-          )}
-        </View>
-      </KeyboardAwareScrollView>
-      <BottomSheet
-        height={hp(20)}
-        sheetRef={addressTypeRef}
-        itemPress={(val: any) => {
-          setAddressType(val);
-          addressTypeRef.current.close();
-        }}
-        selectedItem={addressType}
-        data={ADDRESS_TYPE}
-        isIcon
-      />
-      <BottomSheet
-        height={hp(75)}
-        sheetRef={stateRef}
-        itemPress={(val: any) => {
-          setState(val);
-          stateRef.current.close();
-        }}
-        selectedItem={state}
-        data={STATES}
-      />
-      <Button
-        onPress={savePress}
-        bgColor={'brown'}
-        style={[styles.buttonContainer]}>
-        <FontText name={'opensans-semibold'} size={fontSize} color={'white'}>
-          {'Save'}
-        </FontText>
-      </Button>
+        <BottomSheet
+          height={hp(75)}
+          sheetRef={countryRef}
+          itemPress={(val: any) => {
+            setCountry(val);
+            countryRef.current.close();
+          }}
+          selectedItem={country}
+          data={COUNTRY_LIST}
+        />
+      </View>
     </View>
   );
 };
@@ -434,26 +499,22 @@ export default AddAddressScreen;
 
 const styles = StyleSheet.create({
   inputText: {
-    paddingLeft: wp(3),
-    color: 'black',
-    fontSize: normalize(12),
-    fontFamily: 'opensans-medium',
-    height: hp(5),
+    borderRadius: 10,
+    paddingLeft: wp(12),
+    color: colors.black,
+    fontSize: normalize(14),
+    fontFamily: 'lexend-regular',
+    backgroundColor: colors.gray2,
   },
   input: {
+    width: '100%',
     borderRadius: 10,
     justifyContent: 'center',
     height: hp(6),
-    borderWidth: 1,
-    borderColor: colors.gray,
-    paddingHorizontal: wp(1),
-    // marginBottom: hp(2),
   },
   buttonContainer: {
-    borderRadius: 12,
-    width: '65%',
-    alignSelf: 'center',
-    marginVertical: hp(2.5),
+    borderRadius: normalize(6),
+    marginVertical: hp(2),
   },
   marginTopView: {
     marginTop: hp(1.5),
@@ -464,12 +525,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: hp(6),
-    borderWidth: 1,
-    borderColor: colors.gray,
+    backgroundColor: colors.gray2,
     paddingHorizontal: wp(3),
   },
-  btSheetContainer: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+  uploadImgContainer: {
+    backgroundColor: colors.white2,
+    paddingVertical: hp(3),
+    paddingHorizontal: wp(8),
+    borderRadius: normalize(6),
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: hp(2.5),
+  },
+  avatar: {
+    width: hp(15),
+    height: hp(15),
+    borderRadius: 6,
+    alignSelf: 'center',
+    resizeMode: 'cover',
+    marginBottom: hp(2),
   },
 });

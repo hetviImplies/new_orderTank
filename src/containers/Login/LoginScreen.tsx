@@ -2,6 +2,7 @@ import {
   Alert,
   Image,
   ImageBackground,
+  Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -25,6 +26,7 @@ import {
 import SvgIcons from '../../assets/SvgIcons';
 import {
   setCurrentUser,
+  setFrom,
   setIsAuthenticated,
   setToken,
 } from '../../redux/slices/authSlice';
@@ -104,6 +106,7 @@ const LoginScreen = ({navigation}: any) => {
         resetNavigateTo(navigation, 'DashBoard');
         dispatch(setCurrentUser(data?.result));
         dispatch(setToken(data?.token));
+        dispatch(setFrom('Login'));
         // dispatch(setIsAuthenticated(true));
         await AsyncStorage.setItem('token', data?.token);
         utils.showSuccessToast(data.message);
@@ -119,12 +122,6 @@ const LoginScreen = ({navigation}: any) => {
     setEyeIcon(!eyeIcon);
   };
 
-  const onSkipPress = async () => {
-    // navigation.navigate(RootScreens.DashBoard);
-    await AsyncStorage.setItem('navigateTo', RootScreens.DashBoard);
-    resetNavigateTo(navigation, 'DashBoard');
-  };
-
   const onForgotPress = () => {
     navigation.navigate(RootScreens.ForgotPass);
   };
@@ -134,10 +131,6 @@ const LoginScreen = ({navigation}: any) => {
   };
 
   const sendEmailPress = async () => {
-    let param = {
-      from: 'SignUp',
-      email: email,
-    };
     const {data, error}: any = await resend({email: email});
     console.log('DARA: SendEmail', data, error);
     if (!error && data?.statusCode === 200) {
@@ -170,7 +163,7 @@ const LoginScreen = ({navigation}: any) => {
           </FontText>
         </ImageBackground>
         <View style={styles.middleContainer}>
-          <KeyboardAwareScrollView>
+          <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
             <View style={{marginTop: hp(6)}}>
               <View
                 style={[
@@ -241,7 +234,7 @@ const LoginScreen = ({navigation}: any) => {
                 <Input
                   ref={passwordRef}
                   value={password}
-                  onChangeText={(text: string) => setPassword(text)}
+                  onChangeText={(text: string) => setPassword(text.trim())}
                   placeholder={'Enter Password'}
                   placeholderTextColor={'placeholder'}
                   fontSize={fontSize}
@@ -250,7 +243,6 @@ const LoginScreen = ({navigation}: any) => {
                   style={styles.input}
                   secureTextEntry={!eyeIcon}
                   returnKeyType={'done'}
-                  blurOnSubmit
                   children={
                     <View
                       style={[
@@ -268,7 +260,7 @@ const LoginScreen = ({navigation}: any) => {
                       </TouchableOpacity>
                     </View>
                   }
-                  onSubmit={onLoginPress}
+                  onSubmit={() => Keyboard.dismiss()}
                 />
                 {isValidPassword && (
                   <FontText

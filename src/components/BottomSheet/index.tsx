@@ -93,7 +93,7 @@ const BottomSheet = (props:any) => {
     <RBSheet
       height={props.height}
       ref={props.sheetRef}
-      customStyles={{wrapper:{backgroundColor: colors.white, paddingVertical: wp(4)}}}>
+      customStyles={{wrapper:{backgroundColor: colors.grayOpacity, paddingVertical: wp(4)}}}>
       {renderComponent()}
     </RBSheet>
   );

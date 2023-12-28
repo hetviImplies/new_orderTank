@@ -1,16 +1,7 @@
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React from 'react';
-import {NavigationBar, FontText} from '../../components';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {NavigationBar, FontText, Loader} from '../../components';
 import commonStyle, {
-  fontSize,
-  iconSize,
   mediumFont,
   mediumLargeFont,
   smallFont,
@@ -19,9 +10,142 @@ import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {ORDERTYPE} from '../../types/data';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
+import {useGetOrdersQuery} from '../../api/order';
+import {RootScreens} from '../../types/type';
+import moment from 'moment';
+import AddressComponent from '../../components/AddressComponent';
 
-const OrderScreen = () => {
-  const [selectshift, setSelectShift] = React.useState('All Order');
+const OrderScreen = ({navigation}: any) => {
+  const [selectOrder, setSelectOrder] = React.useState<any>({
+    label: 'All Order',
+    value: 'all',
+  });
+  const [orderData, setOrderData] = React.useState([]);
+
+  const {data: orderList, isFetching: isProcess} = useGetOrdersQuery(
+    {
+      isBuyer: true,
+      status: selectOrder?.value === 'all' ? '' : selectOrder?.value,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  // console.log('orderList?.result', orderList?.result)
+
+  useEffect(() => {
+    setOrderData(orderList?.result);
+  }, [isProcess, selectOrder]);
+
+  const onViewDetail = (item: any) => {
+    navigation.navigate(RootScreens.SecureCheckout, {
+      from: RootScreens.Order,
+      data: item?.orderDetails,
+      deliveryAdd: item?.deliveryAddress,
+      billingAdd: item?.billingAddress,
+      companyId: item?.companyId,
+      orderDetails: item,
+    });
+  };
+
+  const _renderItem = ({item, index}: any) => {
+    console.log('item', item);
+    return (
+      <View
+        style={[
+          commonStyle.marginT2,
+          commonStyle.shadowContainer,
+          {
+            backgroundColor: colors.white,
+            padding: wp(4),
+            borderRadius: normalize(10),
+          },
+        ]}>
+        <View style={[commonStyle.rowJB, styles.dashedLine]}>
+          <View>
+            <FontText
+              color={'black2'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {item?.orderId}
+            </FontText>
+            <FontText
+              color={'gray'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {moment(item?.orderDate).format('DD-MM-YYYY')}
+            </FontText>
+          </View>
+          <FontText
+            color={'orange'}
+            size={smallFont}
+            textAlign={'right'}
+            name={'lexend-medium'}>
+            {item?.orderDetails?.price}
+          </FontText>
+        </View>
+        <View style={{marginTop: hp(1)}}>
+          <AddressComponent
+            item={item?.deliveryAddress}
+            from={RootScreens.SecureCheckout}
+          />
+        </View>
+        {/* <View style={[styles.dashedLine, styles.paddingT1]}>
+          <View style={commonStyle.row}>
+            <SvgIcons.Employee />
+            <FontText
+              color={'black2'}
+              size={smallFont}
+              textAlign={'left'}
+              pLeft={wp(3)}
+              name={'lexend-regular'}>
+              {item?.deliveryAddress?.addressName}
+            </FontText>
+          </View>
+          <FontText
+            color={'gray4'}
+            size={smallFont}
+            textAlign={'left'}
+            pTop={wp(1)}
+            name={'lexend-regular'}>
+            {
+              'Shop No 1,28/c, Shanti Sadan, Lokhandwala Rd, Nr Sasural Restaurant, Bangalore-560016'
+            }
+          </FontText>
+        </View> */}
+        <View style={[commonStyle.rowJB, styles.paddingT1]}>
+          <FontText
+            color={
+              item?.status === 'pending' || item?.status === 'cancelled'
+                ? 'red'
+                : item?.status === 'delivered'
+                ? 'green'
+                : item?.status === 'processing'
+                ? 'yellow'
+                : 'black'
+            }
+            size={smallFont}
+            textAlign={'left'}
+            name={'lexend-medium'}>
+            {item?.status}
+          </FontText>
+          <TouchableOpacity onPress={() => onViewDetail(item)}>
+            <FontText
+              color={'orange'}
+              size={smallFont}
+              textAlign={'left'}
+              style={{textDecorationLine: 'underline'}}
+              name={'lexend-medium'}>
+              {'View detail'}
+            </FontText>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={commonStyle.container}>
@@ -41,6 +165,7 @@ const OrderScreen = () => {
           </FontText>
         }
       />
+      <Loader loading={isProcess} />
       <View style={commonStyle.paddingH4}>
         <FlatList
           horizontal
@@ -51,167 +176,53 @@ const OrderScreen = () => {
             return (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectShift(item);
-                  // getShiftData(item);
+                  setSelectOrder(item);
+                  // getorderData(item);
                 }}
                 key={index}
                 activeOpacity={0.7}
                 style={styles.talkBubble}>
                 <View
                   style={
-                    selectshift === item
+                    selectOrder?.label === item?.label
                       ? styles.talkBubbleSquare
                       : styles.blankSquare
                   }>
                   <FontText
-                    color={selectshift === item ? 'white' : 'black2'}
+                    color={
+                      selectOrder?.label === item?.label ? 'white' : 'black2'
+                    }
                     size={mediumFont}
                     textAlign={'center'}
                     name={'lexend-regular'}>
-                    {item}
+                    {item?.label}
                   </FontText>
                 </View>
               </TouchableOpacity>
             );
           }}
         />
-        <View
-          style={[
-            commonStyle.marginT2,
-            commonStyle.shadowContainer,
-            {
-              backgroundColor: colors.white,
-              padding: wp(4),
-              borderRadius: normalize(10),
-            },
-          ]}>
-          <View style={[commonStyle.rowJB, styles.dashedLine]}>
-            <View>
-              <FontText
-                color={'black2'}
-                size={smallFont}
-                textAlign={'left'}
-                name={'lexend-regular'}>
-                {'#12541RFG'}
-              </FontText>
-              <FontText
-                color={'gray'}
-                size={smallFont}
-                textAlign={'left'}
-                name={'lexend-regular'}>
-                {'20-04-2023, 11:48 AM'}
-              </FontText>
-            </View>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'right'}
-              name={'lexend-medium'}>
-              {'₹900'}
-            </FontText>
-          </View>
-          <View style={[styles.dashedLine, styles.paddingT1]}>
-            <View style={commonStyle.row}>
-              <SvgIcons.Employee />
-              <FontText
-                color={'black2'}
-                size={smallFont}
-                textAlign={'left'}
-                pLeft={wp(3)}
-                name={'lexend-regular'}>
-                {'Company'}
-              </FontText>
-            </View>
-            <FontText
-              color={'gray4'}
-              size={smallFont}
-              textAlign={'left'}
-              pTop={wp(1)}
-              name={'lexend-regular'}>
-              {
-                'Shop No 1,28/c, Shanti Sadan, Lokhandwala Rd, Nr Sasural Restaurant, Bangalore-560016'
-              }
-            </FontText>
-          </View>
-          <View style={[commonStyle.rowJB, styles.paddingT1]}>
-            <FontText
-              color={'red'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-medium'}>
-              {'Pending'}
-            </FontText>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'left'}
-              style={{textDecorationLine: 'underline'}}
-              name={'lexend-medium'}>
-              {'View detail'}
-            </FontText>
-          </View>
-        </View>
       </View>
-
-      {/* <View style={{flex: 1}}>
-        {selectshift == 'Assigned' ? (
-          <Assigned
-            onRejectPress={(item) => onRejectPress(item)}
-            AssignData={shiftData}
-            navigation={navigation}
-            refresh={refresh}
-            onRefresh={() => onRefresh()}
-            getQrCodeData={(val, item) => getQrCodeData(val, item)}
-            onHubPress={(val) => onHubPress(val)}
-            onArrivedHubPress={(date, item, isStart) => {
-              onArrivedHubPress(date, item, isStart);
-            }}
-            from={'Assigned'}
-            shiftStartData={shiftStartData}
-            setShiftStartData={setShiftStartData}
-          />
-        ) : selectshift == 'Started' ? (
-          <Started
-            onCompletePress={(item) => onCompletePress(item)}
-            StartedData={shiftData}
-            navigation={navigation}
-            refresh={refresh}
-            onRefresh={() => onRefresh()}
-            onHubPress={(val) => onHubPress(val)}
-          />
-        ) : selectshift == 'Completed' ? (
-          <Completed
-            onCompletePress={(item) =>
-              navigation.navigate(ROUTE_NAMES.SHIFTDETAIL, {
-                From: 'Completed',
-                shiftData: item,
-                onGoBack: () => {},
-              })
-            }
-            setshiftData={setshiftData}
-            CompletedData={shiftData}
-            navigation={navigation}
-            refresh={refresh}
-            onRefresh={() => onRefresh()}
-            onHubPress={(val) => onHubPress(val)}
-          />
-        ) : (
-          <Paid
-            onPaidPress={(item) =>
-              navigation.navigate(ROUTE_NAMES.SHIFTDETAIL, {
-                From: 'Paid',
-                shiftData: item,
-                onGoBack: () => {},
-              })
-            }
-            paidData={shiftData}
-            navigation={navigation}
-            refresh={refresh}
-            onRefresh={() => onRefresh()}
-            onHubPress={(val) => onHubPress(val)}
-          />
-        )}
-      </View> */}
+      {orderData && orderData.length !== 0 ? (
+        <FlatList
+          data={orderData}
+          renderItem={_renderItem}
+          contentContainerStyle={{
+            paddingHorizontal: wp(4),
+            paddingBottom: hp(2),
+          }}
+        />
+      ) : (
+        <View style={[commonStyle.allCenter, {flex: 1}]}>
+          <FontText
+            color="gray"
+            name="lexend-regular"
+            size={mediumFont}
+            textAlign={'center'}>
+            {'No Data found.'}
+          </FontText>
+        </View>
+      )}
     </View>
   );
 };
@@ -225,7 +236,7 @@ const styles = StyleSheet.create({
   },
   talkBubbleSquare: {
     paddingHorizontal: wp(4),
-    paddingVertical: wp(3),
+    paddingVertical: wp(3.2),
     backgroundColor: colors.orange,
     borderRadius: normalize(10),
   },

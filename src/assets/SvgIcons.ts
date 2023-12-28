@@ -52,6 +52,12 @@ import Employee from './svgs/empolyee.svg';
 import EmptyCart from './svgs/empty-cart.svg';
 import Remove from './svgs/remove.svg';
 import Edit from './svgs/edit.svg';
+import Billing from './svgs/billing.svg';
+import Truck from './svgs/truck.svg';
+import Home2 from './svgs/home2.svg';
+import FillRound from './svgs/fill-round.svg';
+import EmptyRound from './svgs/empty-round.svg';
+import RightArrow from './svgs/right-arrow.svg';
 
 export default {
   BackRound,
@@ -107,5 +113,11 @@ export default {
   Employee,
   EmptyCart,
   Remove,
-  Edit
+  Edit,
+  Billing,
+  Truck,
+  Home2,
+  FillRound,
+  EmptyRound,
+  RightArrow
 };

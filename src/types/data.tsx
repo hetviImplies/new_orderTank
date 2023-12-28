@@ -1,9 +1,9 @@
 import SvgIcons from '../assets/SvgIcons';
-import { iconSize, tabIcon } from '../styles';
+import {iconSize, tabIcon} from '../styles';
 import {wp} from '../styles/responsiveScreen';
 
 export const BASE_URL = `http://192.168.29.168:12344`;
-// export const BASE_URL = `http://157.230.61.208:5757`;
+// export const BASE_URL = `http://146.190.140.18:3000`;
 
 export const PROFILE_LIST = [
   {
@@ -39,18 +39,46 @@ export const PROFILE_LIST = [
     icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,
   },
 ];
+// export const ORDERTYPE = ['All Order', 'Pending', 'On going', 'Completed', 'Cancel'];
 
-export const ORDERTYPE = ['All Order', 'Pending', 'On going', 'Completed', 'Cancel'];
+export const ORDERTYPE = [
+  { label: "All Order", value: "all" },
+  { label: "Pending", value: "pending" },
+  { label: "On going", value: "processing" },
+  { label: "Completed", value: "delivered" },
+  { label: "Cancelled", value: "cancelled" }]
+// export const ORDERTYPE = [
+//   {
+//     label: 'All Order',
+//     value: 'all',
+//   },
+//   {
+//     label: 'Pending',
+//     value: 'pending',
+//   },
+//   {
+//     label: 'On going',
+//     value: 'all',
+//   },
+//   {
+//     label: 'Completed',
+//     value: 'all',
+//   },
+//   {
+//     label: 'All Order',
+//     value: 'all',
+//   },
+// ];
 
 export const HISTORY_LIST = [
   {
     name: 'Open Order',
     icon: <SvgIcons.OrderBox width={tabIcon} height={tabIcon} />,
   },
-  {
-    name: 'This month Order',
-    icon: <SvgIcons.OrderTick width={tabIcon} height={tabIcon} />,
-  },
+  // {
+  //   name: 'This month Order',
+  //   icon: <SvgIcons.OrderTick width={tabIcon} height={tabIcon} />,
+  // },
   {
     name: 'Supplier',
     icon: <SvgIcons.Supply width={tabIcon} height={tabIcon} />,
