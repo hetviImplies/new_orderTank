@@ -2,8 +2,8 @@ import SvgIcons from '../assets/SvgIcons';
 import {iconSize, tabIcon} from '../styles';
 import {wp} from '../styles/responsiveScreen';
 
-// export const BASE_URL = `http://192.168.29.168:12344`;
-export const BASE_URL = `http://146.190.140.18:3000`;
+export const BASE_URL = `http://192.168.29.168:12344`;
+// export const BASE_URL = `http://146.190.140.18:3000`;
 
 export const PROFILE_LIST = [
   {

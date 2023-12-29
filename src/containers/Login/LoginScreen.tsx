@@ -98,8 +98,10 @@ const LoginScreen = ({navigation}: any) => {
       const {data, error}: any = await login({
         email,
         password,
+        isMobile: true,
         // notificationToken,
       });
+      console.log('Data: ', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
         resetNavigateTo(navigation, 'DashBoard');

@@ -26,6 +26,7 @@ import {
 } from '../../api/company';
 import {err} from 'react-native-svg';
 import utils from '../../helper/utils';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SupplierScreen = ({navigation}: any) => {
   const [search, setSearch] = useState('');
@@ -45,6 +46,19 @@ const SupplierScreen = ({navigation}: any) => {
   );
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
   const [suppplierData, setSupplierData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    },[])
+  );
+
+  const onRefreshing = () => {
+    setRefreshing(true);
+    refetch();
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     setSupplierData(supplierList?.result);
@@ -174,7 +188,7 @@ const SupplierScreen = ({navigation}: any) => {
             renderItem={_renderItem}
             contentContainerStyle={styles.containerContent}
             refreshControl={
-              <RefreshControl refreshing={isProcessing} onRefresh={refetch} />
+              <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
             }
           />
         ) : (

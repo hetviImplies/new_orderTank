@@ -196,6 +196,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
 
   const newDate = new Date();
 
+  console.log('orderDetails', orderDetails)
+
   return (
     <View style={commonStyle.container}>
       <NavigationBar
@@ -243,6 +245,21 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 textAlign={'left'}>
                 {' '}
                 {moment(orderDetails?.orderDate).format('DD-MM-YYYY')}
+              </FontText>
+            </FontText>
+            <FontText
+              name={'lexend-regular'}
+              size={mediumFont}
+              color={'orange'}
+              textAlign={'left'}>
+              {'Delivery Date:'}
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'black2'}
+                textAlign={'left'}>
+                {' '}
+                {moment(orderDetails?.approxDeliveryDate).format('DD-MM-YYYY')}
               </FontText>
             </FontText>
             <FontText

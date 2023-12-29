@@ -30,11 +30,9 @@ const NotificationScreen = ({navigation}: any) => {
     useGetNotificationQuery(null, {
       refetchOnMountOrArgChange: true,
     });
-  const {data: readNotification, isFetching: isLoading} =
-    useReadNotificationQuery(null, {
-      // refetchOnMountOrArgChange: true,
-    });
   const [notifiedData, setNotifiedData] = useState([1, 2, 3]);
+
+  console.log('notification', noitification)
 
   // useEffect(() => {
   //   setNotifiedData(noitification?.result?.data);
@@ -78,7 +76,7 @@ const NotificationScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <Loader loading={isProcessing || isLoading} />
+      <Loader loading={isProcessing} />
       <NavigationBar
         hasLeft
         hasRight

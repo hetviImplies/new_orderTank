@@ -75,6 +75,7 @@ const SignUpScreen = ({navigation}: any) => {
         email: email,
         phone: phoneNo,
         password: password,
+        isBuyer: true,
       };
       const {data, error}: any = await register(params);
       if (!error && data?.statusCode === 200) {

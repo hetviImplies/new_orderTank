@@ -48,9 +48,13 @@ const AddressComponent = (props: any) => {
             <TouchableOpacity onPress={onEditPress}>
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onDeletePress} style={{marginLeft: wp(2)}}>
-              <SvgIcons.Delete width={iconSize} height={iconSize} />
-            </TouchableOpacity>
+            {item.isPriority ? null : (
+              <TouchableOpacity
+                onPress={onDeletePress}
+                style={{marginLeft: wp(2)}}>
+                <SvgIcons.Delete width={iconSize} height={iconSize} />
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </View>

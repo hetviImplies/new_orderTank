@@ -14,6 +14,7 @@ import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
+import { useFocusEffect } from '@react-navigation/native';
 
 const OrderScreen = ({navigation}: any) => {
   const [selectOrder, setSelectOrder] = React.useState<any>({
@@ -22,7 +23,7 @@ const OrderScreen = ({navigation}: any) => {
   });
   const [orderData, setOrderData] = React.useState([]);
 
-  const {data: orderList, isFetching: isProcess} = useGetOrdersQuery(
+  const {data: orderList, isFetching: isProcess, refetch} = useGetOrdersQuery(
     {
       isBuyer: true,
       status: selectOrder?.value === 'all' ? '' : selectOrder?.value,
@@ -33,6 +34,12 @@ const OrderScreen = ({navigation}: any) => {
   );
 
   console.log('orderList?.result', orderList?.result?.length);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    },[])
+  );
 
   useEffect(() => {
     setOrderData(orderList?.result);

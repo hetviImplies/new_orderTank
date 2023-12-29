@@ -26,13 +26,11 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-  const {data: carts, isFetching} = useGetCartsQuery(
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
+  const {data: carts, isFetching} = useGetCartsQuery({
+    refetchOnMountOrArgChange: true,
+  });
 
-  console.log('carts', userInfo?.companyId?._id)
+  console.log('carts', userInfo?.companyId?._id);
   const isGuest =
     (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
@@ -112,39 +110,39 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         hasCenter
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
+        leftStyle={{width: '70%'}}
         left={
-          <View style={commonStyle.rowAC}>
-            {userInfo && userInfo?.profilePic ? (
-              <Image
-                source={{uri: `${BASE_URL}/${userInfo?.companyId?.logo}`}}
-                style={[styles.avatar]}
-              />
-            ) : (
-              <View style={styles.avatar} />
-            )}
+          <View style={[commonStyle.rowAC]}>
+            <View style={commonStyle.rowAC}>
+              {userInfo && userInfo?.companyId?.logo ? (
+                <Image
+                  source={{uri: userInfo?.companyId?.logo}}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.avatar} />
+              )}
+            </View>
+            <FontText
+              name={'lexend-semibold'}
+              size={fontSize}
+              color={'black'}
+              textAlign={'left'}>
+              {'Welcome to Ordertank'}
+            </FontText>
           </View>
         }
-        center={
-          <FontText
-            name={'lexend-medium'}
-            size={fontSize}
-            color={'black'}
-            style={{width: '110%'}}
-            textAlign={'center'}>
-            {'Welcome to Ordertank'}
-          </FontText>
-        }
-        right={
-          <View style={[commonStyle.row]}>
-            <TouchableOpacity
-              style={commonStyle.iconView}
-              onPress={() => navigation.navigate(RootScreens.Notification)}>
-              <SvgIcons.Bell width={tabIcon} height={tabIcon} />
-              {Object.keys(notification).length !== 0 &&
-                !notification?.isRead && <View style={styles.countView} />}
-            </TouchableOpacity>
-          </View>
-        }
+        // right={
+        //   <View style={[commonStyle.row]}>
+        //     <TouchableOpacity
+        //       style={commonStyle.iconView}
+        //       onPress={() => navigation.navigate(RootScreens.Notification)}>
+        //       <SvgIcons.Bell width={tabIcon} height={tabIcon} />
+        //       {Object.keys(notification).length !== 0 &&
+        //         !notification?.isRead && <View style={styles.countView} />}
+        //     </TouchableOpacity>
+        //   </View>
+        // }
       />
       <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />

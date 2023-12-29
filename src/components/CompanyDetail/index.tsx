@@ -39,6 +39,8 @@ const CompanyDetail = (props: any) => {
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
 
+  console.log('data', data)
+
   const regRef: any = useRef();
   const companyRef: any = useRef();
   const addressRef: any = useRef();

@@ -14,7 +14,7 @@ export const notificationApi = createApi({
     getNotification: builder.query({
       query: () => {
         return {
-          url: 'get-all-user-notification',
+          url: '',
           method: 'GET',
         };
       },

@@ -57,6 +57,7 @@ const ProfileScreen = ({navigation}: any) => {
         navigation.navigate(RootScreens.Address);
         break;
       case 3:
+        logoutPress();
         // navigation.navigate(RootScreens.VEHICLE, {From: 'Step'});
         break;
       case 4:
@@ -70,7 +71,7 @@ const ProfileScreen = ({navigation}: any) => {
         break;
 
       case 7:
-        logoutPress();
+        // logoutPress();
         break;
       default:
         break;
