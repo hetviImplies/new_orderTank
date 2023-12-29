@@ -1,20 +1,6 @@
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import commonStyle, {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLargeFont,
-  smallFont,
-  tabIcon,
-} from '../../styles';
+import commonStyle, {fontSize, mediumLargeFont, tabIcon} from '../../styles';
 import {
   Button,
   CheckPreferenceItem,
@@ -27,9 +13,9 @@ import {hp, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import {useSelector} from 'react-redux';
-import {useGetCompanyQuery} from '../../api/company';
+import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import AddressComponent from '../../components/AddressComponent';
-import {useGetCartsQuery} from '../../api/cart';
+import utils from '../../helper/utils';
 
 const AddressScreen = ({navigation, route}: any) => {
   const from = route?.params?.data?.from;
@@ -38,20 +24,14 @@ const AddressScreen = ({navigation, route}: any) => {
   const deliveryAdd = route?.params?.data.deliveryAdd;
   const billingAdd = route?.params?.data.billingAdd;
   const type = route?.params?.data?.type;
-  const {
-    data: carts,
-    isFetching: isLoading,
-    refetch,
-  } = useGetCartsQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
   });
+  const [deleteAddress, {isLoading}] = useRemoveAddressMutation();
 
   const [addressData, setAddressData] = useState<any>([]);
-  const [checkedData, setCheckedData] = useState({});
+  const [checkedData, setCheckedData] = useState<any>({});
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
@@ -71,17 +51,24 @@ const AddressScreen = ({navigation, route}: any) => {
       billingAdd: type === 'Billing address' ? checkedData : billingAdd,
       data: cartData,
       companyId: companyId,
-      from: RootScreens.Address
+      from: RootScreens.Address,
     });
   };
 
+  const onAddressDelete = async (item: any) => {
+    let params = {
+      companyId: userInfo?.companyId?._id,
+      addressId: item._id,
+    };
+    const {data, error}: any = await deleteAddress(params);
+    if (!error && data?.statusCode === 200) {
+      utils.showSuccessToast(data.message);
+    } else {
+      utils.showErrorToast(error.message);
+    }
+  };
+
   const _renderItem = ({item, index}: any) => {
-    console.log(
-      'item === checkedData',
-      item === checkedData,
-      item,
-      checkedData,
-    );
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}
@@ -103,18 +90,19 @@ const AddressScreen = ({navigation, route}: any) => {
                 address: data?.result?.address,
               })
             }
+            onDeletePress={() => onAddressDelete(item)}
           />
         }
         disabled={from === RootScreens.SecureCheckout ? false : true}
         handleCheck={() => handleCheck(item)}
-        checked={item === checkedData}
+        checked={item?._id === checkedData?._id}
       />
     );
   };
 
   return (
     <View style={commonStyle.container}>
-      <Loader loading={isFetching} />
+      <Loader loading={isFetching || isLoading} />
       <NavigationBar
         hasCenter
         hasLeft
@@ -168,27 +156,13 @@ const AddressScreen = ({navigation, route}: any) => {
 export default AddressScreen;
 
 const styles = StyleSheet.create({
-  buttonContainer: {
+  buttonStyle: {
     borderRadius: 12,
     width: '100%',
     alignSelf: 'center',
-    height: hp(6),
-    marginBottom: hp(2),
-  },
-  itemContainer: {
-    backgroundColor: colors.white,
-    borderRadius: 10,
-    marginTop: hp(2),
-    padding: wp(2),
-    marginHorizontal: wp(0.5),
-    marginBottom: hp(0.5),
-  },
-  buttonStyle: {
-    borderRadius: 12,
-    width: '80%',
-    alignSelf: 'center',
-    position: 'absolute',
-    bottom: hp(15),
+    marginBottom: hp(3),
+    // position: 'absolute',
+    // bottom: hp(15),
   },
   floatingButton: {
     width: hp(6),
@@ -197,14 +171,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orange,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: wp(7),
-    right: wp(5),
-  },
-  childContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    backgroundColor: 'red',
+    alignSelf: 'flex-end',
+    marginBottom: hp(3),
+    // marginTop:hp(3),
+    // position: 'absolute',
+    // bottom: wp(25),
+    // right: wp(5),
   },
 });

@@ -47,8 +47,8 @@ const LoginScreen = ({navigation}: any) => {
   const [login, {isLoading}] = useLoginMutation();
   const [resend, {isLoading: isFetching}] = useResendEmailMutation();
   const passwordRef: any = useRef();
-  const [email, setEmail] = useState('tellus@yopmail.com');
-  const [password, setPassword] = useState('123456789');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -100,7 +100,6 @@ const LoginScreen = ({navigation}: any) => {
         password,
         // notificationToken,
       });
-      console.log('DATa../////', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
         resetNavigateTo(navigation, 'DashBoard');
@@ -112,7 +111,7 @@ const LoginScreen = ({navigation}: any) => {
         utils.showSuccessToast(data.message);
       } else {
         dispatch(setIsAuthenticated(false));
-        utils.showErrorToast(data.message || error);
+        data?.message !== 'Please verified email first' && utils.showErrorToast(data.message || error);
         data?.message === 'Please verified email first' && setIsOpen(true);
       }
     }
@@ -132,7 +131,6 @@ const LoginScreen = ({navigation}: any) => {
 
   const sendEmailPress = async () => {
     const {data, error}: any = await resend({email: email});
-    console.log('DARA: SendEmail', data, error);
     if (!error && data?.statusCode === 200) {
       setIsOpen(false);
     } else {
@@ -255,8 +253,19 @@ const LoginScreen = ({navigation}: any) => {
                         onPress={handleEyePress}
                         style={{
                           right: wp(7),
+                          padding:wp(2),
                         }}>
-                        {eyeIcon ? <SvgIcons.EyeOpen /> : <SvgIcons.EyeClose />}
+                        {eyeIcon ? (
+                          <SvgIcons.EyeOpen
+                            width={iconSize}
+                            height={iconSize}
+                          />
+                        ) : (
+                          <SvgIcons.EyeClose
+                            width={iconSize}
+                            height={iconSize}
+                          />
+                        )}
                       </TouchableOpacity>
                     </View>
                   }
@@ -322,13 +331,12 @@ const LoginScreen = ({navigation}: any) => {
       </View>
       <Popup
         visible={isOpen}
-        onOpen={() => setIsOpen(true)}
         onBackPress={() => setIsOpen(false)}
         title={'Verify your email'}
         description={`Please check your email for the verification link. If you have not received the email, we can resend it.`}
         rightBtnText={'Resend'}
         rightBtnPress={sendEmailPress}
-        onTouchPress={() => setIsOpen(false)}
+        // onTouchPress={() => setIsOpen(false)}
         // btnConatiner={{width:'100%'}}
         rightBtnStyle={{width: '100%', height: hp(6)}}
       />

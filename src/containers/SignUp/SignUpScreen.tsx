@@ -6,17 +6,11 @@ import {
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import { useRegisterMutation} from '../../api/auth';
-import {useDispatch} from 'react-redux';
+import {useRegisterMutation} from '../../api/auth';
 import Images from '../../assets/images';
-import {hp,  normalize, wp} from '../../styles/responsiveScreen';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Input, Loader} from '../../components';
-import {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLarge2Font,
-} from '../../styles';
+import {fontSize, iconSize, mediumFont, mediumLarge2Font} from '../../styles';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -50,7 +44,8 @@ const SignUpScreen = ({navigation}: any) => {
   const isValidUserName = checkValid && userName.length === 0;
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
-  const isValidPhoneNo = checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
+  const isValidPhoneNo =
+    checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
   const isValidPassword =
     checkValid && (password.length === 0 || password.length < 6);
 
@@ -72,7 +67,7 @@ const SignUpScreen = ({navigation}: any) => {
       email.length !== 0 &&
       validationEmail(email) &&
       phoneNo.length !== 0 &&
-      password.length !== 0 
+      password.length !== 0
       // && isCheck === true
     ) {
       const params: any = {
@@ -81,22 +76,16 @@ const SignUpScreen = ({navigation}: any) => {
         phone: phoneNo,
         password: password,
       };
-      console.log('params', params);
-
       const {data, error}: any = await register(params);
-      console.log('DATS', data, error);
       if (!error && data?.statusCode === 200) {
-        let param = {
-          from: 'SignUp',
-          email: email,
-          phone: phoneNo,
-        };
         clearData();
         setCheckValid(false);
         navigation.navigate(RootScreens.Login);
         utils.showSuccessToast(data.message);
       } else {
-        utils.showErrorToast(error?.data?.message[0]);
+        utils.showErrorToast(
+          data.message ? data.message : error?.data?.message[0],
+        );
         // Alert.alert('Error', data?.message || error);
       }
     }
@@ -297,8 +286,13 @@ const SignUpScreen = ({navigation}: any) => {
                       onPress={handleEyePress}
                       style={{
                         right: wp(7),
+                        padding: wp(2),
                       }}>
-                      {eyeIcon ? <SvgIcons.EyeOpen /> : <SvgIcons.EyeClose />}
+                      {eyeIcon ? (
+                        <SvgIcons.EyeOpen width={iconSize} height={iconSize} />
+                      ) : (
+                        <SvgIcons.EyeClose width={iconSize} height={iconSize} />
+                      )}
                     </TouchableOpacity>
                   </View>
                 }
@@ -395,7 +389,6 @@ const SignUpScreen = ({navigation}: any) => {
         </KeyboardAwareScrollView>
         <Popup
           visible={isOpen}
-          onOpen={() => setIsOpen(true)}
           onBackPress={() => setIsOpen(false)}
           title={'Verify your email'}
           description={`Please verify your email address by clicking the link sent to ${email}.`}

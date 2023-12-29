@@ -1,21 +1,12 @@
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
-import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
+import {NavigationBar, FontText, Input, Loader} from '../../components';
 import commonStyle, {
   mediumLargeFont,
   tabIcon,
   fontSize,
-  iconSize,
-  smallFont,
   mediumFont,
 } from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
@@ -24,34 +15,52 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import FilterModal from '../../components/FilterModal';
 import {useGetAllProductsQuery} from '../../api/product';
 import ProductComponent from '../../components/ProductComponent';
+import {useGetCartsQuery} from '../../api/cart';
 
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route.params.id;
   const company = route.params.company;
 
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState<[]>([]);
   const [search, setSearch] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [productListData, setProductListData] = useState([]);
   const filterRef: any = useRef(null);
 
-  const {data: productList, isFetching: isProcessing, refetch} = useGetAllProductsQuery(
+  const {
+    data: productList,
+    isFetching: isProcessing,
+    refetch,
+  } = useGetAllProductsQuery(
     {
       isBuyer: true,
       companyId: id,
       categoryId: selectedItems,
-      search: searchText,
+      // search: searchText,
     },
     {
       refetchOnMountOrArgChange: true,
     },
   );
-
-  console.log('companyId', id);
+  const {data: carts, isFetching} = useGetCartsQuery({
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
     setProductListData(productList?.result);
   }, [isProcessing, selectedItems]);
+
+  useEffect(() => {
+    if (!search) {
+      setProductListData(productList?.result);
+    } else {
+      const data = productList?.result.filter((item: any) => {
+        return item.name.includes(search);
+      });
+      setProductListData(data);
+    }
+  }, [search]);
 
   const onProductPress = (item: any) => {
     navigation.navigate(RootScreens.ProductDetail, {
@@ -59,43 +68,15 @@ const ProductListingScreen = ({navigation, route}: any) => {
     });
   };
 
-  const _renderItem = ({item, index}: any) => {
-    console.log('item', item);
-    return (
-      <TouchableOpacity
-        onPress={() => onProductPress(item)}
-        style={[styles.itemContainer, commonStyle.shadowContainer]}>
-        <Image source={{uri: item.image}} style={styles.logo} />
-        <FontText
-          name={'lexend-regular'}
-          size={smallFont}
-          color={'gray4'}
-          pTop={wp(2)}
-          textAlign={'center'}>
-          {item?.name}
-        </FontText>
-        <FontText
-          name={'lexend-regular'}
-          size={smallFont}
-          color={'black2'}
-          pTop={wp(1)}
-          //   pBottom={wp(2)}
-          textAlign={'left'}>
-          {'$'}
-          {item?.price}
-        </FontText>
-        {/* <Button bgColor={'orange'} style={styles.buttonContainer}>
-          <FontText name={'lexend-regular'} size={normalize(9)} color={'white'}>
-            {'Add to Cart'}
-          </FontText>
-        </Button> */}
-      </TouchableOpacity>
-    );
-  };
-
   const onSearch = (selectedItems: any) => {
     setSelectedItems(selectedItems);
     filterRef.current.close();
+  };
+
+  const onRefreshing = () => {
+    setRefreshing(true);
+    refetch();
+    setRefreshing(false);
   };
 
   return (
@@ -134,11 +115,22 @@ const ProductListingScreen = ({navigation, route}: any) => {
               style={commonStyle.iconView}
               onPress={() => navigation.navigate(RootScreens.CartList)}>
               <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
+              {carts && carts?.result && carts?.result?.cart?.length ? (
+                <View style={styles.countView}>
+                  <FontText
+                    color="white"
+                    name="lexend-medium"
+                    size={normalize(10)}
+                    textAlign={'center'}>
+                    {carts?.result?.cart?.length}
+                  </FontText>
+                </View>
+              ) : null}
             </TouchableOpacity>
           </View>
         }
       />
-      <Loader loading={isProcessing} />
+      <Loader loading={isProcessing || isFetching} />
       <View
         style={[commonStyle.paddingH4, commonStyle.flex, {marginTop: hp(1)}]}>
         <Input
@@ -165,19 +157,12 @@ const ProductListingScreen = ({navigation, route}: any) => {
           }
         />
         {productListData && productListData.length !== 0 ? (
-          // <FlatList
-          //   data={productListData}
-          //   renderItem={_renderItem}
-          //   numColumns={2}
-          //   contentContainerStyle={styles.productContentContainer}
-          //   columnWrapperStyle={[commonStyle.colJB]}
-          // />
           <ProductComponent
             data={productListData}
             productPress={onProductPress}
             navigation={navigation}
-            onRefresh={refetch}
-            refresh={isProcessing}
+            onRefresh={onRefreshing}
+            refresh={refreshing}
           />
         ) : (
           <View style={[commonStyle.allCenter, commonStyle.flex]}>
@@ -206,6 +191,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           navigation={navigation}
           id={id}
           onApply={onSearch}
+          filterItems={selectedItems}
         />
       </RBSheet>
     </View>
@@ -257,5 +243,16 @@ const styles = StyleSheet.create({
   btSheetContainer: {
     borderTopLeftRadius: normalize(30),
     borderTopRightRadius: normalize(30),
+  },
+  countView: {
+    width: hp(2.2),
+    height: hp(2.2),
+    backgroundColor: colors.orange,
+    borderRadius: hp(1.5),
+    position: 'absolute',
+    right: wp(2),
+    top: wp(2.5),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

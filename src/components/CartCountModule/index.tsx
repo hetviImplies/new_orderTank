@@ -10,7 +10,7 @@ const CartCountModule = (props: any) => {
   console.log('cartData', cartData);
   return (
     <View>
-      {cartData && cartData?.cart?.length !== 0 && (
+      {cartData && cartData?.length !== 0 && (
         <>
           <View style={[styles.totalContainer]}>
             <View style={{padding: wp(3)}}>
@@ -50,7 +50,7 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`$200`}
+                  {`$0`}
                 </FontText>
               </View>
             </View>
@@ -70,7 +70,7 @@ const CartCountModule = (props: any) => {
                 {`$${
                   cartData?.total
                     ? cartData?.total
-                    : orderDetails?.totalAmount + 200
+                    : orderDetails?.totalAmount
                 }`}
               </FontText>
             </View>

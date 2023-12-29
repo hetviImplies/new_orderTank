@@ -55,7 +55,7 @@ const PendingRequestScreen = ({navigation}: any) => {
           </View>
         </View>
         <Button disabled bgColor={'green'} style={styles.buttonContainer}>
-          <FontText name={'lexend-regular'} size={normalize(9)} color={'white'}>
+          <FontText name={'lexend-regular'} size={smallFont} color={'white'}>
             {'Pending'}
           </FontText>
         </Button>
@@ -148,8 +148,9 @@ const styles = StyleSheet.create({
     marginRight: wp(3),
   },
   buttonContainer: {
-    borderRadius: normalize(8),
-    height: hp(3),
+    borderRadius: normalize(10),
+    height: hp(3.5),
+    width: '25%',
   },
   containerContent: {
     paddingTop: hp(0.5),

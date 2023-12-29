@@ -78,13 +78,13 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         </FontText>
       </ImageBackground>
       <View style={styles.middleContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <SvgIcons.BackRound
             width={tabIcon}
             height={tabIcon}
             style={commonStyle.marginT2}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <KeyboardAwareScrollView>
           <View style={{marginTop: hp(3)}}>
             <View

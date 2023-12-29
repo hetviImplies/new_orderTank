@@ -58,6 +58,9 @@ import Home2 from './svgs/home2.svg';
 import FillRound from './svgs/fill-round.svg';
 import EmptyRound from './svgs/empty-round.svg';
 import RightArrow from './svgs/right-arrow.svg';
+import Gallery from './svgs/gallery.svg';
+import Camera from './svgs/camera.svg';
+import Delete from './svgs/delete.svg';
 
 export default {
   BackRound,
@@ -119,5 +122,8 @@ export default {
   Home2,
   FillRound,
   EmptyRound,
-  RightArrow
+  RightArrow,
+  Gallery,
+  Camera,
+  Delete
 };

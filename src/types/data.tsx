@@ -2,8 +2,8 @@ import SvgIcons from '../assets/SvgIcons';
 import {iconSize, tabIcon} from '../styles';
 import {wp} from '../styles/responsiveScreen';
 
-export const BASE_URL = `http://192.168.29.168:12344`;
-// export const BASE_URL = `http://146.190.140.18:3000`;
+// export const BASE_URL = `http://192.168.29.168:12344`;
+export const BASE_URL = `http://146.190.140.18:3000`;
 
 export const PROFILE_LIST = [
   {
@@ -18,22 +18,22 @@ export const PROFILE_LIST = [
     name: 'My Address',
     icon: <SvgIcons.Pin width={iconSize} height={iconSize} />,
   },
-  {
-    name: 'Privacy Policy',
-    icon: <SvgIcons.Policy width={iconSize} height={iconSize} />,
-  },
-  {
-    name: 'Terms & Condition',
-    icon: <SvgIcons.Term width={iconSize} height={iconSize} />,
-  },
-  {
-    name: 'About us',
-    icon: <SvgIcons.AboutUs width={iconSize} height={iconSize} />,
-  },
-  {
-    name: 'Contact us',
-    icon: <SvgIcons.ContactUs width={iconSize} height={iconSize} />,
-  },
+  // {
+  //   name: 'Privacy Policy',
+  //   icon: <SvgIcons.Policy width={iconSize} height={iconSize} />,
+  // },
+  // {
+  //   name: 'Terms & Condition',
+  //   icon: <SvgIcons.Term width={iconSize} height={iconSize} />,
+  // },
+  // {
+  //   name: 'About us',
+  //   icon: <SvgIcons.AboutUs width={iconSize} height={iconSize} />,
+  // },
+  // {
+  //   name: 'Contact us',
+  //   icon: <SvgIcons.ContactUs width={iconSize} height={iconSize} />,
+  // },
   {
     name: 'Log out',
     icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,

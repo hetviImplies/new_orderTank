@@ -20,12 +20,19 @@ import {useSelector} from 'react-redux';
 import CompanyDetail from '../../components/CompanyDetail';
 import utils from '../../helper/utils';
 import {useCompanyRequestMutation} from '../../api/company';
+import {useGetCartsQuery} from '../../api/cart';
 
 const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
+  const {data: carts, isFetching} = useGetCartsQuery(
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
+  console.log('carts', userInfo?.companyId?._id)
   const isGuest =
     (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
@@ -160,7 +167,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         </Button>
         <Popup
           visible={isOpen}
-          onOpen={() => setIsOpen(true)}
           onBackPress={() => setIsOpen(false)}
           title={'Enter Supplier Code'}
           titleStyle={{textAlign: 'left'}}
@@ -183,7 +189,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           rightBtnText={'Apply'}
           rightBtnColor={code !== '' ? 'orange' : 'gray'}
           rightBtnPress={applyCodePress}
-          // onTouchPress={() => setIsOpen(false)}
           rightBtnStyle={{width: '100%'}}
         />
       </View>
@@ -191,6 +196,17 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         onPress={() => navigation.navigate(RootScreens.CartList)}
         style={styles.floatingButton}>
         <SvgIcons.Buy width={wp(8.5)} height={wp(8.5)} fill={colors.white} />
+        {carts && carts?.result && carts?.result?.cart?.length ? (
+          <View style={[styles.cartCount]}>
+            <FontText
+              color="orange"
+              name="lexend-medium"
+              size={smallFont}
+              textAlign={'center'}>
+              {carts?.result?.cart?.length}
+            </FontText>
+          </View>
+        ) : null}
       </TouchableOpacity>
     </View>
   );
@@ -245,11 +261,22 @@ const styles = StyleSheet.create({
   countView: {
     width: wp(2.5),
     height: wp(2.5),
-    backgroundColor: colors.brown,
+    backgroundColor: colors.orange,
     borderRadius: wp(10),
     position: 'absolute',
     right: wp(3.2),
     top: wp(2.5),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartCount: {
+    width: wp(5),
+    height: wp(5),
+    backgroundColor: colors.white,
+    borderRadius: wp(10),
+    position: 'absolute',
+    right: wp(3),
+    top: wp(3.5),
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,12 +1,13 @@
-import {FlatList, Pressable, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {FontText, Loader} from '..';
-import {
-  fontSize,
-  mediumFont,
-  mediumLargeFont,
-  tabIcon,
-} from '../../styles';
+import {fontSize, mediumFont, mediumLargeFont, tabIcon} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {useGetCategoryQuery} from '../../api/category';
@@ -16,7 +17,7 @@ import SvgIcons from '../../assets/SvgIcons';
 import commonStyle from '../../styles';
 
 const FilterModal = (props: any) => {
-  const {navigation, onApplyPress, id, onApply} = props;
+  const {filterItems, onApplyPress, id, onApply} = props;
   const {data: category, isFetching} = useGetCategoryQuery(
     {companyId: id},
     {
@@ -24,9 +25,7 @@ const FilterModal = (props: any) => {
     },
   );
   const [categoryData, setCategoryData] = useState([]);
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-
-  const [values, setValues] = useState([1000, 2500]);
+  const [selectedItems, setSelectedItems] = useState<any>(filterItems);
 
   console.log('category', category);
 
@@ -36,7 +35,6 @@ const FilterModal = (props: any) => {
 
   const onReset = () => {
     setSelectedItems([]);
-    setValues([1000, 2500]);
   };
 
   // const onApply = (item: any) => {
@@ -49,15 +47,30 @@ const FilterModal = (props: any) => {
   //   });
   // };
 
+  // const toggleSelection = (item: any) => {
+  //   console.log('Toggle selection', selectedItems, item._id)
+  //   var idx = selectedItems.findIndex((i: any) => i === item._id);
+  //   if (idx !== -1) {
+  //     selectedItems.splice(idx, 1);
+  //   } else {
+  //     selectedItems.push(item._id);
+  //   }
+  //   setSelectedItems([...selectedItems]);
+  // };
+
   const toggleSelection = (item: any) => {
-    var idx = selectedItems.findIndex((i: any) => i === item._id);
-    if (idx !== -1) {
-      selectedItems.splice(idx, 1);
-    } else {
-      selectedItems.push(item._id);
-    }
-    setSelectedItems([...selectedItems]);
-  };
+  const itemId = item._id;
+  const idx = selectedItems.findIndex((i: any) => i === itemId);
+  let newSelectedItems = [...selectedItems]; // Create a new array reference
+
+  if (idx !== -1) {
+    newSelectedItems = newSelectedItems.filter((i: any) => i !== itemId); // Remove item if already selected
+  } else {
+    newSelectedItems.push(itemId); // Add item if not selected
+  }
+
+  setSelectedItems(newSelectedItems); // Update state with the new array
+};
 
   const _renderItem = ({item, index}: any) => {
     const isSelected = selectedItems.some((i: any) => i === item._id);
@@ -66,15 +79,13 @@ const FilterModal = (props: any) => {
         style={[
           styles.itemContainer,
           {
-            borderColor:
-              isSelected? 'transparent' : colors.line,
-            backgroundColor:
-              isSelected? colors.orange : colors.white,
+            borderColor: isSelected ? 'transparent' : colors.line,
+            backgroundColor: isSelected ? colors.orange : colors.white,
           },
         ]}
         onPress={() => toggleSelection(item)}>
         <FontText
-          color={isSelected? 'white' : 'black2'}
+          color={isSelected ? 'white' : 'black2'}
           name="lexend-regular"
           size={mediumFont}
           pLeft={wp(2)}
@@ -98,7 +109,7 @@ const FilterModal = (props: any) => {
           {'Select Category'}
         </FontText>
         <TouchableOpacity onPress={onApplyPress}>
-        <SvgIcons.Close width={tabIcon} height={tabIcon} />
+          <SvgIcons.Close width={tabIcon} height={tabIcon} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -107,14 +118,24 @@ const FilterModal = (props: any) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentStyle}
       />
-      <Button
-        onPress={() => onApply(selectedItems)}
-        bgColor={'orange'}
-        style={styles.buttonContainer}>
-        <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-          {'Search'}
-        </FontText>
-      </Button>
+      <View style={commonStyle.rowJB}>
+        <Button
+          onPress={onReset}
+          bgColor={'orange'}
+          style={styles.buttonContainer}>
+          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            {'Reset'}
+          </FontText>
+        </Button>
+        <Button
+          onPress={() => onApply(selectedItems)}
+          bgColor={'orange'}
+          style={styles.buttonContainer}>
+          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            {'Apply'}
+          </FontText>
+        </Button>
+      </View>
     </View>
   );
 };
@@ -127,7 +148,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: wp(0.5),
-    paddingBottom: wp(100),
   },
   itemContainer: {
     flexDirection: 'row',
@@ -148,7 +168,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: normalize(6),
-    width: '100%',
+    width: '47%',
     marginBottom: hp(3),
   },
 });

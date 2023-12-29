@@ -54,7 +54,7 @@ const CartScreen = ({navigation, route}: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setCartData(carts?.result?.cart);
+    setCartData(carts?.result);
   }, [isFetching, carts, companyId]);
 
   const placeOrderPress = () => {
@@ -209,7 +209,7 @@ const CartScreen = ({navigation, route}: any) => {
       <View style={commonStyle.flex}>
         {cartData && cartData?.length !== 0 ? (
           <FlatList
-            data={cartData}
+            data={cartData?.cart}
             renderItem={_renderItem}
             contentContainerStyle={styles.product2CC}
           />
@@ -250,15 +250,14 @@ const CartScreen = ({navigation, route}: any) => {
         <CartCountModule
           btnText={'Secure Checkout'}
           btnColor={'orange'}
-          cartData={carts?.result}
+          cartData={cartData}
           onPress={placeOrderPress}
           isShow={true}
         />
       </View>
       <Popup
         visible={isOpen}
-        onOpen={() => setIsOpen(true)}
-        onBackPress={() => setIsOpen(false)}
+        // onBackPress={() => setIsOpen(false)}
         title={`Are you sure you want to Cancel\nthis item?`}
         titleStyle={{fontSize: normalize(14)}}
         leftBtnText={'No, don’t cancel'}

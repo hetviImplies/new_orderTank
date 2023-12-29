@@ -32,7 +32,7 @@ const OrderScreen = ({navigation}: any) => {
     },
   );
 
-  // console.log('orderList?.result', orderList?.result)
+  console.log('orderList?.result', orderList?.result?.length);
 
   useEffect(() => {
     setOrderData(orderList?.result);
@@ -161,7 +161,7 @@ const OrderScreen = ({navigation}: any) => {
             size={mediumLargeFont}
             color={'black'}
             textAlign={'center'}>
-            {'Profile'}
+            {'Order'}
           </FontText>
         }
       />
@@ -195,7 +195,12 @@ const OrderScreen = ({navigation}: any) => {
                     size={mediumFont}
                     textAlign={'center'}
                     name={'lexend-regular'}>
-                    {item?.label}
+                    {item?.label}{' '}
+                    {selectOrder?.label === item?.label
+                      ? orderList?.result?.length === undefined
+                        ? ''
+                        : `(${orderList?.result?.length})`
+                      : ''}
                   </FontText>
                 </View>
               </TouchableOpacity>

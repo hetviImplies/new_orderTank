@@ -1,4 +1,4 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Dimensions, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import colors from '../../assets/colors';
 import {Button, FontText, Input, Loader, NavigationBar} from '..';
@@ -305,7 +305,6 @@ const CompanyDetail = (props: any) => {
                   color={'black'}
                   returnKeyType={'next'}
                   blurOnSubmit
-                  keyboardType="numeric"
                   onSubmit={() => {
                     companyRef?.current.focus();
                   }}
@@ -403,17 +402,16 @@ const CompanyDetail = (props: any) => {
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
                 color={'black'}
-                inputStyle={styles.inputText}
-                style={styles.input}
+                inputStyle={[styles.inputText,{ paddingTop:hp(2)}]}
+                style={[styles.input,{marginVertical:hp(2)}]}
                 returnKeyType={'next'}
                 multiline
-                multilineHeight={null}
                 blurOnSubmit
                 onSubmit={() => {
                   localityRef?.current.focus();
                 }}
                 children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <View style={[commonStyle.abs, {left: wp(4), top:0}]}>
                     <SvgIcons.Location width={iconSize} height={iconSize} />
                   </View>
                 }
@@ -667,7 +665,7 @@ const CompanyDetail = (props: any) => {
           </Button>
         )}
         <BottomSheet
-          height={hp(100)}
+          height={hp(50)}
           sheetRef={stateRef}
           itemPress={(val: any) => {
             setState(val);
@@ -677,7 +675,7 @@ const CompanyDetail = (props: any) => {
           data={STATES_LIST}
         />
         <BottomSheet
-          height={hp(100)}
+          height={hp(50)}
           sheetRef={countryRef}
           itemPress={(val: any) => {
             setCountry(val);
@@ -688,13 +686,33 @@ const CompanyDetail = (props: any) => {
         />
         <RBSheet
           ref={imageRef}
-          height={hp(23)}
+          height={hp(20)}
           closeOnPressMask
           closeOnPressBack
           closeOnDragDown
           dragFromTopOnly>
-          <View style={commonStyle.colAC}>
-            <Button
+          <View style={[commonStyle.rowJEC,{marginTop:hp(2)}]}>
+            <TouchableOpacity onPress={openCamera}>
+              <SvgIcons.Camera width={wp(15)} height={wp(15)}/>
+              <FontText
+                name={'lexend-regular'}
+                size={fontSize}
+                color={'orange'}>
+                {'camera'}
+              </FontText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              // style={styles.iconView}
+              onPress={openPhotoBrowser}>
+              <SvgIcons.Gallery width={wp(15)} height={wp(15)}/>
+              <FontText
+                name={'lexend-regular'}
+                size={fontSize}
+                color={'orange'}>
+                {'Gallery'}
+              </FontText>
+            </TouchableOpacity>
+            {/* <Button
               onPress={openCamera}
               bgColor={'orange'}
               style={[
@@ -724,7 +742,7 @@ const CompanyDetail = (props: any) => {
                 color={'white'}>
                 {'Upload photo from gallery'}
               </FontText>
-            </Button>
+            </Button> */}
           </View>
         </RBSheet>
       </View>
@@ -781,5 +799,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     resizeMode: 'cover',
     marginBottom: hp(2),
+  },
+  iconView: {
+    // padding: wp(2),
+    // borderRadius: normalize(25),
+    // borderColor: colors.orange,
+    // borderWidth: 2,
   },
 });

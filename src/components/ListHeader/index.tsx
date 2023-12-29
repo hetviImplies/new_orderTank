@@ -1,6 +1,6 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import commonStyle, {fontSize, smallFont} from '../../styles';
+import commonStyle, {fontSize, mediumFont, smallFont} from '../../styles';
 import {FontText} from '..';
 
 const ListHeader = (props: any) => {
@@ -18,7 +18,7 @@ const ListHeader = (props: any) => {
         <FontText
           color="orange"
           name="lexend-regular"
-          size={smallFont}
+          size={mediumFont}
           textAlign={'right'}>
           {rightName}
         </FontText>

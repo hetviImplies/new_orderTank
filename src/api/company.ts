@@ -84,6 +84,15 @@ export const companyApi = createApi({
       },
       invalidatesTags: ['company'],
     }),
+    removeAddress: builder.mutation({
+      query: body => {
+        return {
+          url: `${body.companyId}/removeAddress/${body.addressId}`,
+          method: 'PUT',
+        };
+      },
+      invalidatesTags: ['company'],
+    }),
   }),
 });
 
@@ -94,5 +103,6 @@ export const {
   useGetSupplierQuery,
   useCompanyRequestMutation,
   useCreateAddressMutation,
-  useUpdateAddressMutation
+  useUpdateAddressMutation,
+  useRemoveAddressMutation
 } = companyApi;

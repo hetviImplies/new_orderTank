@@ -1,17 +1,19 @@
 //import liraries
-import React from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import colors from '../../assets/colors';
-import {hp, wp} from '../../styles/responsiveScreen';
-import {CheckPreferenceItem, FontText} from '..';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {CheckPreferenceItem, FontText, Input} from '..';
 import SvgIcons from '../../assets/SvgIcons';
 import {fontSize, iconSize, tabIcon} from '../../styles';
+import commonStyle from '../../styles';
 // create a component
-const BottomSheet = (props:any) => {
+const BottomSheet = (props: any) => {
   const renderComponent = () => {
     const bottomSheetData = props?.data;
-
+    const [search, setSearch] = useState('');
+    const [searchText, setSearchText] = useState('');
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         {bottomSheetData?.map((item: any, index: number) => {
@@ -93,7 +95,12 @@ const BottomSheet = (props:any) => {
     <RBSheet
       height={props.height}
       ref={props.sheetRef}
-      customStyles={{wrapper:{backgroundColor: colors.grayOpacity, paddingVertical: wp(4)}}}>
+      customStyles={{
+        wrapper: {
+          backgroundColor: 'rgba(52, 52, 52, 0.5)',
+          paddingVertical: wp(4),
+        },
+      }}>
       {renderComponent()}
     </RBSheet>
   );
@@ -112,6 +119,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: wp(4),
     paddingVertical: wp(3),
+  },
+  inputText: {
+    borderRadius: normalize(10),
+    paddingLeft: wp(10),
+    color: colors.black2,
+    fontSize: normalize(12),
+    fontFamily: 'lexend-regular',
+    backgroundColor: colors.white2,
+  },
+  input: {
+    width: '100%',
+    borderRadius: 10,
+    justifyContent: 'center',
+    height: hp(6),
   },
 });
 

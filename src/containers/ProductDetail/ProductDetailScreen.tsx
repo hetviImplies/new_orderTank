@@ -20,7 +20,7 @@ import {RootScreens} from '../../types/type';
 import {useGetAllProductsQuery, useGetOneProductQuery} from '../../api/product';
 import ListHeader from '../../components/ListHeader';
 import commonStyle from '../../styles';
-import {useAddCartMutation} from '../../api/cart';
+import {useAddCartMutation, useGetCartsQuery} from '../../api/cart';
 import utils from '../../helper/utils';
 import ProductComponent from '../../components/ProductComponent';
 
@@ -38,6 +38,14 @@ const ProductDetailScreen = ({navigation, route}: any) => {
       isBuyer: true,
       companyId: companyId,
     },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  const {
+    data: carts,
+    isFetching,
+  } = useGetCartsQuery(
     {
       refetchOnMountOrArgChange: true,
     },
@@ -98,22 +106,22 @@ const ProductDetailScreen = ({navigation, route}: any) => {
                 navigation.navigate(RootScreens.CartList);
               }}>
               <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
-              {/* {carts && carts.result && carts.result.totalQuantity ? (
+              {carts && carts?.result && carts?.result?.cart?.length ? (
                 <View style={styles.countView}>
                   <FontText
                     color="white"
-                    name="lexend-bold"
+                    name="lexend-medium"
                     size={normalize(10)}
                     textAlign={'center'}>
-                    {carts.result.totalQuantity}
+                    {carts?.result?.cart?.length}
                   </FontText>
                 </View>
-              ) : null} */}
+              ) : null}
             </TouchableOpacity>
           </View>
         }
       />
-      <Loader loading={isProcessing || isProcess || isLoading} />
+      <Loader loading={isProcessing || isProcess || isLoading || isFetching} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: hp(2)}}
@@ -163,7 +171,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           </FontText>
         </Button>
         <View style={styles.line} />
-        <ListHeader leftName={'Related Product'} />
+        <ListHeader leftName={'Related Product'} rightName={'See All'} rightPress={() =>  navigation.goBack()}/>
         <ProductComponent
           data={productListData && productListData.slice(0, 2)}
           productPress={onProductPress}

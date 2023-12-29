@@ -3,14 +3,12 @@ import {
   Image,
   RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import commonStyle, {
   fontSize,
-  iconSize,
   mediumFont,
   mediumLargeFont,
   smallFont,
@@ -19,7 +17,6 @@ import commonStyle, {
 import SvgIcons from '../../assets/SvgIcons';
 import {NavigationBar, FontText, Input, Loader} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {BASE_URL} from '../../types/data';
 import {RootScreens} from '../../types/type';
 import colors from '../../assets/colors';
 import Popup from '../../components/Popup';
@@ -40,14 +37,29 @@ const SupplierScreen = ({navigation}: any) => {
     isFetching: isProcessing,
     refetch,
   } = useGetSupplierQuery(
-    {search: searchText, status: 'accepted'},
+    // {search: searchText, status: 'accepted'},
+    {status: 'accepted'},
     {
       refetchOnMountOrArgChange: true,
     },
   );
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
+  const [suppplierData, setSupplierData] = useState([]);
 
-  console.log('supplierList', supplierList?.result);
+  useEffect(() => {
+    setSupplierData(supplierList?.result);
+  }, [isProcessing]);
+
+  useEffect(() => {
+    if (!search) {
+      setSupplierData(supplierList?.result);
+    } else {
+      const data = supplierList?.result.filter((item: any) => {
+        return item.companyName.includes(search);
+      });
+      setSupplierData(data);
+    }
+  }, [search]);
 
   const _renderItem = ({item, index}: any) => {
     return (
@@ -87,7 +99,6 @@ const SupplierScreen = ({navigation}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    console.log('DATA', data, error);
     if (!error) {
       setIsOpen(false);
       setCode('');
@@ -157,11 +168,9 @@ const SupplierScreen = ({navigation}: any) => {
             </View>
           }
         />
-        {supplierList &&
-        supplierList?.result &&
-        supplierList?.result?.length > 0 ? (
+        {suppplierData && suppplierData?.length > 0 ? (
           <FlatList
-            data={supplierList?.result}
+            data={suppplierData}
             renderItem={_renderItem}
             contentContainerStyle={styles.containerContent}
             refreshControl={
@@ -182,7 +191,6 @@ const SupplierScreen = ({navigation}: any) => {
       </View>
       <Popup
         visible={isOpen}
-        onOpen={() => setIsOpen(true)}
         onBackPress={() => {
           setIsOpen(false);
           setCode('');
@@ -208,7 +216,6 @@ const SupplierScreen = ({navigation}: any) => {
         rightBtnText={'Apply'}
         rightBtnColor={code !== '' ? 'orange' : 'gray'}
         rightBtnPress={applyCodePress}
-        // onTouchPress={() => setIsOpen(false)}
         rightBtnStyle={{width: '100%'}}
       />
     </View>

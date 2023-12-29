@@ -1,13 +1,16 @@
 import {
+  Animated,
+  Keyboard,
   Modal,
   Pressable,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Button, FontText} from '..';
 import {
   fontSize,
@@ -31,10 +34,8 @@ const Popup = (props: any) => {
     rightBtnText,
     leftBtnPress,
     rightBtnPress,
-    onTouchPress,
     visible,
     onBackPress,
-    onOpen,
     btnConatiner,
     rightBtnStyle,
     leftBtnStyle,
@@ -45,17 +46,23 @@ const Popup = (props: any) => {
     leftBtnTextStyle,
     rightBtnTextStyle,
     disabled,
-    rightBtnColor
+    rightBtnColor,
   } = props;
+
+  // useEffect(() => {
+  //   if (!visible) Keyboard.dismiss();
+  // }, [visible]);
+
+  // if (!visible) return null;
+
   return (
-    <Modal
-      transparent={true}
-      animationType={'none'}
-      visible={visible}
-      onRequestClose={onBackPress}>
-      <TouchableNativeFeedback style={{flex: 1}} onPress={onTouchPress}>
-        <View style={styles.background}>
-          <Pressable style={[styles.container, style]} onPress={onOpen}>
+    <Modal transparent visible={visible}>
+      <View style={styles.fullScreen}>
+        <TouchableWithoutFeedback onPress={onBackPress}>
+          <Animated.View style={[styles.backdrop]} />
+        </TouchableWithoutFeedback>
+        <View style={[styles.container, style]}>
+          {onBackPress ? (
             <TouchableOpacity
               onPress={onBackPress}
               style={{alignSelf: 'flex-end'}}>
@@ -65,63 +72,62 @@ const Popup = (props: any) => {
                 style={{alignSelf: 'flex-end'}}
               />
             </TouchableOpacity>
-            {image}
+          ) : null}
+          {image}
+          <FontText
+            color="black"
+            name="lexend-semibold"
+            size={mediumLarge1Font}
+            pTop={wp(1)}
+            pBottom={wp(2)}
+            style={titleStyle}
+            textAlign={'center'}>
+            {title}
+          </FontText>
+          {description ? (
             <FontText
               color="black"
-              name="lexend-semibold"
-              size={mediumLarge1Font}
-              pTop={wp(1)}
-              pBottom={wp(2)}
-              style={titleStyle}
+              name="lexend-regular"
+              size={smallFont}
+              pTop={wp(2)}
               textAlign={'center'}>
-              {title}
+              {description}
             </FontText>
-            {description ? (
-              <FontText
-                color="black"
-                name="lexend-regular"
-                size={smallFont}
-                pTop={wp(2)}
-                textAlign={'center'}>
-                {description}
-              </FontText>
-            ) : null}
-            {children}
-            <View
-              style={[btnConatiner, commonStyle.rowJB, commonStyle.marginT2]}>
-              {leftBtnPress && (
-                <Button
-                  onPress={leftBtnPress}
-                  bgColor={'transparent'}
-                  style={[styles.leftBtn, leftBtnStyle]}>
-                  <FontText
-                    name={'lexend-semibold'}
-                    size={fontSize}
-                    style={leftBtnTextStyle}
-                    color={'orange'}>
-                    {leftBtnText}
-                  </FontText>
-                </Button>
-              )}
-              {rightBtnPress && (
-                <Button
-                  onPress={rightBtnPress}
-                  bgColor={rightBtnColor}
-                  disabled={disabled}
-                  style={[styles.rightBtn, rightBtnStyle]}>
-                  <FontText
-                    name={'lexend-semibold'}
-                    size={fontSize}
-                    style={rightBtnTextStyle}
-                    color={'white'}>
-                    {rightBtnText}
-                  </FontText>
-                </Button>
-              )}
-            </View>
-          </Pressable>
+          ) : null}
+          {children}
+          <View style={[btnConatiner, commonStyle.rowJB, commonStyle.marginT2]}>
+            {leftBtnPress && (
+              <Button
+                onPress={leftBtnPress}
+                bgColor={'transparent'}
+                style={[styles.leftBtn, leftBtnStyle]}>
+                <FontText
+                  name={'lexend-semibold'}
+                  size={fontSize}
+                  style={leftBtnTextStyle}
+                  color={'orange'}>
+                  {leftBtnText}
+                </FontText>
+              </Button>
+            )}
+            {rightBtnPress && (
+              <Button
+                onPress={rightBtnPress}
+                bgColor={rightBtnColor ? rightBtnColor : 'orange'}
+                disabled={disabled}
+                style={[styles.rightBtn, rightBtnStyle]}>
+                <FontText
+                  name={'lexend-semibold'}
+                  size={fontSize}
+                  style={rightBtnTextStyle}
+                  color={'white'}>
+                  {rightBtnText}
+                </FontText>
+              </Button>
+            )}
+          </View>
         </View>
-      </TouchableNativeFeedback>
+      </View>
     </Modal>
   );
 };
@@ -129,13 +135,6 @@ const Popup = (props: any) => {
 export default Popup;
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    backgroundColor: 'rgba(52, 52, 52, 0.5)',
-  },
   container: {
     backgroundColor: colors.white,
     paddingVertical: hp(2),
@@ -156,5 +155,18 @@ const styles = StyleSheet.create({
     width: '46%',
     alignSelf: 'center',
     height: hp(6),
+  },
+  fullScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    backgroundColor: 'rgba(52, 52, 52, 0.5)',
   },
 });
