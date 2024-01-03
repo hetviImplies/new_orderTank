@@ -21,7 +21,6 @@ import MyOrderScreen from '../containers/MyOrder/MyOrderScreen';
 import WishlistScreen from '../containers/Wishlist/WishlistScreen';
 import OrderDetailScreen from '../containers/OrderDetail/OrderDetailScreen';
 import AddAddressScreen from '../containers/AddAddress/AddAddressScreen';
-import EditProfileScreen from '../containers/EditProfile/EditProfileScreen';
 import SearchScreen from '../containers/Search/SearchScreen';
 import OrderPlacedScreen from '../containers/OrderPlaced/OrderPlacedScreen';
 import WelcomeScreen from '../containers/Welcome/WelcomeScreen';
@@ -158,10 +157,6 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.MyWishlist}
         component={WishlistScreen}
-      />
-      <RootStack.Screen
-        name={RootScreens.EditProfile}
-        component={EditProfileScreen}
       />
       <RootStack.Screen name={RootScreens.Search} component={SearchScreen} />
       <RootStack.Screen

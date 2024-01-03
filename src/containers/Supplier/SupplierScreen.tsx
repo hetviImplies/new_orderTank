@@ -26,7 +26,7 @@ import {
 } from '../../api/company';
 import {err} from 'react-native-svg';
 import utils from '../../helper/utils';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 
 const SupplierScreen = ({navigation}: any) => {
   const [search, setSearch] = useState('');
@@ -51,7 +51,7 @@ const SupplierScreen = ({navigation}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       refetch();
-    },[])
+    }, []),
   );
 
   const onRefreshing = () => {
@@ -188,7 +188,10 @@ const SupplierScreen = ({navigation}: any) => {
             renderItem={_renderItem}
             contentContainerStyle={styles.containerContent}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefreshing}
+              />
             }
           />
         ) : (
@@ -246,12 +249,13 @@ const styles = StyleSheet.create({
     fontSize: normalize(12),
     fontFamily: 'lexend-regular',
     backgroundColor: colors.white2,
+    height: hp(6.5),
   },
   input: {
     width: '100%',
     borderRadius: 10,
     justifyContent: 'center',
-    height: hp(6),
+    height: hp(6.5),
   },
   itemContainer: {
     flexDirection: 'row',
@@ -268,6 +272,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: normalize(5),
     marginRight: wp(3),
+    borderWidth: 0.2,
+    borderColor: colors.black2,
   },
   dashInput: {
     borderStyle: 'dashed',

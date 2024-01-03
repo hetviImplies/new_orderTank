@@ -2,7 +2,7 @@ import Reactotron from 'reactotron-react-native';
 
 Reactotron.configure({
   name: 'OrderTank',
-  host: '192.168.29.201',
+  host: '192.168.29.202',
 })
   .useReactNative({
     asyncStorage: false, // there are more options to the async storage.

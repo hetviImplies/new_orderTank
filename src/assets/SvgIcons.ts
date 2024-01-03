@@ -61,6 +61,9 @@ import RightArrow from './svgs/right-arrow.svg';
 import Gallery from './svgs/gallery.svg';
 import Camera from './svgs/camera.svg';
 import Delete from './svgs/delete.svg';
+import PowerOff from './svgs/power-off.svg';
+import AddOrder from './svgs/add-order.svg';
+import AddSupplier from './svgs/add-supplier.svg';
 
 export default {
   BackRound,
@@ -125,5 +128,8 @@ export default {
   RightArrow,
   Gallery,
   Camera,
-  Delete
+  Delete,
+  PowerOff,
+  AddOrder, 
+  AddSupplier
 };

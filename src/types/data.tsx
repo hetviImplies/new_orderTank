@@ -42,11 +42,12 @@ export const PROFILE_LIST = [
 // export const ORDERTYPE = ['All Order', 'Pending', 'On going', 'Completed', 'Cancel'];
 
 export const ORDERTYPE = [
-  { label: "All Order", value: "all" },
-  { label: "Pending", value: "pending" },
-  { label: "On going", value: "processing" },
-  { label: "Completed", value: "delivered" },
-  { label: "Cancelled", value: "cancelled" }]
+  {label: 'All Order', value: 'all'},
+  {label: 'Pending', value: 'pending'},
+  {label: 'On going', value: 'processing'},
+  {label: 'Completed', value: 'delivered'},
+  {label: 'Cancelled', value: 'cancelled'},
+];
 // export const ORDERTYPE = [
 //   {
 //     label: 'All Order',
@@ -87,7 +88,10 @@ export const HISTORY_LIST = [
 
 export const ADDRESS_TYPE = ['Home', 'Office'];
 
-export const PAYMENT_TYPE = ['Card', 'Apple Pay', 'Google Pay'];
+export const NUMBER_TYPE = [
+  {label: 'GST Number', value: 1},
+  {label: 'PAN Number', value: 2},
+];
 
 export const STATES_LIST = [
   'Andhra Pradesh',

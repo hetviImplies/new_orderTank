@@ -25,6 +25,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [search, setSearch] = useState('');
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [isHorizontal, setIsHorizontal] = useState(false);
   const [productListData, setProductListData] = useState([]);
   const filterRef: any = useRef(null);
 
@@ -108,7 +109,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           <View style={[commonStyle.row]}>
             <TouchableOpacity
               style={[commonStyle.iconView, {marginRight: wp(5)}]}
-              onPress={() => filterRef.current.open()}>
+              onPress={() => setIsHorizontal(!isHorizontal)}>
               <SvgIcons.Category width={tabIcon} height={tabIcon} />
             </TouchableOpacity>
             <TouchableOpacity
@@ -132,30 +133,41 @@ const ProductListingScreen = ({navigation, route}: any) => {
       />
       <Loader loading={isProcessing || isFetching} />
       <View
-        style={[commonStyle.paddingH4, commonStyle.flex, {marginTop: hp(1)}]}>
-        <Input
-          value={search}
-          onChangeText={(text: any) => setSearch(text.trimStart())}
-          onSubmit={(text: any) => setSearchText(text.trimStart())}
-          blurOnSubmit
-          autoCapitalize="none"
-          placeholder={'Search a product'}
-          placeholderTextColor={'gray3'}
-          fontSize={fontSize}
-          inputStyle={styles.inputText}
-          color={'black'}
-          returnKeyType={'done'}
-          style={[styles.input]}
-          children={
-            <View
-              style={{
-                ...commonStyle.abs,
-                left: wp(3),
-              }}>
-              <SvgIcons.Search width={wp(4)} height={wp(4)} />
-            </View>
-          }
-        />
+        style={[
+          commonStyle.paddingH4,
+          commonStyle.flex,
+          {marginTop: hp(1), flexWrap: 'wrap'},
+        ]}>
+        <View style={[commonStyle.rowJB, {marginBottom:hp(1)}]}>
+          <Input
+            value={search}
+            onChangeText={(text: any) => setSearch(text.trimStart())}
+            onSubmit={(text: any) => setSearchText(text.trimStart())}
+            blurOnSubmit
+            autoCapitalize="none"
+            placeholder={'Search a product'}
+            placeholderTextColor={'gray3'}
+            fontSize={fontSize}
+            inputStyle={styles.inputText}
+            color={'black'}
+            returnKeyType={'done'}
+            style={[styles.input]}
+            children={
+              <View
+                style={{
+                  ...commonStyle.abs,
+                  left: wp(3),
+                }}>
+                <SvgIcons.Search width={wp(4)} height={wp(4)} />
+              </View>
+            }
+          />
+          <TouchableOpacity
+            style={[commonStyle.iconView]}
+            onPress={() => filterRef.current.open()}>
+            <SvgIcons.Filter width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+        </View>
         {productListData && productListData.length !== 0 ? (
           <ProductComponent
             data={productListData}
@@ -163,6 +175,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
             navigation={navigation}
             onRefresh={onRefreshing}
             refresh={refreshing}
+            isHorizontal={isHorizontal}
           />
         ) : (
           <View style={[commonStyle.allCenter, commonStyle.flex]}>
@@ -208,12 +221,13 @@ const styles = StyleSheet.create({
     fontSize: normalize(12),
     fontFamily: 'lexend-regular',
     backgroundColor: colors.white2,
+    height: hp(6.5),
   },
   input: {
-    width: '100%',
-    borderRadius: 10,
+    width: '82%',
+    borderRadius: normalize(10),
     justifyContent: 'center',
-    height: hp(6),
+    height: hp(6.5),
   },
   itemContainer: {
     alignItems: 'center',

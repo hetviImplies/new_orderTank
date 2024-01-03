@@ -14,23 +14,38 @@ import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
-import {BASE_URL, HISTORY_LIST} from '../../types/data';
+import {HISTORY_LIST} from '../../types/data';
 import Popup from '../../components/Popup';
 import {useSelector} from 'react-redux';
 import CompanyDetail from '../../components/CompanyDetail';
 import utils from '../../helper/utils';
 import {useCompanyRequestMutation} from '../../api/company';
-import {useGetCartsQuery} from '../../api/cart';
+import {FloatingAction} from 'react-native-floating-action';
+
+const actions = [
+  {
+    text: 'Add Supplier',
+    icon: <SvgIcons.AddSupplier width={tabIcon} height={tabIcon} />,
+    name: 'bt_supplier',
+    color: 'white',
+    position: 2,
+    buttonSize: hp(5.5),
+  },
+  {
+    text: 'Add Order',
+    icon: <SvgIcons.AddOrder width={tabIcon} height={tabIcon} />,
+    name: 'bt_order',
+    color: 'white',
+    position: 1,
+    buttonSize: hp(5.5),
+  },
+];
 
 const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-  const {data: carts, isFetching} = useGetCartsQuery({
-    refetchOnMountOrArgChange: true,
-  });
 
-  console.log('carts', userInfo?.companyId?._id);
   const isGuest =
     (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
@@ -42,8 +57,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   const [code, setCode] = useState('');
 
   useEffect(() => {
-    console.log('HomeScreen........');
-    console.log('userInfo?.companyCode', userInfo?.companyCode, userInfo);
     setOpenPopup(userInfo?.companyCode ? false : true);
   }, [userInfo]);
 
@@ -90,7 +103,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    console.log('DATA', data, error);
     if (!error) {
       setIsOpen(false);
       setCode('');
@@ -155,14 +167,14 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           columnWrapperStyle={{justifyContent: 'space-between'}}
           contentContainerStyle={{paddingHorizontal: wp(4), paddingTop: hp(2)}}
         />
-        <Button
+        {/* <Button
           bgColor={'orange'}
           style={styles.buttonContainer}
           onPress={onAddCodePress}>
           <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
             {'Add your Supplier'}
           </FontText>
-        </Button>
+        </Button> */}
         <Popup
           visible={isOpen}
           onBackPress={() => setIsOpen(false)}
@@ -190,7 +202,22 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           rightBtnStyle={{width: '100%'}}
         />
       </View>
-      <TouchableOpacity
+      <FloatingAction
+        actions={actions}
+        onPressItem={name => {
+          if (name === 'bt_supplier') {
+            onAddCodePress();
+          } else {
+            navigation.navigate(RootScreens.Order);
+          }
+        }}
+        showBackground={false}
+        color={colors.orange}
+        buttonSize={hp(7)}
+        iconHeight={hp(2.2)}
+        iconWidth={hp(2.2)}
+      />
+      {/* <TouchableOpacity
         onPress={() => navigation.navigate(RootScreens.CartList)}
         style={styles.floatingButton}>
         <SvgIcons.Buy width={wp(8.5)} height={wp(8.5)} fill={colors.white} />
@@ -205,7 +232,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
             </FontText>
           </View>
         ) : null}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

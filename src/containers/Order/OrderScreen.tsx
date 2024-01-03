@@ -33,7 +33,7 @@ const OrderScreen = ({navigation}: any) => {
     },
   );
 
-  console.log('orderList?.result', orderList?.result?.length);
+  console.log('orderList?.result', orderList);
 
   useFocusEffect(
     React.useCallback(() => {

@@ -1,140 +1,436 @@
-//import liraries
+/* eslint-disable import/no-cycle */
 import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import colors from '../../assets/colors';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  ActivityIndicator,
+  Pressable
+} from 'react-native';
+import {Modalize} from 'react-native-modalize';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {CheckPreferenceItem, FontText, Input} from '..';
+import colors from '../../assets/colors';
+import {useFocusEffect} from '@react-navigation/native';
+import { FontText, Input, Button } from '..';
 import SvgIcons from '../../assets/SvgIcons';
-import {fontSize, iconSize, tabIcon} from '../../styles';
-import commonStyle from '../../styles';
-// create a component
+
 const BottomSheet = (props: any) => {
-  const renderComponent = () => {
-    const bottomSheetData = props?.data;
-    const [search, setSearch] = useState('');
-    const [searchText, setSearchText] = useState('');
-    return (
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {bottomSheetData?.map((item: any, index: number) => {
-          return (
-            <View key={index}>
-              <TouchableOpacity
-                onPress={() => {
-                  props.itemPress(item);
-                }}
-                style={styles.modelStateContainer}>
-                {/* <FontText
-                  name={'regular'}
-                  size={fontSize}
-                  color={props.selectedItem === item ? 'brown' : 'black2'}>
-                  {item}
-                </FontText> */}
-                {/* {props.selectedItem === item && (
-                  <SvgIcons.Check
-                    style={{marginTop: wp(1)}}
-                    fill={colors.brown}
-                    height={iconSize}
-                    width={iconSize}
-                  />
-                )} */}
-                <CheckPreferenceItem
-                  radio
-                  key={index}
-                  children={
-                    <View style={{flexDirection: 'row'}}>
-                      {/* {props.isIcon && (
-                        <View style={{marginRight:wp(2)}}>
-                          {index === 0 ? (
-                            <SvgIcons.Home
-                              height={iconSize}
-                              width={iconSize}
-                            />
-                          ) : (
-                            <SvgIcons.Company
-                              height={tabIcon}
-                              width={tabIcon}
-                            />
-                          )}
-                        </View>
-                      )} */}
-                      <FontText
-                        name={'regular'}
-                        size={fontSize}
-                        color={'black2'}>
-                        {item}
-                      </FontText>
-                    </View>
-                  }
-                  style={{
-                    justifyContent: 'space-between',
-                    flexDirection: 'row-reverse',
-                    width: '100%',
-                  }}
-                  listStyle={{paddingVertical: hp(1)}}
-                  handleCheck={() => props.itemPress(item)}
-                  checked={item === props.selectedItem}
-                />
-              </TouchableOpacity>
-              <View
-                style={{
-                  width: '100%',
-                  borderBottomWidth:
-                    index == bottomSheetData?.length - 1 ? 0 : 0.5,
-                  borderBottomColor: colors.grey,
-                }}
-              />
-            </View>
-          );
-        })}
-      </ScrollView>
-    );
+  const {
+    style,
+    withReactModal,
+    withHandle,
+    refName,
+    onClosed,
+    autoClose,
+    modalStyle,
+    isStaticContent,
+    content,
+    data,
+    closeModal,
+    onPressCloseModal,
+    title,
+    addIcon,
+    onPressAddBtn,
+    setModalVisible,
+    modalHeight,
+    selectedIndex,
+    onOpen,
+    onPress,
+    searcheble,
+    snapPoint,
+    multiple,
+    renderdata,
+    onPressResetbtn,
+    isReset,
+    machineIndex,
+  } = props;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setListData(data);
+    }, [data]),
+  );
+
+  const [listData, setListData] = useState(data);
+  const [finalData, setFinaldata] = useState('');
+  const [lable, setLable] = useState([]);
+
+  const dataRender = () => {
+    let listMappingKeyword :any= [];
+    renderdata === undefined
+      ? listData?.map((item:any) => {
+          if (
+            item?.label?.toUpperCase()?.includes(finalData?.toUpperCase()) ||
+            item?.name?.toUpperCase()?.includes(finalData?.toUpperCase())
+          ) {
+            listMappingKeyword.push(item);
+          }
+        })
+      : data?.map((item:any) => {
+          if (item?.name.toLowerCase().includes(finalData?.toLowerCase())) {
+            listMappingKeyword.push(item);
+          }
+        });
+
+    return listMappingKeyword;
   };
 
-  return (
-    <RBSheet
-      height={props.height}
-      ref={props.sheetRef}
-      customStyles={{
-        wrapper: {
-          backgroundColor: 'rgba(52, 52, 52, 0.5)',
-          paddingVertical: wp(4),
-        },
-      }}>
-      {renderComponent()}
-    </RBSheet>
+  // const onPressResetbtn = () => {
+  //   setFinaldata('');\
+  // };
+
+  const renderContent = () => [
+    <View style={[styles.container, style]}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: wp(6),
+          paddingVertical: hp(2),
+          alignItems: 'center',
+        }}>
+        <FontText
+          size={normalize(16)}
+          name={'poppins-semibold'}
+          color={colors.blue}>
+          {title}
+        </FontText>
+        {isReset && (
+          <Button
+            onPress={onPressResetbtn}
+            bgColor={'white'}
+            style={[
+              styles.fiterButton,
+              {borderWidth: wp(0.2), borderColor: colors.gray},
+            ]}
+            buttonHeight={wp(8)}>
+            <FontText
+              name={'poppins-semibold'}
+              size={normalize(12)}
+              color={colors.blue}>
+              {multiple ? 'Done' : 'Reset'}
+            </FontText>
+          </Button>
+        )}
+        {addIcon && (
+          <>
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(true);
+              }}
+              style={{left: wp(20)}}>
+              <SvgIcons.Plus height={hp(4)} width={wp(6)} />
+            </TouchableOpacity>
+            <Modal visible={props?.modalVisible} transparent={true}>
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <View style={styles.cardContainersStyle}>
+                    <FontText
+                      size={normalize(14)}
+                      color={colors.blue}
+                      name="poppins-medium">
+                      {'Add'}
+                    </FontText>
+                    <Input
+                      placeholder={'Enter Area'}
+                      placeholderTextColor={colors.grayPlaceholderText}
+                      value={props?.addAreaValue}
+                      onChangeText={props?.setAddAreaValue}
+                      inputStyle={[
+                        styles.input,
+                        {
+                          fontFamily: 'poppins-medium',
+                          left: wp(3),
+                        },
+                      ]}
+                      style={[styles.inputContainer, {width: wp(70)}]}
+                      blurOnSubmit
+                    />
+                  </View>
+                  <View style={styles.cardContainersStyle}>
+                    <Button
+                      onPress={() => {
+                        setModalVisible(false);
+                      }}
+                      bgColor={'white'}
+                      style={{
+                        marginHorizontal: wp(4),
+                        marginTop: hp(4),
+                        width: wp(30),
+                        borderWidth: wp(0.5),
+                        borderColor: colors.primaryColor,
+                      }}
+                      buttonHeight={wp(10)}>
+                      <FontText
+                        name={'poppins-semibold'}
+                        size={normalize(12)}
+                        color={colors.primaryColor}>
+                        {'Cancel'}
+                      </FontText>
+                    </Button>
+                    <Button
+                      onPress={onPressAddBtn}
+                      bgColor={'primaryColor'}
+                      style={{
+                        marginHorizontal: wp(4),
+                        marginTop: hp(4),
+                        width: wp(30),
+                      }}
+                      buttonHeight={wp(10)}>
+                      <FontText
+                        name={'poppins-semibold'}
+                        size={normalize(12)}
+                        color={colors.white}>
+                        {'Add'}
+                      </FontText>
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </>
+        )}
+        <TouchableOpacity style={styles.modalBtn} onPress={onPressCloseModal}>
+          <SvgIcons.Close height={hp(3)} width={wp(3)} />
+        </TouchableOpacity>
+      </View>
+      {searcheble && (
+        <Input
+          withLeftIcon
+          leftIcon={
+            <TouchableOpacity style={{paddingHorizontal: wp(2)}}>
+              <SvgIcons.Search height={hp(3)} width={hp(2)} />
+            </TouchableOpacity>
+          }
+          placeholder={'Search'}
+          placeholderTextColor={'rgba(52, 72, 92, 0.5)'}
+          onChangeText={(text:any) => setFinaldata(text)}
+          inputStyle={[styles.input, {fontFamily: 'poppins-medium'}]}
+          blurOnSubmit
+          style={[styles.inputContainer, {marginHorizontal: wp(5)}]}
+        />
+      )}
+
+      {data.length === 0 ? (
+        <View style={{justifyContent: 'center', height: hp(35)}}>
+          <ActivityIndicator size={'large'} />
+        </View>
+      ) : (
+        <FlatList
+          keyExtractor={(item, index) => String(index)}
+          data={finalData !== '' ? dataRender() : data}
+          style={{flex: 1, height: hp(35), bottom: hp(1)}}
+          contentContainerStyle={{flexGrow:1, paddingBottom: wp(5)}}
+          keyboardShouldPersistTaps="handled"
+          ListEmptyComponent={
+            <View style={{flex: 1, justifyContent:'center',alignItems:"center"}}>
+              <FontText
+                size={normalize(14)}
+                color={colors.blue}
+                name="poppins-medium">
+                {'No Data found.'}
+              </FontText>
+            </View>
+          }
+          renderItem={({item, index}) => {
+            const value = machineIndex ? index : item?.value;
+            return (
+              <View key={index}>
+                {multiple ? (
+                  <Pressable
+                    onPress={() => {
+                      onPress(item, index);
+                    }}
+                    style={styles.itemContainer}>
+                    <FontText
+                      size={normalize(14)}
+                      name={'poppins-medium'}
+                      color={colors.blue}>
+                      {item?.name}
+                    </FontText>
+                    <View style={styles.boxcontainer}>
+                      {renderdata.some((i:any) => i._id === item._id) && (
+                        <SvgIcons.FillBox height={hp(2)} width={wp(3)} />
+                      )}
+                    </View>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => {
+                      onPress(item, index);
+                    }}
+                    style={styles.itemContainer}>
+                    <FontText
+                      size={normalize(14)}
+                      name={'poppins-medium'}
+                      color={colors.blue}>
+                      {item?.label ? item?.label : item?.name}
+                      {item.name !== undefined ? ` - ${item?.name}` : ''}
+                    </FontText>
+                    <View style={styles.circle}>
+                      {selectedIndex === value && (
+                        <View style={styles.fillCircle} />
+                      )}
+                    </View>
+                  </Pressable>
+                )}
+              </View>
+            );
+          }}
+        />
+      )}
+    </View>,
+  ];
+
+  return searcheble ? (
+    <Modalize
+      snapPoint={snapPoint}
+      ref={refName}
+      tapGestureEnabled={false}
+      scrollViewProps={{
+        scrollEnabled: false,
+        keyboardShouldPersistTaps: 'handled',
+      }}
+      disableScrollIfPossible
+      adjustToContentHeight
+      onOverlayPress={closeModal}
+      withReactModal={withReactModal}
+      withHandle={withHandle}
+      modalStyle={(styles.modalStyle, modalStyle)}
+      onClosed={onClosed}
+      onOpen={() => setFinaldata('')}
+      closeOnOverlayTap={autoClose}
+      panGestureEnabled={autoClose}>
+      {isStaticContent ? content : renderContent()}
+    </Modalize>
+  ) : (
+    <Modalize
+      snapPoint={snapPoint}
+      ref={refName}
+      tapGestureEnabled={false}
+      scrollViewProps={{
+        scrollEnabled: false,
+      }}
+      onOverlayPress={closeModal}
+      withReactModal={withReactModal}
+      withHandle={withHandle}
+      modalHeight={modalHeight}
+      modalStyle={(styles.modalStyle, modalStyle)}
+      onClosed={onClosed}
+      onOpen={() => setFinaldata('')}
+      closeOnOverlayTap={autoClose}
+      panGestureEnabled={autoClose}>
+      {isStaticContent ? content : renderContent()}
+    </Modalize>
   );
 };
 
-// define your styles
+BottomSheet.defaultProps = {
+  height: hp(42),
+  withHandle: false,
+  withReactModal: false,
+  autoClose: true,
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#2c3e50',
+    backgroundColor: colors.white,
   },
-  modelStateContainer: {
+  modalStyle: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
+  itemContainer: {
+    paddingVertical: wp(2),
+    paddingHorizontal: wp(7),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: wp(4),
-    paddingVertical: wp(3),
   },
-  inputText: {
-    borderRadius: normalize(10),
-    paddingLeft: wp(10),
-    color: colors.black2,
-    fontSize: normalize(12),
-    fontFamily: 'lexend-regular',
-    backgroundColor: colors.white2,
+  separator: {
+    width: '100%',
+    height: wp(0.5),
+    backgroundColor: colors.lightGray,
+  },
+  circle: {
+    height: wp(4.5),
+    width: wp(4.5),
+    borderRadius: wp(4),
+    borderWidth: 1,
+    borderColor: colors.blue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fillCircle: {
+    height: wp(3),
+    width: wp(3),
+    borderRadius: wp(4),
+    backgroundColor: colors.blue,
+  },
+  modalBtn: {
+    backgroundColor: colors.lightGray,
+    height: hp(4),
+    width: hp(4),
+    borderRadius: hp(4),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalView: {
+    backgroundColor: colors.white,
+    width: wp(90),
+    height: hp(25),
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    paddingHorizontal: wp(2),
+    paddingVertical: hp(3),
+    borderRadius: wp(2),
+  },
+  inputContainer: {
+    borderColor: colors.lightGray,
+    width: wp(90),
+    paddingHorizontal: 0,
+    borderRadius: hp(1),
+    marginBottom: hp(1),
+    padding: hp(1),
   },
   input: {
-    width: '100%',
-    borderRadius: 10,
+    fontSize: normalize(14),
+    color: colors.blue,
+    paddingLeft: 0,
+    padding: 0,
+  },
+  cardContainersStyle: {
+    flexDirection: 'row',
+    marginHorizontal: wp(2),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  fiterButton: {
+    marginHorizontal: wp(4),
+    left: wp(18),
+  },
+  boxcontainer: {
+    height: wp(4.5),
+    width: wp(4.5),
+    borderRadius: wp(1),
+    borderWidth: 1,
+    borderColor: colors.blue,
     justifyContent: 'center',
-    height: hp(6),
+    alignItems: 'center',
   },
 });
 
-//make this component available to the app
 export default BottomSheet;

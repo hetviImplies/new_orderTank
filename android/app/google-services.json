@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "374521811510",
+    "project_id": "order-tank",
+    "storage_bucket": "order-tank.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374521811510:android:0822f02343c2ddf4243e97",
+        "android_client_info": {
+          "package_name": "com.ordertank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCox_mnUgKk88Xr-0iKqR5bR8QNUIkiFg0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

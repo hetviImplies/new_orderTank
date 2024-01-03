@@ -35,9 +35,15 @@ const SignUpScreen = ({navigation}: any) => {
 
   const emailRegx =
     /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  const phoneRegx = /^[6-9]\d{9}$/;
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
+    return result;
+  };
+
+  const validationNumber = (val: any) => {
+    const result = phoneRegx.test(val.trim());
     return result;
   };
 
@@ -45,9 +51,10 @@ const SignUpScreen = ({navigation}: any) => {
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
   const isValidPhoneNo =
-    checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
+    checkValid &&
+    (phoneNo.length === 0 || phoneNo.length < 10 || !validationNumber(phoneNo));
   const isValidPassword =
-    checkValid && (password.length === 0 || password.length < 6);
+    checkValid && (password.length === 0 || password.length < 8);
 
   const clearData = async () => {
     setUserName('');
@@ -67,6 +74,7 @@ const SignUpScreen = ({navigation}: any) => {
       email.length !== 0 &&
       validationEmail(email) &&
       phoneNo.length !== 0 &&
+      validationNumber(phoneNo) &&
       password.length !== 0
       // && isCheck === true
     ) {
@@ -81,8 +89,8 @@ const SignUpScreen = ({navigation}: any) => {
       if (!error && data?.statusCode === 200) {
         clearData();
         setCheckValid(false);
-        navigation.navigate(RootScreens.Login);
-        utils.showSuccessToast(data.message);
+        setIsOpen(true);
+        // utils.showSuccessToast(data.message);
       } else {
         utils.showErrorToast(
           data.message ? data.message : error?.data?.message[0],
@@ -177,7 +185,7 @@ const SignUpScreen = ({navigation}: any) => {
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
-                inputStyle={styles.inputText}
+                inputStyle={[styles.inputText, {paddingLeft: wp(20)}]}
                 style={styles.input}
                 color={'black'}
                 returnKeyType={'done'}
@@ -187,8 +195,17 @@ const SignUpScreen = ({navigation}: any) => {
                   emailRef?.current.focus();
                 }}
                 children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <View
+                    style={[commonStyle.abs, commonStyle.rowAC, {left: wp(4)}]}>
                     <SvgIcons.Phone width={iconSize} height={iconSize} />
+                    <FontText
+                      name={'lexend-regular'}
+                      size={mediumFont}
+                      color={'black2'}
+                      pLeft={wp(4)}
+                      textAlign={'left'}>
+                      {'+91'}
+                    </FontText>
                   </View>
                 }
               />
@@ -307,7 +324,7 @@ const SignUpScreen = ({navigation}: any) => {
                   name="regular">
                   {checkValid && password.length === 0
                     ? `Password is required.`
-                    : 'Password must be at least 6 characters long.'}
+                    : 'Password must be at least 8 characters long.'}
                 </FontText>
               )}
             </View>
@@ -390,12 +407,14 @@ const SignUpScreen = ({navigation}: any) => {
         </KeyboardAwareScrollView>
         <Popup
           visible={isOpen}
-          onBackPress={() => setIsOpen(false)}
+          // onBackPress={() => setIsOpen(false)}
           title={'Verify your email'}
           description={`Please verify your email address by clicking the link sent to ${email}.`}
           rightBtnText={'OK'}
-          rightBtnPress={() => setIsOpen(false)}
-          onTouchPress={() => setIsOpen(false)}
+          rightBtnPress={() => {
+            navigation.navigate(RootScreens.Login);
+            setIsOpen(false);
+          }}
           // btnConatiner={{width:'100%'}}
           rightBtnStyle={{width: '100%', height: hp(6)}}
         />

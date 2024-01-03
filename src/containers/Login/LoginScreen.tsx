@@ -1,26 +1,21 @@
 import {
-  Alert,
-  Image,
   ImageBackground,
   Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
-  useColorScheme,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
 import {useDispatch} from 'react-redux';
 import Images from '../../assets/images';
-import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Input, Loader} from '../../components';
 import {
   fontSize,
   iconSize,
-  largeFont,
   mediumFont,
   mediumLarge2Font,
-  mediumLargeFont,
   smallFont,
 } from '../../styles';
 import SvgIcons from '../../assets/SvgIcons';
@@ -64,7 +59,7 @@ const LoginScreen = ({navigation}: any) => {
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
   const isValidPassword =
-    checkValid && (password.length === 0 || password.length < 6);
+    checkValid && (password.length === 0 || password.length < 8);
 
   // useEffect(() => {
   //   getToken();
@@ -113,7 +108,8 @@ const LoginScreen = ({navigation}: any) => {
         utils.showSuccessToast(data.message);
       } else {
         dispatch(setIsAuthenticated(false));
-        data?.message !== 'Please verified email first' && utils.showErrorToast(data.message || error);
+        data?.message !== 'Please verified email first' &&
+          utils.showErrorToast(data.message || error);
         data?.message === 'Please verified email first' && setIsOpen(true);
       }
     }
@@ -255,7 +251,7 @@ const LoginScreen = ({navigation}: any) => {
                         onPress={handleEyePress}
                         style={{
                           right: wp(7),
-                          padding:wp(2),
+                          padding: wp(2),
                         }}>
                         {eyeIcon ? (
                           <SvgIcons.EyeOpen
@@ -282,7 +278,7 @@ const LoginScreen = ({navigation}: any) => {
                     name="regular">
                     {checkValid && password.length === 0
                       ? `Password is required.`
-                      : 'Password must be at least 6 characters long.'}
+                      : 'Password must be at least 8 characters long.'}
                   </FontText>
                 )}
               </View>

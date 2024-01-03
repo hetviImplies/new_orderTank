@@ -1,4 +1,10 @@
-import {Dimensions, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import colors from '../../assets/colors';
 import {Button, FontText, Input, Loader, NavigationBar} from '..';
@@ -18,30 +24,53 @@ import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import BottomSheet from '../BottomSheet';
-import {COUNTRY_LIST, STATES_LIST} from '../../types/data';
+// import BottomSheet from '../BottomSheet';
+import {COUNTRY_LIST, NUMBER_TYPE, STATES_LIST} from '../../types/data';
 import {
   useAddCompanyMutation,
   useGetCompanyQuery,
   useUpdateCompanyMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {authReset} from '../../redux/slices/authSlice';
+import {RootScreens} from '../../types/type';
+import {resetNavigateTo} from '../../helper/navigationHelper';
+import RadioButton from '../Common/RadioButton';
+import {useUpdateProfileMutation} from '../../api/profile';
 
 const CompanyDetail = (props: any) => {
   const {setOpenPopup, from, navigation} = props;
+  const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
   });
+  const [updateProfile, {isLoading: isProcessing}] = useUpdateProfileMutation();
   const [addCompany, {isLoading}] = useAddCompanyMutation();
   const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
+  const [loading, setLoading] = useState(false);
+  const gstNoRegx = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  // const gstNoRegx =
+  //   /^[0-9]{2}[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  const panNoRegx = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
-  console.log('data', data)
+  const validationGstNo = (val: any) => {
+    const result = gstNoRegx.test(val.trim());
+    return result;
+  };
+
+  const validationPanNo = (val: any) => {
+    const result = panNoRegx.test(val.trim());
+    return result;
+  };
 
   const regRef: any = useRef();
+  const nameRef: any = useRef();
+  const phoneRef: any = useRef();
   const companyRef: any = useRef();
   const addressRef: any = useRef();
   const localityRef: any = useRef();
@@ -54,26 +83,41 @@ const CompanyDetail = (props: any) => {
   const [checkValid, setCheckValid] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageRes, setImageRes] = useState<any>({});
-  const [registerNo, setRegisterNo] = useState('');
+  const [gstNo, setGstNo] = useState('');
+  const [panNo, setPanNo] = useState('');
   const [company, setCompany] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [locality, setLocality] = useState('');
   const [pinCode, setPinCode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [country, setCountry] = useState('');
+  const [numberType, setNumberType] = useState(1);
+  const [search, setSearch] = useState('');
 
-  const isValidRegNo = checkValid && registerNo.length === 0;
+  const isValidGstNo =
+    checkValid && (gstNo.length === 0 || !validationGstNo(gstNo));
+  const isValidPanNo =
+    checkValid && (panNo.length === 0 || !validationPanNo(panNo));
   const isValidCompanyName = checkValid && company.length === 0;
+  const isValidName = checkValid && name.length === 0;
+  const isValidPhone = checkValid && phone.length === 0;
   const isValidAddress = checkValid && address.length === 0;
   const isValidPinCode = checkValid && pinCode.length === 0;
   const isValidLocality = checkValid && locality.length === 0;
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
-  const isValidCountry = checkValid && country.length === 0;
-
+  // const isValidCountry = checkValid && country.length === 0;
+  console.log('data?.result', data?.result);
   useEffect(() => {
+    setNumberType(data?.result?.isGst ? 1 : 2);
     setImageUrl(data?.result ? data?.result?.logo : '');
+    setName(userInfo?.name ? userInfo?.name : '');
+    setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
+    setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
+    setPhone(userInfo?.phone ? userInfo?.phone : '');
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
@@ -93,7 +137,7 @@ const CompanyDetail = (props: any) => {
     file: any,
   ) => {
     const newUrl = isAndroid ? `file://${url}` : url;
-    if (file <= 4000000) {
+    if (file <= 5000000) {
       setImageUrl(newUrl);
       setImageRes(res);
     } else {
@@ -140,12 +184,15 @@ const CompanyDetail = (props: any) => {
     setCheckValid(true);
     if (
       company.length !== 0 &&
+      (numberType === 1
+        ? gstNo.length !== 0 && validationGstNo(gstNo)
+        : panNo.length !== 0 && validationPanNo(panNo)) &&
       address.length !== 0 &&
       locality.length !== 0 &&
       city.length !== 0 &&
       pinCode.length !== 0 &&
-      state.length !== 0 &&
-      country.length !== 0
+      state.length !== 0
+      // && country.length !== 0
     ) {
       const formData = new FormData();
       const addressObj = [
@@ -157,13 +204,19 @@ const CompanyDetail = (props: any) => {
           pincode: pinCode,
           city: city,
           state: state,
-          country: country,
+          // country: country,
         },
       ];
       formData.append('companyName', company);
-      userInfo?.companyId?._id === undefined &&
-        formData.append('registerNo', registerNo);
-      Object.keys(imageRes).length !== 0 &&
+      numberType === 1
+        ? formData.append('gstNo', gstNo)
+        : formData.append('panNo', panNo);
+      formData.append('isGst', numberType === 1 ? true : false);
+      formData.append('isPan', numberType === 2 ? true : false);
+      // userInfo?.companyId?._id === undefined &&
+      // formData.append('registerNo', registerNo);
+      imageUrl !== '' &&
+        Object.keys(imageRes).length !== 0 &&
         formData.append('logo', {
           uri: imageUrl,
           type: `image/${imageUrl.split('.').pop()}`,
@@ -196,8 +249,21 @@ const CompanyDetail = (props: any) => {
         console.log('DATA', data, error);
         if (!error && data?.statusCode === 201) {
           setCheckValid(false);
-          setOpenPopup && setOpenPopup(false);
-          utils.showSuccessToast(data.message);
+          if (userInfo?.name !== name || userInfo?.phone !== phone) {
+            let params = {
+              name: name,
+              phone: phone,
+            };
+            const {data, error: err}: any = await updateProfile(params);
+            if (!err) {
+              setOpenPopup && setOpenPopup(false);
+            } else {
+              utils.showSuccessToast(err.message);
+            }
+          } else {
+            setOpenPopup && setOpenPopup(false);
+          }
+          // utils.showSuccessToast(data.message);
         } else {
           utils.showErrorToast(data.message || error);
         }
@@ -216,6 +282,17 @@ const CompanyDetail = (props: any) => {
     } else {
       editInformation && ref?.current?.open();
     }
+  };
+
+  const logoutPress = async () => {
+    setOpenPopup(false);
+    setLoading(true);
+    await AsyncStorage.clear();
+    await AsyncStorage.removeItem('token');
+    dispatch(authReset());
+    setLoading(false);
+    resetNavigateTo(navigation, RootScreens.Login);
+    // dispatch(setIsAuthenticated(false));
   };
 
   return (
@@ -243,21 +320,38 @@ const CompanyDetail = (props: any) => {
             </FontText>
           </View>
         }
-        leftStyle={{width: '100%'}}
-        hasRight
+        right={
+          <TouchableOpacity onPress={logoutPress}>
+            <SvgIcons.PowerOff
+              width={wp(7)}
+              height={wp(7)}
+              fill={colors.orange}
+            />
+          </TouchableOpacity>
+        }
+        leftStyle={{width: '75%'}}
+        hasRight={from !== 'Profile'}
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
       />
-      <Loader loading={isFetching || isLoading} />
+      <Loader loading={isFetching || isLoading || loading} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View>
             {imageUrl ? (
               <TouchableOpacity
-                style={{marginBottom: hp(2)}}
+                style={{
+                  marginBottom: hp(2),
+                  alignSelf: 'center',
+                }}
                 disabled={from === 'Profile' ? !editInformation : false}
                 onPress={imagePress}>
                 <Image source={{uri: imageUrl}} style={styles.avatar} />
+                <TouchableOpacity
+                  onPress={() => setImageUrl('')}
+                  style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
+                  <SvgIcons.Close width={tabIcon} height={tabIcon} />
+                </TouchableOpacity>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -276,58 +370,178 @@ const CompanyDetail = (props: any) => {
               </TouchableOpacity>
             )}
             {from !== 'Profile' ? (
-              <>
-                <View
-                  style={[
-                    commonStyle.rowAC,
-                    {
-                      marginBottom: hp(1),
-                    },
-                  ]}>
-                  <FontText
-                    name={'lexend-regular'}
-                    size={mediumFont}
-                    color={'gray3'}
-                    pLeft={wp(1)}
-                    textAlign={'left'}>
-                    {'Register Number:'}
-                  </FontText>
-                </View>
-                <Input
-                  editable={from === 'Profile' ? editInformation : true}
-                  ref={regRef}
-                  value={registerNo}
-                  onChangeText={(text: string) => setRegisterNo(text.trim())}
-                  placeholder={'Enter Register Number'}
-                  autoCapitalize="none"
-                  placeholderTextColor={'placeholder'}
-                  fontSize={fontSize}
-                  inputStyle={styles.inputText}
-                  style={styles.input}
-                  color={'black'}
-                  returnKeyType={'next'}
-                  blurOnSubmit
-                  onSubmit={() => {
-                    companyRef?.current.focus();
-                  }}
-                  children={
-                    <View style={[commonStyle.abs, {left: wp(4)}]}>
-                      <SvgIcons.PinCode width={iconSize} height={iconSize} />
-                    </View>
-                  }
-                />
-                {isValidRegNo && (
-                  <FontText
-                    size={normalize(12)}
-                    color={'red'}
-                    pTop={wp(1)}
-                    textAlign="right"
-                    name="regular">
-                    {'Register Number is required.'}
-                  </FontText>
-                )}
-              </>
+              <RadioButton
+                data={NUMBER_TYPE}
+                onSelect={(num: any) => {
+                  setNumberType(num);
+                  setGstNo('');
+                  setPanNo('');
+                }}
+                userOption={numberType}
+              />
             ) : null}
+
+            <View
+              style={[
+                commonStyle.rowAC,
+                {
+                  marginBottom: hp(1),
+                },
+              ]}>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray3'}
+                pLeft={wp(1)}
+                textAlign={'left'}>
+                {numberType === 1 ? 'GST Number:' : 'PAN Number:'}
+              </FontText>
+            </View>
+            <Input
+              editable={from === 'Profile' ? editInformation : true}
+              ref={regRef}
+              value={numberType === 1 ? gstNo : panNo}
+              onChangeText={(text: string) => {
+                numberType === 1
+                  ? setGstNo(text.trim())
+                  : setPanNo(text.trim());
+              }}
+              placeholder={
+                numberType === 1 ? 'Enter GST Number' : 'Enter PAN Number'
+              }
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              blurOnSubmit
+              onSubmit={() => {
+                nameRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.PinCode width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {(isValidGstNo || isValidPanNo) && (
+              <FontText
+                size={normalize(12)}
+                color={'red'}
+                pTop={wp(1)}
+                textAlign="right"
+                name="regular">
+                {numberType === 1 ? (
+                  <>
+                    {checkValid && gstNo.length === 0
+                      ? `GST Number is required.`
+                      : !validationGstNo(gstNo) && 'Invalid GST Number.'}
+                  </>
+                ) : (
+                  <>
+                    {checkValid && panNo.length === 0
+                      ? `PAN Number is required.`
+                      : !validationPanNo(panNo) && 'Invalid PAN Number.'}
+                  </>
+                )}
+              </FontText>
+            )}
+            <View style={styles.marginTopView}>
+              <View
+                style={[
+                  commonStyle.rowAC,
+                  {
+                    marginBottom: hp(1),
+                  },
+                ]}>
+                <FontText
+                  name={'lexend-regular'}
+                  size={mediumFont}
+                  color={'gray3'}
+                  pLeft={wp(1)}
+                  textAlign={'left'}>
+                  {'Full name:'}
+                </FontText>
+              </View>
+              <Input
+                ref={nameRef}
+                value={name}
+                onChangeText={(text: string) => setName(text.trimStart())}
+                autoCapitalize="none"
+                placeholder={'Enter Full Name'}
+                placeholderTextColor={'placeholder'}
+                fontSize={fontSize}
+                inputStyle={styles.inputText}
+                color={'black'}
+                returnKeyType={'next'}
+                style={[styles.input]}
+                onSubmit={() => {
+                  phoneRef?.current.focus();
+                }}
+                children={
+                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                    <SvgIcons.User width={iconSize} height={iconSize} />
+                  </View>
+                }
+              />
+              {isValidName && (
+                <FontText
+                  size={normalize(12)}
+                  color={'red'}
+                  pTop={wp(1)}
+                  textAlign="right"
+                  name="regular">{`Name is Required.`}</FontText>
+              )}
+            </View>
+            <View style={styles.marginTopView}>
+              <View
+                style={[
+                  commonStyle.rowAC,
+                  {
+                    marginBottom: hp(1),
+                  },
+                ]}>
+                <FontText
+                  name={'lexend-regular'}
+                  size={mediumFont}
+                  color={'gray3'}
+                  pLeft={wp(1)}
+                  textAlign={'left'}>
+                  {'Mobile Number:'}
+                </FontText>
+              </View>
+              <Input
+                ref={phoneRef}
+                value={phone}
+                onChangeText={(text: string) => setPhone(text.trimStart())}
+                autoCapitalize="none"
+                placeholder={'Enter Mobile Number'}
+                placeholderTextColor={'placeholder'}
+                fontSize={fontSize}
+                inputStyle={styles.inputText}
+                color={'black'}
+                returnKeyType={'next'}
+                style={[styles.input]}
+                onSubmit={() => {
+                  companyRef?.current.focus();
+                }}
+                children={
+                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                    <SvgIcons.Phone width={iconSize} height={iconSize} />
+                  </View>
+                }
+              />
+              {isValidPhone && (
+                <FontText
+                  size={normalize(12)}
+                  color={'red'}
+                  pTop={wp(1)}
+                  textAlign="right"
+                  name="regular">{`Mobile Number is Required.`}</FontText>
+              )}
+            </View>
             <View style={styles.marginTopView}>
               <View
                 style={[
@@ -404,8 +618,8 @@ const CompanyDetail = (props: any) => {
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
                 color={'black'}
-                inputStyle={[styles.inputText,{ paddingTop:hp(2)}]}
-                style={[styles.input,{marginVertical:hp(2)}]}
+                inputStyle={[styles.inputText, {paddingTop: hp(2)}]}
+                style={[styles.input, {marginVertical: hp(2)}]}
                 returnKeyType={'next'}
                 multiline
                 blurOnSubmit
@@ -413,7 +627,7 @@ const CompanyDetail = (props: any) => {
                   localityRef?.current.focus();
                 }}
                 children={
-                  <View style={[commonStyle.abs, {left: wp(4), top:0}]}>
+                  <View style={[commonStyle.abs, {left: wp(4), top: 0}]}>
                     <SvgIcons.Location width={iconSize} height={iconSize} />
                   </View>
                 }
@@ -575,7 +789,7 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               </View>
               <TouchableOpacity
-                onPress={() => dropdownPress(stateRef)}
+                onPress={() => stateRef?.current?.open()}
                 disabled={from === 'Profile' ? !editInformation : false}
                 style={styles.dropdownView}>
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -603,7 +817,7 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               )}
             </View>
-            <View style={styles.marginTopView}>
+            {/* <View style={styles.marginTopView}>
               <View style={commonStyle.rowACMB1}>
                 <FontText
                   name={'lexend-regular'}
@@ -628,7 +842,6 @@ const CompanyDetail = (props: any) => {
                   pLeft={wp(9)}
                   textAlign={'left'}>
                   {country ? country : 'Select Country'}
-                  {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
                 </FontText>
                 <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
               </TouchableOpacity>
@@ -642,7 +855,7 @@ const CompanyDetail = (props: any) => {
                   {'Country is required.'}
                 </FontText>
               )}
-            </View>
+            </View> */}
           </View>
         </KeyboardAwareScrollView>
         {from === 'Profile' ? (
@@ -666,7 +879,28 @@ const CompanyDetail = (props: any) => {
             </FontText>
           </Button>
         )}
-        <BottomSheet
+        {/* <BottomSheet
+          withReactModal
+          onPressCloseModal={() => stateRef?.current?.close()}
+          refName={stateRef}
+          modalHeight={hp(50)}
+          modalStyle={{height: hp(50)}}
+          title={'Select State'}
+          searcheble
+          data={STATES_LIST}
+          onOpen={() => {}}
+          // searchValue={searchUser}
+          // selectedIndex={userId}
+          onChangeText={(text:any) => setSearch(text)}
+          onPress={(item:any, index:any) => {
+            setState(item);
+            // setUserIndex(index);
+            // setAssinedToValue(item?.label);
+            // setuserId(item?.value);
+            // userNameRef?.current?.close();
+          }}
+        /> */}
+        {/* <BottomSheet
           height={hp(50)}
           sheetRef={stateRef}
           itemPress={(val: any) => {
@@ -685,7 +919,7 @@ const CompanyDetail = (props: any) => {
           }}
           selectedItem={country}
           data={COUNTRY_LIST}
-        />
+        /> */}
         <RBSheet
           ref={imageRef}
           height={hp(20)}
@@ -693,9 +927,9 @@ const CompanyDetail = (props: any) => {
           closeOnPressBack
           closeOnDragDown
           dragFromTopOnly>
-          <View style={[commonStyle.rowJEC,{marginTop:hp(2)}]}>
+          <View style={[commonStyle.rowJEC, {marginTop: hp(2)}]}>
             <TouchableOpacity onPress={openCamera}>
-              <SvgIcons.Camera width={wp(15)} height={wp(15)}/>
+              <SvgIcons.Camera width={wp(15)} height={wp(15)} />
               <FontText
                 name={'lexend-regular'}
                 size={fontSize}
@@ -706,7 +940,7 @@ const CompanyDetail = (props: any) => {
             <TouchableOpacity
               // style={styles.iconView}
               onPress={openPhotoBrowser}>
-              <SvgIcons.Gallery width={wp(15)} height={wp(15)}/>
+              <SvgIcons.Gallery width={wp(15)} height={wp(15)} />
               <FontText
                 name={'lexend-regular'}
                 size={fontSize}
@@ -795,17 +1029,16 @@ const styles = StyleSheet.create({
     marginBottom: hp(2.5),
   },
   avatar: {
-    width: hp(15),
-    height: hp(15),
-    borderRadius: 6,
+    width: hp(16),
+    height: hp(16),
+    borderRadius: hp(8),
     alignSelf: 'center',
     resizeMode: 'cover',
     marginBottom: hp(2),
   },
   iconView: {
-    // padding: wp(2),
-    // borderRadius: normalize(25),
-    // borderColor: colors.orange,
-    // borderWidth: 2,
+    padding: wp(3),
+    borderRadius: normalize(5),
+    backgroundColor: colors.white,
   },
 });

@@ -23,11 +23,14 @@ import {useForgotPasswordMutation} from '../../api/auth';
 import utils from '../../helper/utils';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
+import Popup from '../../components/Popup';
+import { RootScreens } from '../../types/type';
 
 const ForgotPasswordScreen = ({navigation}: any) => {
   const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
   const [email, setEmail] = useState('');
   const [checkValid, setCheckValid] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const emailRegx =
     /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -48,8 +51,8 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         email: email,
       });
       if (!error && data?.statusCode === 200) {
-        utils.showSuccessToast(data.message);
-        Alert.alert('OrderTank', 'Please Check your inbox');
+        // utils.showSuccessToast(data.message);
+        setIsOpen(true);
       } else {
         utils.showErrorToast(data.message || error);
       }
@@ -145,6 +148,17 @@ const ForgotPasswordScreen = ({navigation}: any) => {
           </Button>
         </KeyboardAwareScrollView>
       </View>
+      <Popup
+        visible={isOpen}
+        // onBackPress={() => setIsOpen(false)}
+        title={'OrderTank'}
+        description={`Please check your email.`}
+        rightBtnText={'Ok'}
+        rightBtnPress={() => {setIsOpen(false); navigation.navigate(RootScreens.Login)}}
+        // onTouchPress={() => setIsOpen(false)}
+        // btnConatiner={{width:'100%'}}
+        rightBtnStyle={{width: '100%', height: hp(6)}}
+      />
     </View>
   );
 };
