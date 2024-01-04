@@ -97,7 +97,7 @@ const AddressComponent = (props: any) => {
             {item?.state}
             {','}
           </FontText>
-          <FontText
+          {/* <FontText
             name={'lexend-regular'}
             size={smallFont}
             pLeft={wp(1)}
@@ -106,7 +106,7 @@ const AddressComponent = (props: any) => {
             {' '}
             {item?.country}
             {','}
-          </FontText>
+          </FontText> */}
           <FontText
             name={'lexend-regular'}
             size={smallFont}

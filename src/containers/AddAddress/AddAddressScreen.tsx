@@ -18,7 +18,12 @@ import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {COUNTRY_LIST, STATES_LIST} from '../../types/data';
+import {
+  ADDRESS_TYPE,
+  COUNTRY_LIST,
+  STATES_DATA,
+  STATES_LIST,
+} from '../../types/data';
 import {
   useAddCompanyMutation,
   useCreateAddressMutation,
@@ -57,6 +62,7 @@ const AddAddressScreen = (props: any) => {
   const [pinCode, setPinCode] = useState(item ? item?.pincode : '');
   const [city, setCity] = useState(item ? item?.city : '');
   const [state, setState] = useState(item ? item?.state : '');
+  const [selectedState, setSelectedState] = useState('');
   const [country, setCountry] = useState(item ? item?.country : '');
 
   const isValidAddressName = checkValid && addressName.length === 0;
@@ -77,8 +83,8 @@ const AddAddressScreen = (props: any) => {
       locality.length !== 0 &&
       city.length !== 0 &&
       pinCode.length !== 0 &&
-      state.length !== 0 &&
-      country.length !== 0
+      state.length !== 0 
+      // && country.length !== 0
     ) {
       const formData = new FormData();
 
@@ -89,7 +95,7 @@ const AddAddressScreen = (props: any) => {
         pincode: pinCode,
         city: city,
         state: state,
-        country: country,
+        // country: country,
       };
       console.log('address../...........', addressObj);
       // addressObj.forEach((value: any, index: any) => {
@@ -153,13 +159,7 @@ const AddAddressScreen = (props: any) => {
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.marginTopView}>
-            <View
-              style={[
-                commonStyle.rowAC,
-                {
-                  marginBottom: hp(1),
-                },
-              ]}>
+            <View style={[commonStyle.rowACMB1]}>
               <FontText
                 name={'lexend-regular'}
                 size={mediumFont}
@@ -169,27 +169,22 @@ const AddAddressScreen = (props: any) => {
                 {'Address name:'}
               </FontText>
             </View>
-            <Input
-              ref={addressNameRef}
-              value={addressName}
-              onChangeText={(text: string) => setAddressName(text.trimStart())}
-              placeholder={'Enter Address Name'}
-              autoCapitalize="none"
-              placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
-              inputStyle={styles.inputText}
-              style={styles.input}
-              color={'black'}
-              returnKeyType={'next'}
-              onSubmit={() => {
-                addressRef?.current.focus();
-              }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.Location width={iconSize} height={iconSize} />
-                </View>
-              }
-            />
+            <TouchableOpacity
+              onPress={() => addressNameRef?.current?.open()}
+              style={styles.dropdownView}>
+              <View style={[commonStyle.abs, {left: wp(4)}]}>
+                <SvgIcons.Location width={iconSize} height={iconSize} />
+              </View>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={addressName ? 'black' : 'gray'}
+                pLeft={wp(9)}
+                textAlign={'left'}>
+                {addressName ? addressName : 'Select Address Name'}
+              </FontText>
+              <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
+            </TouchableOpacity>
             {isValidAddressName && (
               <FontText
                 size={normalize(12)}
@@ -407,7 +402,6 @@ const AddAddressScreen = (props: any) => {
                 pLeft={wp(9)}
                 textAlign={'left'}>
                 {state ? state : 'Select State'}
-                {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
               </FontText>
               <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
             </TouchableOpacity>
@@ -422,7 +416,7 @@ const AddAddressScreen = (props: any) => {
               </FontText>
             )}
           </View>
-          <View style={styles.marginTopView}>
+          {/* <View style={styles.marginTopView}>
             <View style={commonStyle.rowACMB1}>
               <FontText
                 name={'lexend-regular'}
@@ -446,7 +440,6 @@ const AddAddressScreen = (props: any) => {
                 pLeft={wp(9)}
                 textAlign={'left'}>
                 {country ? country : 'Select Country'}
-                {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
               </FontText>
               <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
             </TouchableOpacity>
@@ -460,7 +453,7 @@ const AddAddressScreen = (props: any) => {
                 {'Country is required.'}
               </FontText>
             )}
-          </View>
+          </View> */}
         </KeyboardAwareScrollView>
         <Button
           onPress={submitPress}
@@ -471,6 +464,32 @@ const AddAddressScreen = (props: any) => {
           </FontText>
         </Button>
         <BottomSheet
+          onPressCloseModal={() => addressNameRef?.current?.close()}
+          refName={addressNameRef}
+          modalHeight={hp(20)}
+          title={'Select Address Name'}
+          data={ADDRESS_TYPE}
+          selectedIndex={addressName}
+          onPress={(item: any, index: any) => {
+            setAddressName(item?.value);
+            addressNameRef?.current?.close();
+          }}
+        />
+        <BottomSheet
+          onPressCloseModal={() => stateRef?.current?.close()}
+          refName={stateRef}
+          modalHeight={hp(50)}
+          title={'Select State'}
+          searcheble
+          data={STATES_DATA}
+          selectedIndex={selectedState}
+          onPress={(item: any, index: any) => {
+            setSelectedState(item?.value);
+            setState(item?.label);
+            stateRef?.current?.close();
+          }}
+        />
+        {/* <BottomSheet
           height={hp(75)}
           sheetRef={stateRef}
           itemPress={(val: any) => {
@@ -479,8 +498,8 @@ const AddAddressScreen = (props: any) => {
           }}
           selectedItem={state}
           data={STATES_LIST}
-        />
-        <BottomSheet
+        /> */}
+        {/* <BottomSheet
           height={hp(75)}
           sheetRef={countryRef}
           itemPress={(val: any) => {
@@ -489,7 +508,7 @@ const AddAddressScreen = (props: any) => {
           }}
           selectedItem={country}
           data={COUNTRY_LIST}
-        />
+        /> */}
       </View>
     </View>
   );

@@ -4,49 +4,35 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   FlatList,
   ActivityIndicator,
   Pressable,
 } from 'react-native';
-import {Modalize} from 'react-native-modalize';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {useFocusEffect} from '@react-navigation/native';
 import {FontText, Input, Button} from '..';
 import SvgIcons from '../../assets/SvgIcons';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import commonStyle, {fontSize, iconSize, tabIcon} from '../../styles';
+import commonStyle, {fontSize, tabIcon} from '../../styles';
 
 const BottomSheet = (props: any) => {
   const {
     style,
-    withReactModal,
-    withHandle,
     refName,
-    onClosed,
-    autoClose,
-    modalStyle,
     isStaticContent,
     content,
     data,
-    closeModal,
     onPressCloseModal,
     title,
-    addIcon,
-    onPressAddBtn,
-    setModalVisible,
     modalHeight,
     selectedIndex,
-    onOpen,
     onPress,
     searcheble,
-    snapPoint,
     multiple,
     renderdata,
     onPressResetbtn,
     isReset,
-    machineIndex,
   } = props;
 
   useFocusEffect(
@@ -57,9 +43,11 @@ const BottomSheet = (props: any) => {
 
   const [listData, setListData] = useState(data);
   const [finalData, setFinaldata] = useState('');
-  const [lable, setLable] = useState([]);
 
   const dataRender = () => {
+    if (finalData === '') {
+      return listData; // Return the original data when no search input
+    }
     let listMappingKeyword: any = [];
     renderdata === undefined
       ? listData?.map((item: any) => {
@@ -79,20 +67,9 @@ const BottomSheet = (props: any) => {
     return listMappingKeyword;
   };
 
-  // const onPressResetbtn = () => {
-  //   setFinaldata('');\
-  // };
-
   const renderContent = () => [
     <View style={[styles.container, style]}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: wp(6),
-          paddingVertical: hp(2),
-          alignItems: 'center',
-        }}>
+      <View style={styles.itemTitleView}>
         <FontText
           name={'lexend-regular'}
           size={fontSize}
@@ -104,10 +81,7 @@ const BottomSheet = (props: any) => {
           <Button
             onPress={onPressResetbtn}
             bgColor={'white'}
-            style={[
-              styles.fiterButton,
-              {borderWidth: wp(0.2), borderColor: colors.gray},
-            ]}
+            style={styles.fiterButton}
             buttonHeight={wp(8)}>
             <FontText
               name={'lexend-regular'}
@@ -117,115 +91,17 @@ const BottomSheet = (props: any) => {
             </FontText>
           </Button>
         )}
-        {/* {addIcon && (
-          <>
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(true);
-              }}
-              style={{left: wp(20)}}>
-              <SvgIcons.Plus height={hp(4)} width={wp(6)} />
-            </TouchableOpacity>
-            <Modal visible={props?.modalVisible} transparent={true}>
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <View style={styles.cardContainersStyle}>
-                    <FontText
-                      size={normalize(14)}
-                      color={'orange'}
-                      name="lexend-regular">
-                      {'Add'}
-                    </FontText>
-                    <Input
-                      placeholder={'Enter Area'}
-                      placeholderTextColor={colors.placeholder}
-                      value={props?.addAreaValue}
-                      onChangeText={props?.setAddAreaValue}
-                      inputStyle={[
-                        styles.input,
-                        {
-                          fontFamily: 'lexend-regular',
-                          left: wp(3),
-                        },
-                      ]}
-                      style={[styles.inputContainer, {width: wp(70)}]}
-                      blurOnSubmit
-                    />
-                  </View>
-                  <View style={styles.cardContainersStyle}>
-                    <Button
-                      onPress={() => {
-                        setModalVisible(false);
-                      }}
-                      bgColor={'white'}
-                      style={{
-                        marginHorizontal: wp(4),
-                        marginTop: hp(4),
-                        width: wp(30),
-                        borderWidth: wp(0.5),
-                        borderColor: colors.black2,
-                      }}
-                      buttonHeight={wp(10)}>
-                      <FontText
-                        name={'lexend-regular'}
-                        size={normalize(12)}
-                        color={colors.black2}>
-                        {'Cancel'}
-                      </FontText>
-                    </Button>
-                    <Button
-                      onPress={onPressAddBtn}
-                      bgColor={'black2'}
-                      style={{
-                        marginHorizontal: wp(4),
-                        marginTop: hp(4),
-                        width: wp(30),
-                      }}
-                      buttonHeight={wp(10)}>
-                      <FontText
-                        name={'lexend-regular'}
-                        size={normalize(12)}
-                        color={colors.white}>
-                        {'Add'}
-                      </FontText>
-                    </Button>
-                  </View>
-                </View>
-              </View>
-            </Modal>
-          </>
-        )} */}
         <TouchableOpacity style={styles.modalBtn} onPress={onPressCloseModal}>
           <SvgIcons.Close height={tabIcon} width={tabIcon} />
         </TouchableOpacity>
       </View>
       {searcheble && (
-        // <Input
-        //   withLeftIcon
-        //   leftIcon={
-        //     <TouchableOpacity style={{paddingHorizontal: wp(2)}}>
-        //       <SvgIcons.Search height={iconSize} width={iconSize} />
-        //     </TouchableOpacity>
-        //   }
-        //   placeholder={'Search'}
-        //   placeholderTextColor={'placeholder'}
-        //   onChangeText={(text: any) => setFinaldata(text)}
-        //   inputStyle={styles.inputText}
-        //   color={'black'}
-        //   returnKeyType={'done'}
-        //   style={[styles.input]}
-        //   blurOnSubmit
-        // />
-        <View
-          style={[
-            commonStyle.paddingH4,
-            {marginTop: hp(1), marginBottom: hp(3)},
-          ]}>
+        <View style={[commonStyle.paddingH4, {marginBottom: hp(2)}]}>
           <Input
             onChangeText={(text: any) => setFinaldata(text)}
             blurOnSubmit
             autoCapitalize="none"
-            placeholder={'Search a seller'}
+            placeholder={'Search'}
             placeholderTextColor={'placeholder'}
             inputStyle={styles.inputText}
             color={'black'}
@@ -256,8 +132,7 @@ const BottomSheet = (props: any) => {
           contentContainerStyle={{flexGrow: 1, paddingBottom: wp(5)}}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
-            <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={[commonStyle.flex, commonStyle.colC]}>
               <FontText
                 size={normalize(14)}
                 color={'orange'}
@@ -267,13 +142,14 @@ const BottomSheet = (props: any) => {
             </View>
           }
           renderItem={({item, index}) => {
-            const value = index;
+            const value = item.value;
             return (
               <View key={index}>
                 {multiple ? (
                   <Pressable
                     onPress={() => {
                       onPress(item, index);
+                      setFinaldata('');
                     }}
                     style={styles.itemContainer}>
                     <FontText
@@ -292,6 +168,7 @@ const BottomSheet = (props: any) => {
                   <Pressable
                     onPress={() => {
                       onPress(item, index);
+                      setFinaldata('');
                     }}
                     style={styles.itemContainer}>
                     <FontText
@@ -323,51 +200,13 @@ const BottomSheet = (props: any) => {
       closeOnPressMask
       closeOnPressBack
       closeOnDragDown
+      customStyles={{
+        container: styles.modalStyle,
+      }}
       dragFromTopOnly>
       {isStaticContent ? content : renderContent()}
     </RBSheet>
   );
-  // return searcheble ? (
-  //   <Modalize
-  //     snapPoint={snapPoint}
-  //     ref={refName}
-  //     tapGestureEnabled={false}
-  //     scrollViewProps={{
-  //       scrollEnabled: false,
-  //       keyboardShouldPersistTaps: 'handled',
-  //     }}
-  //     disableScrollIfPossible
-  //     adjustToContentHeight
-  //     onOverlayPress={closeModal}
-  //     withReactModal={withReactModal}
-  //     withHandle={withHandle}
-  //     modalStyle={(styles.modalStyle, modalStyle)}
-  //     onClosed={onClosed}
-  //     onOpen={() => setFinaldata('')}
-  //     closeOnOverlayTap={autoClose}
-  //     panGestureEnabled={autoClose}>
-  //     {isStaticContent ? content : renderContent()}
-  //   </Modalize>
-  // ) : (
-  //   <Modalize
-  //     snapPoint={snapPoint}
-  //     ref={refName}
-  //     tapGestureEnabled={false}
-  //     scrollViewProps={{
-  //       scrollEnabled: false,
-  //     }}
-  //     onOverlayPress={closeModal}
-  //     withReactModal={withReactModal}
-  //     withHandle={withHandle}
-  //     modalHeight={modalHeight}
-  //     modalStyle={(styles.modalStyle, modalStyle)}
-  //     onClosed={onClosed}
-  //     onOpen={() => setFinaldata('')}
-  //     closeOnOverlayTap={autoClose}
-  //     panGestureEnabled={autoClose}>
-  //     {isStaticContent ? content : renderContent()}
-  //   </Modalize>
-  // );
 };
 
 BottomSheet.defaultProps = {
@@ -382,20 +221,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
+  itemTitleView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: wp(6),
+    alignItems: 'center',
+    marginBottom: hp(1),
+  },
   modalStyle: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
+    borderTopLeftRadius: normalize(12),
+    borderTopRightRadius: normalize(12),
   },
   itemContainer: {
     paddingVertical: wp(2),
     paddingHorizontal: wp(7),
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  separator: {
-    width: '100%',
-    height: wp(0.5),
-    backgroundColor: colors.lightGray,
   },
   circle: {
     height: wp(4.5),
@@ -413,41 +254,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orange,
   },
   modalBtn: {
-    backgroundColor: colors.lightGray,
     height: hp(4),
     width: hp(4),
-    borderRadius: hp(4),
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalView: {
-    backgroundColor: colors.white,
-    width: wp(90),
-    height: hp(25),
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(3),
-    borderRadius: wp(2),
-  },
-  inputContainer: {
-    borderColor: colors.lightGray,
-    width: wp(90),
-    paddingHorizontal: 0,
-    borderRadius: hp(1),
-    marginBottom: hp(1),
-    padding: hp(1),
+    paddingLeft: wp(0.5),
   },
   inputText: {
     borderRadius: normalize(10),
@@ -465,14 +276,10 @@ const styles = StyleSheet.create({
     height: hp(6.5),
     paddingHorizontal: wp(2),
   },
-  cardContainersStyle: {
-    flexDirection: 'row',
-    marginHorizontal: wp(2),
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   fiterButton: {
     marginHorizontal: wp(4),
+    borderWidth: wp(0.2),
+    borderColor: colors.gray,
     left: wp(18),
   },
   boxcontainer: {

@@ -66,12 +66,12 @@ const CartScreen = ({navigation, route}: any) => {
     const address = userInfo?.companyId?.address.find(
       (item: any) => item.isPriority,
     );
+    console.log('ADDD', address)
     navigation.navigate(RootScreens.SecureCheckout, {
-      data: cartData,
       deliveryAdd: address,
       billingAdd: address,
-      // companyId: companyId,
       from: RootScreens.Cart,
+      name: 'Place Order'
     });
   };
 
@@ -238,8 +238,8 @@ const CartScreen = ({navigation, route}: any) => {
   };
 
   return (
-    <View style={commonStyle.container}>
-      <NavigationBar
+    <View style={[commonStyle.container,{paddingTop:hp(1.5)}]}>
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -262,8 +262,8 @@ const CartScreen = ({navigation, route}: any) => {
             </FontText>
           </View>
         }
-      />
-      <Loader loading={isLoad || isFetch} />
+      /> */}
+      {/* <Loader loading={isLoad || isFetch} /> */}
       <View style={commonStyle.flex}>
         {cartData && cartData?.length !== 0 ? (
           <FlatList
@@ -311,7 +311,7 @@ const CartScreen = ({navigation, route}: any) => {
           cartData={cartData}
           onPress={placeOrderPress}
           isShow={true}
-          total={totalPrice}
+          total={totalPrice.toFixed(2)}
         />
       </View>
       <Popup

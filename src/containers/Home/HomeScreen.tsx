@@ -9,7 +9,7 @@ import {
 import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import {FontText, Button, NavigationBar, Input} from '../../components';
-import {fontSize, smallFont, tabIcon} from '../../styles';
+import {fontSize, mediumFont, smallFont, tabIcon} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
@@ -21,6 +21,9 @@ import CompanyDetail from '../../components/CompanyDetail';
 import utils from '../../helper/utils';
 import {useCompanyRequestMutation} from '../../api/company';
 import {FloatingAction} from 'react-native-floating-action';
+import {useGetOrdersQuery} from '../../api/order';
+import moment from 'moment';
+import AddressComponent from '../../components/AddressComponent';
 
 const actions = [
   {
@@ -55,10 +58,31 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   );
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
+  const [orderData, setOrderData] = React.useState([]);
+
+  const {
+    data: orderList,
+    isFetching: isProcessing,
+    refetch,
+  } = useGetOrdersQuery(
+    {
+      isBuyer: true,
+      status: 'pending',
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   useEffect(() => {
     setOpenPopup(userInfo?.companyCode ? false : true);
   }, [userInfo]);
+
+  useEffect(() => {
+    setOrderData(orderList?.result);
+  }, [isProcessing]);
+
+  console.log('orderData',JSON.stringify(orderData))
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -76,21 +100,91 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     }
   };
 
+  const onViewDetail = (item: any) => {
+    navigation.navigate(RootScreens.SecureCheckout, {
+      from: RootScreens.Order,
+      deliveryAdd: item?.deliveryAddress,
+      billingAdd: item?.billingAddress,
+      orderDetails: item,
+      name: 'Order Details',
+    });
+  };
+
   const _renderItem = ({item, index}: any) => {
     return (
-      <TouchableOpacity
-        onPress={() => onItemPress(index)}
-        style={[styles.itemContainer, commonStyle.shadowContainer]}>
-        {item.icon}
-        <FontText
-          name={'lexend-medium'}
-          size={smallFont}
-          color={'black'}
-          pTop={wp(2)}
-          textAlign={'center'}>
-          {item?.name}
-        </FontText>
-      </TouchableOpacity>
+      <View
+        style={[
+          commonStyle.marginT2,
+          commonStyle.shadowContainer,
+          {
+            backgroundColor: colors.white,
+            borderRadius: normalize(10),
+            paddingVertical: hp(1.5),
+          },
+        ]}>
+        <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
+          <View>
+            <FontText
+              color={'black2'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {item?.orderId}
+            </FontText>
+            <FontText
+              color={'gray'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {moment(item?.orderDate).format('DD-MM-YYYY')}
+            </FontText>
+          </View>
+          <FontText
+            color={'orange'}
+            size={smallFont}
+            textAlign={'right'}
+            name={'lexend-medium'}>
+            {'$'}
+            {item?.totalAmount}
+          </FontText>
+        </View>
+        <View style={[styles.dashedLine]} />
+        <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>
+          <AddressComponent
+            item={item?.deliveryAddress}
+            from={RootScreens.SecureCheckout}
+          />
+        </View>
+        <View style={[styles.dashedLine]} />
+        <View
+          style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
+          <FontText
+            color={
+              item?.status === 'pending' || item?.status === 'cancelled'
+                ? 'red'
+                : item?.status === 'delivered'
+                ? 'green'
+                : item?.status === 'processing'
+                ? 'yellow'
+                : 'black'
+            }
+            size={smallFont}
+            textAlign={'left'}
+            name={'lexend-medium'}>
+            {item?.status}
+          </FontText>
+          <TouchableOpacity onPress={() => onViewDetail(item)}>
+            <FontText
+              color={'orange'}
+              size={smallFont}
+              textAlign={'left'}
+              style={{textDecorationLine: 'underline'}}
+              name={'lexend-medium'}>
+              {'View detail'}
+            </FontText>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   };
 
@@ -159,15 +253,27 @@ const HomeScreen = ({navigation, showNotification}: any) => {
       <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal>
-      <View>
+      {orderData && orderData.length !== 0 ? (
         <FlatList
-          data={HISTORY_LIST}
+          data={orderData}
           renderItem={_renderItem}
-          numColumns={2}
-          columnWrapperStyle={{justifyContent: 'space-between'}}
-          contentContainerStyle={{paddingHorizontal: wp(4), paddingTop: hp(2)}}
+          contentContainerStyle={{
+            paddingHorizontal: wp(4),
+            paddingBottom: hp(2),
+          }}
         />
-        {/* <Button
+      ) : (
+        <View style={[commonStyle.allCenter, {flex: 1}]}>
+          <FontText
+            color="gray"
+            name="lexend-regular"
+            size={mediumFont}
+            textAlign={'center'}>
+            {'No Data found.'}
+          </FontText>
+        </View>
+      )}
+      {/* <Button
           bgColor={'orange'}
           style={styles.buttonContainer}
           onPress={onAddCodePress}>
@@ -175,33 +281,32 @@ const HomeScreen = ({navigation, showNotification}: any) => {
             {'Add your Supplier'}
           </FontText>
         </Button> */}
-        <Popup
-          visible={isOpen}
-          onBackPress={() => setIsOpen(false)}
-          title={'Enter Supplier Code'}
-          titleStyle={{textAlign: 'left'}}
-          children={
-            <Input
-              value={code}
-              onChangeText={(text: string) => setCode(text)}
-              placeholder={''}
-              autoCapitalize="none"
-              placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
-              inputStyle={styles.inputText}
-              style={styles.input}
-              color={'black'}
-              returnKeyType={'next'}
-              blurOnSubmit
-            />
-          }
-          disabled={code !== '' ? false : true}
-          rightBtnText={'Apply'}
-          rightBtnColor={code !== '' ? 'orange' : 'gray'}
-          rightBtnPress={applyCodePress}
-          rightBtnStyle={{width: '100%'}}
-        />
-      </View>
+      <Popup
+        visible={isOpen}
+        onBackPress={() => setIsOpen(false)}
+        title={'Enter Supplier Code'}
+        titleStyle={{textAlign: 'left'}}
+        children={
+          <Input
+            value={code}
+            onChangeText={(text: string) => setCode(text)}
+            placeholder={''}
+            autoCapitalize="none"
+            placeholderTextColor={'placeholder'}
+            fontSize={fontSize}
+            inputStyle={styles.inputText}
+            style={styles.input}
+            color={'black'}
+            returnKeyType={'next'}
+            blurOnSubmit
+          />
+        }
+        disabled={code !== '' ? false : true}
+        rightBtnText={'Apply'}
+        rightBtnColor={code !== '' ? 'orange' : 'gray'}
+        rightBtnPress={applyCodePress}
+        rightBtnStyle={{width: '100%'}}
+      />
       <FloatingAction
         actions={actions}
         onPressItem={name => {
@@ -218,7 +323,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         iconWidth={hp(2.2)}
       />
       {/* <TouchableOpacity
-        onPress={() => navigation.navigate(RootScreens.CartList)}
+        onPress={() => navigation.navigate(RootScreens.Cart)}
         style={styles.floatingButton}>
         <SvgIcons.Buy width={wp(8.5)} height={wp(8.5)} fill={colors.white} />
         {carts && carts?.result && carts?.result?.cart?.length ? (
@@ -320,5 +425,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: wp(7),
     right: wp(5),
+  },
+  dashedLine: {
+    marginTop: wp(1.5),
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderStyle: 'dashed',
+  },
+  paddingT1: {
+    paddingTop: hp(1.5),
   },
 });

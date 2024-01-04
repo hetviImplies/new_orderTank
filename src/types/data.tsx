@@ -85,7 +85,10 @@ export const HISTORY_LIST = [
   },
 ];
 
-export const ADDRESS_TYPE = ['Home', 'Office'];
+export const ADDRESS_TYPE = [
+  {label: 'Home', value: 'Home'},
+  {label: 'Company', value: 'Company'},
+];
 
 export const NUMBER_TYPE = [
   {label: 'GST Number', value: 1},

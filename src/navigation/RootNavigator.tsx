@@ -88,7 +88,7 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator
       initialRouteName={RootScreens.Splash}
-      screenOptions={{headerShown: true}}>
+      screenOptions={{headerShown: true, headerBackTitleVisible:false}}>
       <RootStack.Screen
         name={RootScreens.Splash}
         component={SplashScreen}
@@ -124,13 +124,12 @@ const RootNavigator = () => {
         component={ProductListingScreen}
         options={({route}: any) => ({
           title: route.params.company,
-          headerBackTitleVisible: false,
         })}
       />
       <RootStack.Screen
         name={RootScreens.PersonalDetail}
         component={PersonalDetailScreen}
-        options={{title: 'Personal Detail', headerBackTitleVisible: false}}
+        options={{title: 'Personal Detail'}}
       />
       <RootStack.Screen
         name={RootScreens.CompanyDetail}
@@ -140,7 +139,7 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.Cart}
         component={CartScreen}
-        options={{title: 'Selected Items'}}
+        options={{title: 'Selected Items', headerBackTitleVisible:false}}
       />
       <RootStack.Screen
         name={RootScreens.CartList}
@@ -149,7 +148,10 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.SecureCheckout}
         component={SecureCheckoutScreen}
-        options={{title: 'Place Order'}}
+        options={({route}: any) => ({
+          title: route.params.name,
+          headerBackTitleVisible: false,
+        })}
       />
       <RootStack.Screen
         name={RootScreens.ProductDetail}

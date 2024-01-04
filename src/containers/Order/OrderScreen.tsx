@@ -14,7 +14,7 @@ import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 
 const OrderScreen = ({navigation}: any) => {
   const [selectOrder, setSelectOrder] = React.useState<any>({
@@ -23,7 +23,11 @@ const OrderScreen = ({navigation}: any) => {
   });
   const [orderData, setOrderData] = React.useState([]);
 
-  const {data: orderList, isFetching: isProcess, refetch} = useGetOrdersQuery(
+  const {
+    data: orderList,
+    isFetching: isProcess,
+    refetch,
+  } = useGetOrdersQuery(
     {
       isBuyer: true,
       status: selectOrder?.value === 'all' ? '' : selectOrder?.value,
@@ -33,12 +37,10 @@ const OrderScreen = ({navigation}: any) => {
     },
   );
 
-  console.log('orderList?.result', orderList);
-
   useFocusEffect(
     React.useCallback(() => {
       refetch();
-    },[])
+    }, []),
   );
 
   useEffect(() => {
@@ -48,16 +50,14 @@ const OrderScreen = ({navigation}: any) => {
   const onViewDetail = (item: any) => {
     navigation.navigate(RootScreens.SecureCheckout, {
       from: RootScreens.Order,
-      data: item?.orderDetails,
       deliveryAdd: item?.deliveryAddress,
       billingAdd: item?.billingAddress,
-      companyId: item?.companyId,
       orderDetails: item,
+      name: 'Order Details',
     });
   };
 
   const _renderItem = ({item, index}: any) => {
-    console.log('item', item);
     return (
       <View
         style={[
@@ -65,11 +65,11 @@ const OrderScreen = ({navigation}: any) => {
           commonStyle.shadowContainer,
           {
             backgroundColor: colors.white,
-            padding: wp(4),
             borderRadius: normalize(10),
+            paddingVertical:hp(1.5)
           },
         ]}>
-        <View style={[commonStyle.rowJB, styles.dashedLine]}>
+        <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
           <View>
             <FontText
               color={'black2'}
@@ -91,39 +91,20 @@ const OrderScreen = ({navigation}: any) => {
             size={smallFont}
             textAlign={'right'}
             name={'lexend-medium'}>
-            {item?.orderDetails?.price}
+            {'$'}
+            {item?.totalAmount}
           </FontText>
         </View>
-        <View style={{marginTop: hp(1)}}>
+        <View style={[styles.dashedLine]} />
+        <View style={[{marginTop: hp(1), paddingHorizontal:wp(2)}]}>
           <AddressComponent
             item={item?.deliveryAddress}
             from={RootScreens.SecureCheckout}
           />
         </View>
-        {/* <View style={[styles.dashedLine, styles.paddingT1]}>
-          <View style={commonStyle.row}>
-            <SvgIcons.Employee />
-            <FontText
-              color={'black2'}
-              size={smallFont}
-              textAlign={'left'}
-              pLeft={wp(3)}
-              name={'lexend-regular'}>
-              {item?.deliveryAddress?.addressName}
-            </FontText>
-          </View>
-          <FontText
-            color={'gray4'}
-            size={smallFont}
-            textAlign={'left'}
-            pTop={wp(1)}
-            name={'lexend-regular'}>
-            {
-              'Shop No 1,28/c, Shanti Sadan, Lokhandwala Rd, Nr Sasural Restaurant, Bangalore-560016'
-            }
-          </FontText>
-        </View> */}
-        <View style={[commonStyle.rowJB, styles.paddingT1]}>
+        <View style={[styles.dashedLine]} />
+        <View
+          style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
           <FontText
             color={
               item?.status === 'pending' || item?.status === 'cancelled'
@@ -178,7 +159,7 @@ const OrderScreen = ({navigation}: any) => {
           horizontal
           data={ORDERTYPE}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{marginHorizontal: wp(-1)}}
+          contentContainerStyle={{marginHorizontal: wp(-1), paddingTop:hp(1)}}
           renderItem={({item, index}) => {
             return (
               <TouchableOpacity
@@ -260,9 +241,9 @@ const styles = StyleSheet.create({
     borderRadius: normalize(10),
   },
   dashedLine: {
-    paddingBottom: hp(1.5),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+    marginTop: wp(1.5),
+    borderWidth: 1,
+    borderColor: colors.line,
     borderStyle: 'dashed',
   },
   paddingT1: {

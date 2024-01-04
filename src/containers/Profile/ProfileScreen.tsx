@@ -126,7 +126,7 @@ const ProfileScreen = ({navigation}: any) => {
         }
       /> */}
       <Loader loading={isLoading || loading} />
-      <View style={commonStyle.paddingH4}>
+      <View style={[commonStyle.paddingH4, {marginTop: hp(1)}]}>
         <FlatList
           data={PROFILE_LIST}
           renderItem={_renderItem}

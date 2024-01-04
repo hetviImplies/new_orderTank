@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -8,15 +9,8 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
-import {NavigationBar, FontText, Loader, Input, Button} from '../../components';
-import commonStyle, {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLargeFont,
-  smallFont,
-  tabIcon,
-} from '../../styles';
+import {FontText, Loader, Input, Button} from '../../components';
+import commonStyle, {iconSize, mediumFont, smallFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -29,30 +23,51 @@ import {
 import AddressComponent from '../../components/AddressComponent';
 import IconHeader from '../IconHeader';
 import CartCountModule from '../../components/CartCountModule';
-import {useSelector} from 'react-redux';
 import utils from '../../helper/utils';
 import {useRemoveCartMutation} from '../../api/cart';
+import {
+  calculateTotalPrice,
+  getCartItems,
+  updateCartItems,
+} from '../Cart/Carthelper';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
   const [cancleOrder, {isLoading: isFetching}] = useUpdateOrderStatusMutation();
   const [removeCart, {isLoading: isFetch}] = useRemoveCartMutation();
-  const cartData = route.params.data;
-  const companyId = route.params.companyId;
+  // const cartData = route.params.data;
+  // const companyId = route.params.companyId;
   const deliveryAdd = route.params.deliveryAdd;
   const billingAdd = route.params.billingAdd;
   const from = route.params.from;
   const orderDetails = route.params.orderDetails;
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const isOrder = from === RootScreens.Order;
-  const product = isOrder ? cartData : cartData?.cart;
+
+  const [cartData, setCartData] = useState<any>([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const product = isOrder ? orderDetails?.orderDetails : cartData;
+
+  console.log('orderDetails.......;//////', JSON.stringify(product));
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      const items = await getCartItems();
+      setCartData(items);
+      const price = await calculateTotalPrice();
+      setTotalPrice(price);
+    };
+    fetchCartItems();
+  }, []);
 
   const onChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
-    setShow(false);
-    setDate(currentDate);
+    setShow(Platform.OS === 'ios');
+    Platform.OS !== 'ios' && setDate(currentDate);
+    setSelectedDate(currentDate);
   };
 
   const showDatepicker = () => {
@@ -66,16 +81,16 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         <View style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
             <Image
-              source={{uri: item?.productData?.image}}
+              source={{uri: isOrder ? item?.productData?.image : item?.image}}
               style={styles.logo}
             />
-            <View style={{width: '55%'}}>
+            <View style={{width: '50%'}}>
               <FontText
                 name={'lexend-regular'}
                 size={mediumFont}
                 color={'gray4'}
                 textAlign={'left'}>
-                {item?.productData?.name}
+                {isOrder ? item?.productData?.name : item?.name}
               </FontText>
               <FontText
                 name={'lexend-regular'}
@@ -84,17 +99,17 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 pTop={wp(2)}
                 textAlign={'left'}>
                 {'$'}
-                {item?.productData?.price} ({item?.quantity} qty)
+                {item?.price} ({item?.quantity} qty)
               </FontText>
             </View>
-            <View style={{width: '15%'}}>
+            <View style={{width: '20%'}}>
               <FontText
                 name={'lexend-regular'}
                 size={mediumFont}
                 textAlign={'right'}
                 color={'orange'}>
                 {'$'}
-                {item?.total ? item.total : item?.subtotal}
+                {item?.price * item?.quantity}
               </FontText>
             </View>
           </View>
@@ -125,7 +140,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 deliveryAdd: deliveryAdd,
                 billingAdd: billingAdd,
                 cartData: cartData,
-                companyId: companyId,
+                // companyId: companyId,
               },
             });
           }}
@@ -142,36 +157,37 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const placeOrderPress = async () => {
     let body: any = {};
     let ids;
-    body = cartData?.cart?.map((item: any, index: any) => {
+    body = cartData?.map((item: any, index: any) => {
       return {
-        product: item?.productId,
+        product: item?._id,
         quantity: item?.quantity,
       };
     });
-    ids = cartData?.cart?.map((item: any, index: any) => {
-      return item?._id;
-    });
+    ids = cartData?.find((item: any, index: any) => item?.companyId);
 
-    console.log('cartData', ids);
     let params = {
       orderDetails: body,
       notes: notes,
-      // approxDeliveryDate: date,
+      approxDeliveryDate: date,
       deliveryAddress: deliveryAdd,
       billingAddress: billingAdd,
-      companyId: companyId,
+      companyId: ids.companyId,
       isBuyer: true,
     };
     console.log('params', JSON.stringify(params));
     const {data: order, error}: any = await createOrder(params);
     console.log('createOrder: ', order, error);
     if (!error && order?.statusCode === 201) {
-      const {data, error: err}: any = await removeCart({ids: ids});
-      console.log('removeCart: ', data, error);
-
-      if (!err && data?.statusCode === 200) {
+      await updateCartItems([]);
+      let updatedCartItems = await getCartItems();
+      if (updatedCartItems?.length == 0) {
         navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
       }
+      // const {data, error: err}: any = await removeCart({ids: ids});
+      // console.log('removeCart: ', data, error);
+
+      // if (!err && data?.statusCode === 200) {
+      // }
     } else {
       utils.showErrorToast(error.message);
     }
@@ -195,12 +211,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const newDate = new Date();
-
-  console.log('orderDetails', orderDetails)
-
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -223,11 +236,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </FontText>
           </View>
         }
-      />
+      /> */}
       <Loader loading={isLoading || isFetch || isFetching} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: hp(2)}}
+        contentContainerStyle={{paddingBottom: hp(2), paddingTop: hp(2)}}
         nestedScrollEnabled
         style={[commonStyle.paddingH4]}>
         {isOrder ? (
@@ -287,8 +300,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <TouchableOpacity
               style={styles.editBtn}
               onPress={() => {
-                console.log('cdwoefdko');
-                navigation.navigate(RootScreens.Cart, {companyId: companyId});
+                navigation.navigate(RootScreens.Cart);
               }}>
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
@@ -320,36 +332,56 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             />
           </View>
         )}
-        {/* <View style={styles.addressContainer}>
+        <View style={styles.addressContainer}>
           <IconHeader label={'Expected date:'} icon={<SvgIcons.Calender />} />
-          <Button
-            onPress={showDatepicker}
-            bgColor={'white2'}
-            style={styles.quantityBtn}>
-            <FontText
-              name={'lexend-medium'}
-              size={smallFont}
-              pLeft={wp(0.5)}
-              pRight={wp(2)}
-              color={'black2'}>
-              {moment(date).format('DD')} / {moment(date).format('MM')} /{' '}
-              {moment(date).format('YYYY')}
-            </FontText>
-            <SvgIcons.DownArrow
-              height={wp(2.5)}
-              width={wp(2.5)}
-              fill={colors.black2}
-            />
-          </Button>
-        </View> */}
+          {isOrder ? (
+            <View
+              style={{
+                padding: wp(2),
+                backgroundColor: colors.white2,
+                borderRadius: normalize(5),
+                width: wp(27),
+                marginTop: hp(0.5),
+              }}>
+              <FontText
+                name={'lexend-medium'}
+                size={smallFont}
+                color={'black2'}>
+                {moment(date).format('DD')} - {moment(date).format('MM')} -{' '}
+                {moment(date).format('YYYY')}
+              </FontText>
+            </View>
+          ) : (
+            <Button
+              onPress={showDatepicker}
+              bgColor={'white2'}
+              style={styles.quantityBtn}>
+              <FontText
+                name={'lexend-medium'}
+                size={smallFont}
+                pLeft={wp(0.5)}
+                pRight={wp(2)}
+                color={'black2'}>
+                {moment(date).format('DD')} / {moment(date).format('MM')} /{' '}
+                {moment(date).format('YYYY')}
+              </FontText>
+              <SvgIcons.DownArrow
+                height={wp(2.5)}
+                width={wp(2.5)}
+                fill={colors.black2}
+              />
+            </Button>
+          )}
+        </View>
       </ScrollView>
       <CartCountModule
         btnText={isOrder ? 'Cancel Order' : 'Place Order'}
         btnColor={isOrder ? 'red' : 'orange'}
-        cartData={cartData}
+        cartData={product}
         orderDetails={orderDetails}
         isShow={isOrder ? orderDetails?.status === 'pending' : true}
         onPress={isOrder ? cancelOrder : placeOrderPress}
+        total={isOrder ? orderDetails?.totalAmount : totalPrice.toFixed(2)}
         showText={
           <View>
             {orderDetails ? (
@@ -395,13 +427,36 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         }
       />
       {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is24Hour={true}
-          onChange={onChange}
-        />
+        <View style={styles.datePickerStyle}>
+          {Platform.OS === 'ios' && (
+            <View
+              style={[styles.pickerHeaderStyle, commonStyle.shadowContainer]}>
+              <TouchableOpacity
+                onPress={() => {
+                  setShow(false);
+                  setDate(selectedDate);
+                }}>
+                <FontText
+                  name={'lexend-medium'}
+                  size={smallFont}
+                  color={'orange'}>
+                  {' '}
+                  {'Done'}
+                </FontText>
+              </TouchableOpacity>
+            </View>
+          )}
+          <DateTimePicker
+            value={date}
+            mode="date"
+            is24Hour={true}
+            minimumDate={new Date()}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onChange}
+            themeVariant="light"
+            style={{backgroundColor: colors.white}}
+          />
+        </View>
       )}
     </View>
   );
@@ -450,5 +505,24 @@ const styles = StyleSheet.create({
   editBtn: {
     alignSelf: 'flex-end',
     marginBottom: hp(-1),
+  },
+  datePickerStyle: {
+    position: 'absolute',
+    justifyContent: 'flex-end',
+    width: '100 %',
+    height: '100 %',
+    zIndex: 2,
+    backgroundColor: colors.placeholder,
+  },
+  pickerHeaderStyle: {
+    width: '100%',
+    padding: hp(1.5),
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    backgroundColor: colors.white,
+    borderColor: colors.line,
+    borderBottomWidth: 1,
+    borderTopLeftRadius: normalize(5),
+    borderTopRightRadius: normalize(5),
   },
 });

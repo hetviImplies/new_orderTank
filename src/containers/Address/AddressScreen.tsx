@@ -19,7 +19,7 @@ import utils from '../../helper/utils';
 
 const AddressScreen = ({navigation, route}: any) => {
   const from = route?.params?.data?.from;
-  const companyId = route?.params?.data?.companyId;
+  // const companyId = route?.params?.data?.companyId;
   const cartData = route?.params?.data?.cartData;
   const deliveryAdd = route?.params?.data.deliveryAdd;
   const billingAdd = route?.params?.data.billingAdd;
@@ -37,6 +37,8 @@ const AddressScreen = ({navigation, route}: any) => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
   }, [type]);
 
+  console.log('type: ', addressData, checkedData);
+
   useEffect(() => {
     setAddressData(data?.result?.address);
   }, [data, isFetching]);
@@ -50,8 +52,9 @@ const AddressScreen = ({navigation, route}: any) => {
       deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
       billingAdd: type === 'Billing address' ? checkedData : billingAdd,
       data: cartData,
-      companyId: companyId,
+      // companyId: companyId,
       from: RootScreens.Address,
+      name: 'Place Order'
     });
   };
 
@@ -69,6 +72,7 @@ const AddressScreen = ({navigation, route}: any) => {
   };
 
   const _renderItem = ({item, index}: any) => {
+    console.log('item?._id === checkedData?._id',item?._id , checkedData?._id)
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}

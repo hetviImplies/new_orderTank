@@ -7,7 +7,6 @@ import colors from '../../assets/colors';
 
 const CartCountModule = (props: any) => {
   const {cartData, onPress, btnText, btnColor, orderDetails, isShow, showText, total} = props;
-  console.log('cartData', cartData);
   return (
     <View>
       {cartData && cartData?.length !== 0 && (
@@ -20,9 +19,7 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`Sub Total (${
-                    cartData?.length ? cartData?.length : cartData?.cart?.length
-                  } items)`}
+                  {`Sub Total (${cartData?.length} items)`}
                 </FontText>
                 <FontText
                   color="black2"

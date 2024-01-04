@@ -338,54 +338,49 @@ const CompanyDetail = (props: any) => {
 
   const logoutPress = async () => {
     setOpenPopup(false);
-    setLoading(true);
-    await AsyncStorage.clear();
-    await AsyncStorage.removeItem('token');
-    dispatch(authReset());
-    setLoading(false);
-    resetNavigateTo(navigation, RootScreens.Login);
+    setTimeout(async () => {
+      // setLoading(true);
+      // await AsyncStorage.clear();
+      // await AsyncStorage.removeItem('token');
+      // dispatch(authReset());
+      // setLoading(false);
+      resetNavigateTo(navigation, RootScreens.Login);
+    }, 500);
     // dispatch(setIsAuthenticated(false));
   };
 
   return (
     <View style={commonStyle.container}>
-      {/* <NavigationBar
-        hasCenter
-        hasLeft
-        left={
-          <View style={[commonStyle.rowAC, {paddingLeft: wp(1)}]}>
-            {from === 'Profile' ? (
-              <TouchableOpacity
-                style={[commonStyle.iconView, {marginRight: wp(5)}]}
-                onPress={() => navigation.goBack()}>
-                <SvgIcons.BackArrow width={tabIcon} height={tabIcon} />
-              </TouchableOpacity>
-            ) : null}
-            <FontText
-              name={'lexend-semibold'}
-              size={mediumLargeFont}
-              color={'black'}
-              textAlign={'left'}>
-              {from === 'Profile'
-                ? 'Company Detail'
-                : 'Enter your company detail'}
-            </FontText>
-          </View>
-        }
-        right={
-          <TouchableOpacity onPress={logoutPress}>
-            <SvgIcons.PowerOff
-              width={wp(7)}
-              height={wp(7)}
-              fill={colors.orange}
-            />
-          </TouchableOpacity>
-        }
-        leftStyle={{width: '75%'}}
-        hasRight={from !== 'Profile'}
-        style={{marginHorizontal: wp(2.5)}}
-        borderBottomWidth={0}
-      /> */}
+      {from !== 'Profile' ? (
+        <NavigationBar
+          hasCenter
+          hasRight
+          hasLeft
+          left={
+            <View style={[commonStyle.rowAC, {paddingLeft: wp(1)}]}>
+              <FontText
+                name={'lexend-semibold'}
+                size={mediumLargeFont}
+                color={'black'}
+                textAlign={'left'}>
+                {'Enter your company detail'}
+              </FontText>
+            </View>
+          }
+          right={
+            <TouchableOpacity onPress={logoutPress}>
+              <SvgIcons.PowerOff
+                width={wp(7)}
+                height={wp(7)}
+                fill={colors.orange}
+              />
+            </TouchableOpacity>
+          }
+          leftStyle={{width: '75%'}}
+          style={{marginHorizontal: wp(2.5)}}
+          borderBottomWidth={0}
+        />
+      ) : null}
       <Loader
         loading={
           isFetching ||
@@ -396,7 +391,8 @@ const CompanyDetail = (props: any) => {
           isProcess
         }
       />
-      <View style={[commonStyle.paddingH4, commonStyle.flex]}>
+      <View
+        style={[commonStyle.paddingH4, commonStyle.flex, commonStyle.marginT2]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View>
             {imageUrl ? (

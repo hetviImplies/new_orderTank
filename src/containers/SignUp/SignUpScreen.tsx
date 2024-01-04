@@ -286,7 +286,7 @@ const SignUpScreen = ({navigation}: any) => {
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
                 color={'black'}
-                inputStyle={styles.inputText}
+                inputStyle={[styles.inputText, {paddingRight: wp(12)}]}
                 style={styles.input}
                 secureTextEntry={!eyeIcon}
                 returnKeyType={'done'}

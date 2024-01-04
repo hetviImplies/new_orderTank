@@ -8,6 +8,7 @@ import commonStyle, {
   tabIcon,
   fontSize,
   mediumFont,
+  iconSize,
 } from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
@@ -15,7 +16,6 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import FilterModal from '../../components/FilterModal';
 import {useGetAllProductsQuery} from '../../api/product';
 import ProductComponent from '../../components/ProductComponent';
-import {useGetCartsQuery} from '../../api/cart';
 import {
   addToCart,
   decrementCartItem,
@@ -29,17 +29,17 @@ import Popup from '../../components/Popup';
 
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route.params.id;
-  const company = route.params.company;
 
   const filterRef: any = useRef(null);
   const [selectedItems, setSelectedItems] = useState<[]>([]);
   const [search, setSearch] = useState('');
-  const [searchText, setSearchText] = useState('');
+  // const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [productListData, setProductListData] = useState([]);
   const [cartItems, setCartItems] = useState<any>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<any>({});
 
   const {
@@ -57,6 +57,43 @@ const ProductListingScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
+
+  React.useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          style={[{marginRight: wp(5)}]}
+          onPress={() => navigation.goBack()}>
+          <SvgIcons.BackArrow width={iconSize} height={iconSize} />
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <View style={[commonStyle.rowAC]}>
+          <TouchableOpacity
+            style={[{marginRight: wp(5)}]}
+            onPress={() => setIsHorizontal(!isHorizontal)}>
+            <SvgIcons.Category width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
+            {cartItems?.length ? (
+              <View style={styles.countView}>
+                <FontText
+                  color="white"
+                  name="lexend-medium"
+                  size={normalize(10)}
+                  textAlign={'center'}>
+                  {cartItems?.length}
+                </FontText>
+              </View>
+            ) : null}
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, isHorizontal, cartItems]);
 
   useEffect(() => {
     setProductListData(productList?.result);
@@ -76,8 +113,10 @@ const ProductListingScreen = ({navigation, route}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
+        setLoading(true);
         const items = await getCartItems();
         setCartItems(items);
+        setLoading(false);
       };
       fetchCartItems();
     }, []),
@@ -143,7 +182,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const handleOrderPlace = () => {
     setIsOpen(false);
     navigation.navigate(RootScreens.Cart);
-  }
+  };
 
   const handleRemoveItem = async () => {
     await updateCartItems([]);
@@ -156,7 +195,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -204,8 +243,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
             </TouchableOpacity>
           </View>
         }
-      />
-      <Loader loading={isProcessing} />
+      /> */}
+      <Loader loading={isProcessing || loading} />
       <View
         style={[
           commonStyle.paddingH4,
@@ -216,7 +255,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           <Input
             value={search}
             onChangeText={(text: any) => setSearch(text.trimStart())}
-            onSubmit={(text: any) => setSearchText(text.trimStart())}
+            // onSubmit={(text: any) => setSearchText(text.trimStart())}
             blurOnSubmit
             autoCapitalize="none"
             placeholder={'Search a product'}
@@ -360,8 +399,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orange,
     borderRadius: hp(1.5),
     position: 'absolute',
-    right: wp(2),
-    top: wp(2.5),
+    left: wp(3.5),
+    bottom: wp(3),
     justifyContent: 'center',
     alignItems: 'center',
   },
