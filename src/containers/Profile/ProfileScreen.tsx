@@ -109,7 +109,7 @@ const ProfileScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -124,7 +124,7 @@ const ProfileScreen = ({navigation}: any) => {
             {'Profile'}
           </FontText>
         }
-      />
+      /> */}
       <Loader loading={isLoading || loading} />
       <View style={commonStyle.paddingH4}>
         <FlatList

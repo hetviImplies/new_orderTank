@@ -25,7 +25,12 @@ import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
 // import BottomSheet from '../BottomSheet';
-import {COUNTRY_LIST, NUMBER_TYPE, STATES_LIST} from '../../types/data';
+import {
+  COUNTRY_LIST,
+  NUMBER_TYPE,
+  STATES_DATA,
+  STATES_LIST,
+} from '../../types/data';
 import {
   useAddCompanyMutation,
   useGetCompanyQuery,
@@ -34,17 +39,22 @@ import {
 import utils from '../../helper/utils';
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {authReset} from '../../redux/slices/authSlice';
+import {authReset, setCurrentUser} from '../../redux/slices/authSlice';
 import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import RadioButton from '../Common/RadioButton';
 import {useUpdateProfileMutation} from '../../api/profile';
+import BottomSheet from '../BottomSheet';
+import {useGetCurrentUserQuery} from '../../api/auth';
 
 const CompanyDetail = (props: any) => {
   const {setOpenPopup, from, navigation} = props;
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
+    refetchOnMountOrArgChange: true,
+  });
+  const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
   const [updateProfile, {isLoading: isProcessing}] = useUpdateProfileMutation();
@@ -57,6 +67,7 @@ const CompanyDetail = (props: any) => {
   // const gstNoRegx =
   //   /^[0-9]{2}[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   const panNoRegx = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  const phoneRegx = /^[6-9]\d{9}$/;
 
   const validationGstNo = (val: any) => {
     const result = gstNoRegx.test(val.trim());
@@ -96,6 +107,12 @@ const CompanyDetail = (props: any) => {
   const [country, setCountry] = useState('');
   const [numberType, setNumberType] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedState, setSelectedState] = useState<number>();
+
+  const validationNumber = (val: any) => {
+    const result = phoneRegx.test(val.trim());
+    return result;
+  };
 
   const isValidGstNo =
     checkValid && (gstNo.length === 0 || !validationGstNo(gstNo));
@@ -103,29 +120,43 @@ const CompanyDetail = (props: any) => {
     checkValid && (panNo.length === 0 || !validationPanNo(panNo));
   const isValidCompanyName = checkValid && company.length === 0;
   const isValidName = checkValid && name.length === 0;
-  const isValidPhone = checkValid && phone.length === 0;
+  const isValidPhone =
+    checkValid &&
+    (phone.length === 0 || phone.length < 10 || !validationNumber(phone));
   const isValidAddress = checkValid && address.length === 0;
   const isValidPinCode = checkValid && pinCode.length === 0;
   const isValidLocality = checkValid && locality.length === 0;
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
-  console.log('data?.result', data?.result);
+
   useEffect(() => {
-    setNumberType(data?.result?.isGst ? 1 : 2);
+    console.log('Checking...');
+    dispatch(setCurrentUser(userData?.result));
+  }, [isProcessing]);
+
+  useEffect(() => {
+    setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(userInfo?.name ? userInfo?.name : '');
+    setName(name ? name : userData?.result?.name);
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
-    setPhone(userInfo?.phone ? userInfo?.phone : '');
+    setPhone(phone ? phone : userData?.result?.phone);
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
     setPinCode(data?.result ? data?.result.address[0]?.pincode : '');
     setCity(data?.result ? data?.result.address[0]?.city : '');
     setState(data?.result ? data?.result.address[0]?.state : '');
-    setCountry(data?.result ? data?.result.address[0]?.country : '');
+    STATES_DATA.map((state, index) => {
+      if (data?.result?.address[0]?.state === state.label) {
+        setSelectedState(index);
+      }
+    });
+    // setCountry(data?.result ? data?.result.address[0]?.country : '');
   }, [data, isFetching]);
+
+  console.log('ddsxkeoqwdk', name, phone);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -191,7 +222,10 @@ const CompanyDetail = (props: any) => {
       locality.length !== 0 &&
       city.length !== 0 &&
       pinCode.length !== 0 &&
-      state.length !== 0
+      state.length !== 0 &&
+      phone.length !== 0 &&
+      validationNumber(phone) &&
+      name.length !== 0
       // && country.length !== 0
     ) {
       const formData = new FormData();
@@ -231,14 +265,29 @@ const CompanyDetail = (props: any) => {
       if (from === 'Profile') {
         let body = {
           params: formData,
-          _id: userInfo?.companyId?._id,
+          _id: userData?.result?.companyId?._id,
         };
         const {data, error}: any = await updateCompany(body);
         console.log('DATA', data, error);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
-          setOpenPopup && setOpenPopup(false);
-          utils.showSuccessToast(data.message);
+          if (
+            userData?.result?.name !== name ||
+            userData?.result?.phone !== phone
+          ) {
+            let params = {
+              name: name,
+              phone: phone,
+            };
+            const {data, error: err}: any = await updateProfile(params);
+            if (!err) {
+              setOpenPopup && setOpenPopup(false);
+            } else {
+              utils.showSuccessToast(err.message);
+            }
+          } else {
+            setOpenPopup && setOpenPopup(false);
+          }
         } else {
           utils.showErrorToast(data.message || error);
         }
@@ -249,7 +298,10 @@ const CompanyDetail = (props: any) => {
         console.log('DATA', data, error);
         if (!error && data?.statusCode === 201) {
           setCheckValid(false);
-          if (userInfo?.name !== name || userInfo?.phone !== phone) {
+          if (
+            userData?.result?.name !== name ||
+            userData?.result?.phone !== phone
+          ) {
             let params = {
               name: name,
               phone: phone,
@@ -297,7 +349,7 @@ const CompanyDetail = (props: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasCenter
         hasLeft
         left={
@@ -333,8 +385,17 @@ const CompanyDetail = (props: any) => {
         hasRight={from !== 'Profile'}
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
+      /> */}
+      <Loader
+        loading={
+          isFetching ||
+          isLoading ||
+          loading ||
+          isProcessing ||
+          isFetch ||
+          isProcess
+        }
       />
-      <Loader loading={isFetching || isLoading || loading} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View>
@@ -398,7 +459,7 @@ const CompanyDetail = (props: any) => {
               </FontText>
             </View>
             <Input
-              editable={from === 'Profile' ? editInformation : true}
+              editable={from === 'Profile' ? false : true}
               ref={regRef}
               value={numberType === 1 ? gstNo : panNo}
               onChangeText={(text: string) => {
@@ -412,9 +473,11 @@ const CompanyDetail = (props: any) => {
               autoCapitalize="none"
               placeholderTextColor={'placeholder'}
               fontSize={fontSize}
-              inputStyle={styles.inputText}
+              inputStyle={[
+                styles.inputText,
+                {color: from === 'Profile' ? colors.gray : colors.black2},
+              ]}
               style={styles.input}
-              color={'black'}
               returnKeyType={'next'}
               blurOnSubmit
               onSubmit={() => {
@@ -467,6 +530,7 @@ const CompanyDetail = (props: any) => {
               </View>
               <Input
                 ref={nameRef}
+                editable={from === 'Profile' ? editInformation : true}
                 value={name}
                 onChangeText={(text: string) => setName(text.trimStart())}
                 autoCapitalize="none"
@@ -514,22 +578,34 @@ const CompanyDetail = (props: any) => {
               </View>
               <Input
                 ref={phoneRef}
+                editable={from === 'Profile' ? editInformation : true}
                 value={phone}
-                onChangeText={(text: string) => setPhone(text.trimStart())}
-                autoCapitalize="none"
+                onChangeText={(text: string) => setPhone(text.trim())}
                 placeholder={'Enter Mobile Number'}
+                autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
                 fontSize={fontSize}
-                inputStyle={styles.inputText}
+                inputStyle={[styles.inputText, {paddingLeft: wp(20)}]}
+                style={styles.input}
                 color={'black'}
-                returnKeyType={'next'}
-                style={[styles.input]}
+                returnKeyType={'done'}
+                maxLength={10}
+                keyboardType={'numeric'}
                 onSubmit={() => {
                   companyRef?.current.focus();
                 }}
                 children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <View
+                    style={[commonStyle.abs, commonStyle.rowAC, {left: wp(4)}]}>
                     <SvgIcons.Phone width={iconSize} height={iconSize} />
+                    <FontText
+                      name={'lexend-regular'}
+                      size={mediumFont}
+                      color={'black2'}
+                      pLeft={wp(4)}
+                      textAlign={'left'}>
+                      {'+91'}
+                    </FontText>
                   </View>
                 }
               />
@@ -539,7 +615,11 @@ const CompanyDetail = (props: any) => {
                   color={'red'}
                   pTop={wp(1)}
                   textAlign="right"
-                  name="regular">{`Mobile Number is Required.`}</FontText>
+                  name="regular">
+                  {checkValid && phone.length === 0
+                    ? `Mobile Number is required.`
+                    : 'Invalid Mobile Number.'}
+                </FontText>
               )}
             </View>
             <View style={styles.marginTopView}>
@@ -879,6 +959,21 @@ const CompanyDetail = (props: any) => {
             </FontText>
           </Button>
         )}
+        <BottomSheet
+          onPressCloseModal={() => stateRef?.current?.close()}
+          refName={stateRef}
+          modalHeight={hp(50)}
+          title={'Select State'}
+          searcheble
+          data={STATES_DATA}
+          selectedIndex={selectedState}
+          onPress={(item: any, index: any) => {
+            console.log('item selected', item, index);
+            setSelectedState(index);
+            setState(item?.label);
+            stateRef?.current?.close();
+          }}
+        />
         {/* <BottomSheet
           withReactModal
           onPressCloseModal={() => stateRef?.current?.close()}

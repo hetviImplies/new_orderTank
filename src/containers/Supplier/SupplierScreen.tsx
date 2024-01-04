@@ -126,7 +126,7 @@ const SupplierScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -156,7 +156,7 @@ const SupplierScreen = ({navigation}: any) => {
             </TouchableOpacity>
           </View>
         }
-      />
+      /> */}
       <Loader loading={isProcessing || isProcess} />
       <View style={[commonStyle.paddingH4, {marginTop: hp(1), flex: 1}]}>
         <Input

@@ -108,7 +108,7 @@ const CartListScreen = ({navigation}: any) => {
   return (
     <View style={commonStyle.container}>
       <Loader loading={isFetching} />
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -131,7 +131,7 @@ const CartListScreen = ({navigation}: any) => {
             </FontText>
           </View>
         }
-      />
+      /> */}
 
       {companyList && companyList?.length !== 0 ? (
         <FlatList

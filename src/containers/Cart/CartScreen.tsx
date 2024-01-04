@@ -5,125 +5,145 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import commonStyle, {
   fontSize,
-  largeFont,
   mediumFont,
   mediumLarge1Font,
   mediumLargeFont,
-  smallFont,
   tabIcon,
 } from '../../styles';
-import {Button, FontText, Loader, NavigationBar} from '../../components';
+import {FontText, Loader, NavigationBar} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
-import {
-  useGetCartsQuery,
-  useRemoveCartMutation,
-  useUpdateCartMutation,
-} from '../../api/cart';
 import {RootScreens} from '../../types/type';
 import Popup from '../../components/Popup';
-import utils from '../../helper/utils';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import CartCountModule from '../../components/CartCountModule';
 import {useSelector} from 'react-redux';
+import {
+  calculateTotalPrice,
+  decrementCartItem,
+  getCartItems,
+  incrementCartItem,
+  removeCartItem,
+} from './Carthelper';
 
 const CartScreen = ({navigation, route}: any) => {
-  const companyId = route.params.companyId;
+  // const companyId = route.params.companyId;
 
-  const {
-    data: carts,
-    isFetching,
-    refetch,
-  } = useGetCartsQuery(
-    {companyId: companyId},
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
+  // const {
+  //   data: carts,
+  //   isFetching,
+  //   refetch,
+  // } = useGetCartsQuery(
+  //   {companyId: companyId},
+  //   {
+  //     refetchOnMountOrArgChange: true,
+  //   },
+  // );
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const [updateCart, {isLoading: isLoad}] = useUpdateCartMutation();
-  const [removeCart, {isLoading: isFetch}] = useRemoveCartMutation();
-
-  const quantityRef: any = useRef();
   const [cartData, setCartData] = useState<any>([]);
+  const [totalPrice, setTotalPrice] = useState(0);
   const [selectedItem, setSelectedItem] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setCartData(carts?.result);
-  }, [isFetching, carts, companyId]);
+    const fetchCartItems = async () => {
+      const items = await getCartItems();
+      setCartData(items);
+      const price = await calculateTotalPrice();
+      setTotalPrice(price);
+    };
+    fetchCartItems();
+  }, []);
+
+  // useEffect(() => {
+  //   setCartData(carts?.result);
+  // }, [isFetching, carts, companyId]);
 
   const placeOrderPress = () => {
     const address = userInfo?.companyId?.address.find(
       (item: any) => item.isPriority,
     );
     navigation.navigate(RootScreens.SecureCheckout, {
-      data: carts?.result,
+      data: cartData,
       deliveryAdd: address,
       billingAdd: address,
-      companyId: companyId,
+      // companyId: companyId,
       from: RootScreens.Cart,
     });
   };
 
-  const quantityIncrement = async (itm: any) => {
-    let qua = {
-      ...itm,
-      quantity: itm.quantity >= 0 ? itm.quantity + 1 : 0,
-    };
-    setSelectedItem(qua);
+  // const quantityIncrement = async (itm: any) => {
+  //   let qua = {
+  //     ...itm,
+  //     quantity: itm.quantity >= 0 ? itm.quantity + 1 : 0,
+  //   };
+  //   setSelectedItem(qua);
+  // };
+
+  // const quantityDecrement = async (itm: any) => {
+  //   let data = {
+  //     ...itm,
+  //     quantity: itm.quantity > 1 ? itm.quantity - 1 : 1,
+  //   };
+  //   setSelectedItem(data);
+  // };
+
+  // const quantityDoneHandler = async () => {
+  //   let body: any = {
+  //     quantity: selectedItem.quantity,
+  //   };
+  //   let params = {
+  //     body: body,
+  //     _id: selectedItem?._id,
+  //   };
+  //   console.log('Params', params);
+  //   const {data, error}: any = await updateCart(params);
+  //   console.log('UPDATA', data, error);
+
+  //   if (!error && data?.statusCode === 200) {
+  //     quantityRef.current.close();
+  //     utils.showSuccessToast(data.message);
+  //   } else {
+  //     utils.showErrorToast(data.message || error);
+  //   }
+  // };
+
+  // const removeCartItem = async () => {
+  //   setIsOpen(false);
+  //   console.log('productId', [selectedItem?._id]);
+  //   const {data, error}: any = await removeCart({ids: [selectedItem?._id]});
+  //   console.log('DATA', data, error);
+  //   if (!error) {
+  //     // refetch();
+  //     utils.showSuccessToast(data.message);
+  //   } else {
+  //     utils.showErrorToast(error.message);
+  //   }
+  // };
+
+  const handleIncrement = async (cartId: any) => {
+    const data = await incrementCartItem(cartId);
+    setCartData(data);
   };
 
-  const quantityDecrement = async (itm: any) => {
-    let data = {
-      ...itm,
-      quantity: itm.quantity > 1 ? itm.quantity - 1 : 1,
-    };
-    setSelectedItem(data);
+  const handleDecrement = async (cartId: any) => {
+    const data = await decrementCartItem(cartId);
+    setCartData(data);
   };
 
-  const quantityDoneHandler = async () => {
-    let body: any = {
-      quantity: selectedItem.quantity,
-    };
-    let params = {
-      body: body,
-      _id: selectedItem?._id,
-    };
-    console.log('Params', params);
-    const {data, error}: any = await updateCart(params);
-    console.log('UPDATA', data, error);
-
-    if (!error && data?.statusCode === 200) {
-      quantityRef.current.close();
-      utils.showSuccessToast(data.message);
-    } else {
-      utils.showErrorToast(data.message || error);
-    }
-  };
-
-  const removeCartItem = async () => {
-    setIsOpen(false);
-    console.log('productId', [selectedItem?._id]);
-    const {data, error}: any = await removeCart({ids: [selectedItem?._id]});
-    console.log('DATA', data, error);
-    if (!error) {
-      refetch();
-      utils.showSuccessToast(data.message);
-    } else {
-      utils.showErrorToast(error.message);
-    }
+  const handleRemoveItem = async (cartId: any) => {
+    const data = await removeCartItem(cartId);
+    setCartData(data);
   };
 
   const _renderItem = ({item, index}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={[commonStyle.rowAC, commonStyle.flex]}>
-          <Image source={{uri: item?.productData?.image}} style={styles.logo} />
+          <Image source={{uri: item?.image}} style={styles.logo} />
           <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
               name={'lexend-regular'}
@@ -131,7 +151,7 @@ const CartScreen = ({navigation, route}: any) => {
               color={'gray4'}
               // pTop={wp(2)}
               textAlign={'left'}>
-              {item?.productData?.name}
+              {item?.name}
             </FontText>
             <FontText
               name={'lexend-regular'}
@@ -140,11 +160,49 @@ const CartScreen = ({navigation, route}: any) => {
               pTop={wp(2)}
               textAlign={'left'}>
               {'$'}
-              {item?.productData?.price}
+              {item?.price}
             </FontText>
+            <View
+              style={[
+                commonStyle.rowAC,
+                styles.countContainer,
+                {width: wp(25)},
+              ]}>
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() => {
+                  handleDecrement(item?._id);
+                }}>
+                <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+              </TouchableOpacity>
+              <FontText
+                color="white"
+                name="lexend-medium"
+                size={mediumFont}
+                textAlign={'left'}>
+                {item.quantity}
+              </FontText>
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() => {
+                  handleIncrement(item?._id);
+                }}>
+                <SvgIcons.Plus
+                  width={wp(4)}
+                  height={wp(4)}
+                  fill={colors.orange}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-        <View style={{justifyContent: 'space-between'}}>
+        <TouchableOpacity
+          onPress={() => {
+            handleRemoveItem(item._id);
+          }}>
+          <SvgIcons.Trash width={wp(4)} height={wp(4)} />
+        </TouchableOpacity>
+        {/* <View style={{justifyContent: 'space-between'}}>
           <TouchableOpacity
             style={styles.trash}
             onPress={() => {
@@ -174,7 +232,7 @@ const CartScreen = ({navigation, route}: any) => {
               fill={colors.white}
             />
           </Button>
-        </View>
+        </View> */}
       </View>
     );
   };
@@ -205,11 +263,11 @@ const CartScreen = ({navigation, route}: any) => {
           </View>
         }
       />
-      <Loader loading={isFetching || isLoad || isFetch} />
+      <Loader loading={isLoad || isFetch} />
       <View style={commonStyle.flex}>
         {cartData && cartData?.length !== 0 ? (
           <FlatList
-            data={cartData?.cart}
+            data={cartData}
             renderItem={_renderItem}
             contentContainerStyle={styles.product2CC}
           />
@@ -248,11 +306,12 @@ const CartScreen = ({navigation, route}: any) => {
           </View>
         )}
         <CartCountModule
-          btnText={'Secure Checkout'}
+          btnText={'Continue'}
           btnColor={'orange'}
           cartData={cartData}
           onPress={placeOrderPress}
           isShow={true}
+          total={totalPrice}
         />
       </View>
       <Popup
@@ -274,7 +333,7 @@ const CartScreen = ({navigation, route}: any) => {
         rightBtnTextStyle={{fontSize: mediumFont}}
         style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
       />
-      <RBSheet
+      {/* <RBSheet
         ref={quantityRef}
         height={hp(25)}
         closeOnPressMask
@@ -329,7 +388,7 @@ const CartScreen = ({navigation, route}: any) => {
             </FontText>
           </Button>
         </View>
-      </RBSheet>
+      </RBSheet> */}
     </View>
   );
 };
@@ -370,26 +429,25 @@ const styles = StyleSheet.create({
     marginBottom: hp(1.5),
   },
   logo: {
-    width: hp(8.5),
-    height: hp(8.5),
+    width: hp(11),
+    height: hp(11),
     resizeMode: 'cover',
     borderRadius: normalize(6),
   },
   iconContainer: {
-    width: hp(4),
-    height: hp(4),
+    width: hp(2.5),
+    height: hp(2.5),
     borderRadius: normalize(3),
     backgroundColor: colors.white2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   countContainer: {
-    // backgroundColor: colors.orange,
+    backgroundColor: colors.orange,
     borderRadius: normalize(4),
     justifyContent: 'space-between',
-    width: '50%',
-    padding: hp(0.8),
-    marginTop: hp(2),
+    padding: hp(0.6),
+    marginTop: hp(1),
   },
   trash: {
     padding: wp(1),

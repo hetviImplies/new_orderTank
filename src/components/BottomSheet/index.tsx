@@ -7,14 +7,16 @@ import {
   Modal,
   FlatList,
   ActivityIndicator,
-  Pressable
+  Pressable,
 } from 'react-native';
 import {Modalize} from 'react-native-modalize';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {useFocusEffect} from '@react-navigation/native';
-import { FontText, Input, Button } from '..';
+import {FontText, Input, Button} from '..';
 import SvgIcons from '../../assets/SvgIcons';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import commonStyle, {fontSize, iconSize, tabIcon} from '../../styles';
 
 const BottomSheet = (props: any) => {
   const {
@@ -58,9 +60,9 @@ const BottomSheet = (props: any) => {
   const [lable, setLable] = useState([]);
 
   const dataRender = () => {
-    let listMappingKeyword :any= [];
+    let listMappingKeyword: any = [];
     renderdata === undefined
-      ? listData?.map((item:any) => {
+      ? listData?.map((item: any) => {
           if (
             item?.label?.toUpperCase()?.includes(finalData?.toUpperCase()) ||
             item?.name?.toUpperCase()?.includes(finalData?.toUpperCase())
@@ -68,7 +70,7 @@ const BottomSheet = (props: any) => {
             listMappingKeyword.push(item);
           }
         })
-      : data?.map((item:any) => {
+      : data?.map((item: any) => {
           if (item?.name.toLowerCase().includes(finalData?.toLowerCase())) {
             listMappingKeyword.push(item);
           }
@@ -92,9 +94,10 @@ const BottomSheet = (props: any) => {
           alignItems: 'center',
         }}>
         <FontText
-          size={normalize(16)}
-          name={'poppins-semibold'}
-          color={colors.blue}>
+          name={'lexend-regular'}
+          size={fontSize}
+          color={'black'}
+          textAlign={'left'}>
           {title}
         </FontText>
         {isReset && (
@@ -107,14 +110,14 @@ const BottomSheet = (props: any) => {
             ]}
             buttonHeight={wp(8)}>
             <FontText
-              name={'poppins-semibold'}
+              name={'lexend-regular'}
               size={normalize(12)}
-              color={colors.blue}>
+              color={'black2'}>
               {multiple ? 'Done' : 'Reset'}
             </FontText>
           </Button>
         )}
-        {addIcon && (
+        {/* {addIcon && (
           <>
             <TouchableOpacity
               onPress={() => {
@@ -129,19 +132,19 @@ const BottomSheet = (props: any) => {
                   <View style={styles.cardContainersStyle}>
                     <FontText
                       size={normalize(14)}
-                      color={colors.blue}
-                      name="poppins-medium">
+                      color={'orange'}
+                      name="lexend-regular">
                       {'Add'}
                     </FontText>
                     <Input
                       placeholder={'Enter Area'}
-                      placeholderTextColor={colors.grayPlaceholderText}
+                      placeholderTextColor={colors.placeholder}
                       value={props?.addAreaValue}
                       onChangeText={props?.setAddAreaValue}
                       inputStyle={[
                         styles.input,
                         {
-                          fontFamily: 'poppins-medium',
+                          fontFamily: 'lexend-regular',
                           left: wp(3),
                         },
                       ]}
@@ -160,19 +163,19 @@ const BottomSheet = (props: any) => {
                         marginTop: hp(4),
                         width: wp(30),
                         borderWidth: wp(0.5),
-                        borderColor: colors.primaryColor,
+                        borderColor: colors.black2,
                       }}
                       buttonHeight={wp(10)}>
                       <FontText
-                        name={'poppins-semibold'}
+                        name={'lexend-regular'}
                         size={normalize(12)}
-                        color={colors.primaryColor}>
+                        color={colors.black2}>
                         {'Cancel'}
                       </FontText>
                     </Button>
                     <Button
                       onPress={onPressAddBtn}
-                      bgColor={'primaryColor'}
+                      bgColor={'black2'}
                       style={{
                         marginHorizontal: wp(4),
                         marginTop: hp(4),
@@ -180,7 +183,7 @@ const BottomSheet = (props: any) => {
                       }}
                       buttonHeight={wp(10)}>
                       <FontText
-                        name={'poppins-semibold'}
+                        name={'lexend-regular'}
                         size={normalize(12)}
                         color={colors.white}>
                         {'Add'}
@@ -191,26 +194,54 @@ const BottomSheet = (props: any) => {
               </View>
             </Modal>
           </>
-        )}
+        )} */}
         <TouchableOpacity style={styles.modalBtn} onPress={onPressCloseModal}>
-          <SvgIcons.Close height={hp(3)} width={wp(3)} />
+          <SvgIcons.Close height={tabIcon} width={tabIcon} />
         </TouchableOpacity>
       </View>
       {searcheble && (
-        <Input
-          withLeftIcon
-          leftIcon={
-            <TouchableOpacity style={{paddingHorizontal: wp(2)}}>
-              <SvgIcons.Search height={hp(3)} width={hp(2)} />
-            </TouchableOpacity>
-          }
-          placeholder={'Search'}
-          placeholderTextColor={'rgba(52, 72, 92, 0.5)'}
-          onChangeText={(text:any) => setFinaldata(text)}
-          inputStyle={[styles.input, {fontFamily: 'poppins-medium'}]}
-          blurOnSubmit
-          style={[styles.inputContainer, {marginHorizontal: wp(5)}]}
-        />
+        // <Input
+        //   withLeftIcon
+        //   leftIcon={
+        //     <TouchableOpacity style={{paddingHorizontal: wp(2)}}>
+        //       <SvgIcons.Search height={iconSize} width={iconSize} />
+        //     </TouchableOpacity>
+        //   }
+        //   placeholder={'Search'}
+        //   placeholderTextColor={'placeholder'}
+        //   onChangeText={(text: any) => setFinaldata(text)}
+        //   inputStyle={styles.inputText}
+        //   color={'black'}
+        //   returnKeyType={'done'}
+        //   style={[styles.input]}
+        //   blurOnSubmit
+        // />
+        <View
+          style={[
+            commonStyle.paddingH4,
+            {marginTop: hp(1), marginBottom: hp(3)},
+          ]}>
+          <Input
+            onChangeText={(text: any) => setFinaldata(text)}
+            blurOnSubmit
+            autoCapitalize="none"
+            placeholder={'Search a seller'}
+            placeholderTextColor={'placeholder'}
+            inputStyle={styles.inputText}
+            color={'black'}
+            returnKeyType={'done'}
+            style={[styles.input]}
+            children={
+              <View
+                style={{
+                  ...commonStyle.abs,
+                  left: wp(5),
+                }}>
+                <SvgIcons.Search width={wp(4)} height={wp(4)} />
+              </View>
+            }
+          />
+        </View>
       )}
 
       {data.length === 0 ? (
@@ -222,20 +253,21 @@ const BottomSheet = (props: any) => {
           keyExtractor={(item, index) => String(index)}
           data={finalData !== '' ? dataRender() : data}
           style={{flex: 1, height: hp(35), bottom: hp(1)}}
-          contentContainerStyle={{flexGrow:1, paddingBottom: wp(5)}}
+          contentContainerStyle={{flexGrow: 1, paddingBottom: wp(5)}}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
-            <View style={{flex: 1, justifyContent:'center',alignItems:"center"}}>
+            <View
+              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <FontText
                 size={normalize(14)}
-                color={colors.blue}
-                name="poppins-medium">
+                color={'orange'}
+                name="lexend-regular">
                 {'No Data found.'}
               </FontText>
             </View>
           }
           renderItem={({item, index}) => {
-            const value = machineIndex ? index : item?.value;
+            const value = index;
             return (
               <View key={index}>
                 {multiple ? (
@@ -246,12 +278,12 @@ const BottomSheet = (props: any) => {
                     style={styles.itemContainer}>
                     <FontText
                       size={normalize(14)}
-                      name={'poppins-medium'}
-                      color={colors.blue}>
+                      name={'lexend-regular'}
+                      color={'black2'}>
                       {item?.name}
                     </FontText>
                     <View style={styles.boxcontainer}>
-                      {renderdata.some((i:any) => i._id === item._id) && (
+                      {renderdata.some((i: any) => i._id === item._id) && (
                         <SvgIcons.FillBox height={hp(2)} width={wp(3)} />
                       )}
                     </View>
@@ -264,8 +296,8 @@ const BottomSheet = (props: any) => {
                     style={styles.itemContainer}>
                     <FontText
                       size={normalize(14)}
-                      name={'poppins-medium'}
-                      color={colors.blue}>
+                      name={'lexend-regular'}
+                      color={'black2'}>
                       {item?.label ? item?.label : item?.name}
                       {item.name !== undefined ? ` - ${item?.name}` : ''}
                     </FontText>
@@ -284,47 +316,58 @@ const BottomSheet = (props: any) => {
     </View>,
   ];
 
-  return searcheble ? (
-    <Modalize
-      snapPoint={snapPoint}
+  return (
+    <RBSheet
       ref={refName}
-      tapGestureEnabled={false}
-      scrollViewProps={{
-        scrollEnabled: false,
-        keyboardShouldPersistTaps: 'handled',
-      }}
-      disableScrollIfPossible
-      adjustToContentHeight
-      onOverlayPress={closeModal}
-      withReactModal={withReactModal}
-      withHandle={withHandle}
-      modalStyle={(styles.modalStyle, modalStyle)}
-      onClosed={onClosed}
-      onOpen={() => setFinaldata('')}
-      closeOnOverlayTap={autoClose}
-      panGestureEnabled={autoClose}>
+      height={modalHeight}
+      closeOnPressMask
+      closeOnPressBack
+      closeOnDragDown
+      dragFromTopOnly>
       {isStaticContent ? content : renderContent()}
-    </Modalize>
-  ) : (
-    <Modalize
-      snapPoint={snapPoint}
-      ref={refName}
-      tapGestureEnabled={false}
-      scrollViewProps={{
-        scrollEnabled: false,
-      }}
-      onOverlayPress={closeModal}
-      withReactModal={withReactModal}
-      withHandle={withHandle}
-      modalHeight={modalHeight}
-      modalStyle={(styles.modalStyle, modalStyle)}
-      onClosed={onClosed}
-      onOpen={() => setFinaldata('')}
-      closeOnOverlayTap={autoClose}
-      panGestureEnabled={autoClose}>
-      {isStaticContent ? content : renderContent()}
-    </Modalize>
+    </RBSheet>
   );
+  // return searcheble ? (
+  //   <Modalize
+  //     snapPoint={snapPoint}
+  //     ref={refName}
+  //     tapGestureEnabled={false}
+  //     scrollViewProps={{
+  //       scrollEnabled: false,
+  //       keyboardShouldPersistTaps: 'handled',
+  //     }}
+  //     disableScrollIfPossible
+  //     adjustToContentHeight
+  //     onOverlayPress={closeModal}
+  //     withReactModal={withReactModal}
+  //     withHandle={withHandle}
+  //     modalStyle={(styles.modalStyle, modalStyle)}
+  //     onClosed={onClosed}
+  //     onOpen={() => setFinaldata('')}
+  //     closeOnOverlayTap={autoClose}
+  //     panGestureEnabled={autoClose}>
+  //     {isStaticContent ? content : renderContent()}
+  //   </Modalize>
+  // ) : (
+  //   <Modalize
+  //     snapPoint={snapPoint}
+  //     ref={refName}
+  //     tapGestureEnabled={false}
+  //     scrollViewProps={{
+  //       scrollEnabled: false,
+  //     }}
+  //     onOverlayPress={closeModal}
+  //     withReactModal={withReactModal}
+  //     withHandle={withHandle}
+  //     modalHeight={modalHeight}
+  //     modalStyle={(styles.modalStyle, modalStyle)}
+  //     onClosed={onClosed}
+  //     onOpen={() => setFinaldata('')}
+  //     closeOnOverlayTap={autoClose}
+  //     panGestureEnabled={autoClose}>
+  //     {isStaticContent ? content : renderContent()}
+  //   </Modalize>
+  // );
 };
 
 BottomSheet.defaultProps = {
@@ -359,7 +402,7 @@ const styles = StyleSheet.create({
     width: wp(4.5),
     borderRadius: wp(4),
     borderWidth: 1,
-    borderColor: colors.blue,
+    borderColor: colors.orange,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -367,7 +410,7 @@ const styles = StyleSheet.create({
     height: wp(3),
     width: wp(3),
     borderRadius: wp(4),
-    backgroundColor: colors.blue,
+    backgroundColor: colors.orange,
   },
   modalBtn: {
     backgroundColor: colors.lightGray,
@@ -406,11 +449,21 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
     padding: hp(1),
   },
+  inputText: {
+    borderRadius: normalize(10),
+    paddingLeft: wp(10),
+    color: colors.black2,
+    fontSize: normalize(12),
+    fontFamily: 'lexend-regular',
+    backgroundColor: colors.white2,
+    height: hp(6.5),
+  },
   input: {
-    fontSize: normalize(14),
-    color: colors.blue,
-    paddingLeft: 0,
-    padding: 0,
+    borderRadius: normalize(10),
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: hp(6.5),
+    paddingHorizontal: wp(2),
   },
   cardContainersStyle: {
     flexDirection: 'row',
@@ -427,7 +480,7 @@ const styles = StyleSheet.create({
     width: wp(4.5),
     borderRadius: wp(1),
     borderWidth: 1,
-    borderColor: colors.blue,
+    borderColor: colors.orange,
     justifyContent: 'center',
     alignItems: 'center',
   },

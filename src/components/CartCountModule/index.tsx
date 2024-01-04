@@ -6,7 +6,7 @@ import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 
 const CartCountModule = (props: any) => {
-  const {cartData, onPress, btnText, btnColor, orderDetails, isShow, showText} = props;
+  const {cartData, onPress, btnText, btnColor, orderDetails, isShow, showText, total} = props;
   console.log('cartData', cartData);
   return (
     <View>
@@ -29,11 +29,7 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`$${
-                    cartData?.total
-                      ? cartData?.total
-                      : orderDetails?.totalAmount
-                  }`}
+                  {`$${total}`}
                 </FontText>
               </View>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
@@ -67,11 +63,7 @@ const CartCountModule = (props: any) => {
                 name="lexend-regular"
                 size={mediumFont}
                 textAlign={'left'}>
-                {`$${
-                  cartData?.total
-                    ? cartData?.total
-                    : orderDetails?.totalAmount
-                }`}
+                {`$${total}`}
               </FontText>
             </View>
             {showText}

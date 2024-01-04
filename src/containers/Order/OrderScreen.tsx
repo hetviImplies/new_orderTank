@@ -156,7 +156,7 @@ const OrderScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -171,7 +171,7 @@ const OrderScreen = ({navigation}: any) => {
             {'Order'}
           </FontText>
         }
-      />
+      /> */}
       <Loader loading={isProcess} />
       <View style={commonStyle.paddingH4}>
         <FlatList

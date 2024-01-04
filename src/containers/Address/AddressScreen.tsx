@@ -103,7 +103,7 @@ const AddressScreen = ({navigation, route}: any) => {
   return (
     <View style={commonStyle.container}>
       <Loader loading={isFetching || isLoading} />
-      <NavigationBar
+      {/* <NavigationBar
         hasCenter
         hasLeft
         left={
@@ -126,7 +126,7 @@ const AddressScreen = ({navigation, route}: any) => {
         hasRight
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
-      />
+      /> */}
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <FlatList data={addressData} renderItem={_renderItem} />
         <TouchableOpacity

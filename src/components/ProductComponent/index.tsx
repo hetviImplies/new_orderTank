@@ -8,19 +8,29 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {smallFont} from '../../styles';
+import {iconSize, mediumFont, smallFont} from '../../styles';
 import {Button, FontText} from '..';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import commonStyle from '../../styles';
 import colors from '../../assets/colors';
+import SvgIcons from '../../assets/SvgIcons';
 
 const ProductComponent = (props: any) => {
-  const {data, productPress, refresh, onRefresh, isHorizontal} = props;
+  const {
+    data,
+    productPress,
+    refresh,
+    onRefresh,
+    isHorizontal,
+    quantityDecrement,
+    quantityIncrement,
+    cartItems,
+  } = props;
 
   const _renderItemVertical = ({item, index}: any) => {
     return (
-      <TouchableOpacity
-        onPress={() => productPress(item)}
+      <View
+        // onPress={() => productPress(item)}
         style={[styles.itemVerticalContainer, commonStyle.shadowContainer]}>
         <View style={[commonStyle.rowAC, {width: '70%'}]}>
           <Image source={{uri: item.image}} style={styles.productImg} />
@@ -44,12 +54,54 @@ const ProductComponent = (props: any) => {
             </FontText>
           </View>
         </View>
-        <Button bgColor={'orange'} style={styles.buttonContainer}>
-          <FontText name={'lexend-regular'} size={normalize(9)} color={'white'}>
-            {'Add to Cart'}
-          </FontText>
-        </Button>
-      </TouchableOpacity>
+        {cartItems.filter(
+          (itm: any) => itm._id.toString() == item?._id.toString(),
+        ).length > 0 ? (
+          <View style={[commonStyle.rowAC, styles.countContainer]}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                quantityDecrement(item?._id);
+              }}>
+              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+            </TouchableOpacity>
+            <FontText
+              color="white"
+              name="lexend-medium"
+              size={mediumFont}
+              textAlign={'left'}>
+              {
+                cartItems.find((itm: any) => {
+                  return itm._id.toString() == item?._id.toString();
+                }).quantity
+              }
+            </FontText>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                quantityIncrement(item?._id);
+              }}>
+              <SvgIcons.Plus
+                width={wp(4)}
+                height={wp(4)}
+                fill={colors.orange}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Button
+            bgColor={'orange'}
+            onPress={() => productPress(item)}
+            style={[styles.buttonContainer, commonStyle.marginT2]}>
+            <FontText
+              name={'lexend-regular'}
+              size={normalize(9)}
+              color={'white'}>
+              {'Add to Cart'}
+            </FontText>
+          </Button>
+        )}
+      </View>
     );
   };
 
@@ -63,8 +115,8 @@ const ProductComponent = (props: any) => {
           ]}>
           {data.map((item: any, index: any) => {
             return (
-              <TouchableOpacity
-                onPress={() => productPress(item)}
+              <View
+                // onPress={() => productPress(item)}
                 style={[styles.itemContainer, commonStyle.shadowContainer]}>
                 <Image source={{uri: item.image}} style={styles.logo} />
                 <FontText
@@ -85,17 +137,54 @@ const ProductComponent = (props: any) => {
                   {'$'}
                   {item?.price}
                 </FontText>
-                <Button
-                  bgColor={'orange'}
-                  style={[styles.buttonContainer, commonStyle.marginT2]}>
-                  <FontText
-                    name={'lexend-regular'}
-                    size={normalize(9)}
-                    color={'white'}>
-                    {'Add to Cart'}
-                  </FontText>
-                </Button>
-              </TouchableOpacity>
+                {cartItems.filter(
+                  (itm: any) => itm._id.toString() == item?._id.toString(),
+                ).length > 0 ? (
+                  <View style={[commonStyle.rowAC, styles.countContainer]}>
+                    <TouchableOpacity
+                      style={styles.iconContainer}
+                      onPress={() => {
+                        quantityDecrement(item);
+                      }}>
+                      <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+                    </TouchableOpacity>
+                    <FontText
+                      color="white"
+                      name="lexend-medium"
+                      size={mediumFont}
+                      textAlign={'left'}>
+                      {
+                        cartItems.find((itm: any) => {
+                          return itm._id.toString() == item?._id.toString();
+                        })?.quantity
+                      }
+                    </FontText>
+                    <TouchableOpacity
+                      style={styles.iconContainer}
+                      onPress={() => {
+                        quantityIncrement(item);
+                      }}>
+                      <SvgIcons.Plus
+                        width={wp(4)}
+                        height={wp(4)}
+                        fill={colors.orange}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Button
+                    bgColor={'orange'}
+                    onPress={() => productPress(item)}
+                    style={[styles.buttonContainer, commonStyle.marginT2]}>
+                    <FontText
+                      name={'lexend-medium'}
+                      size={smallFont}
+                      color={'white'}>
+                      {'Add to Cart'}
+                    </FontText>
+                  </Button>
+                )}
+              </View>
             );
           })}
         </ScrollView>
@@ -155,6 +244,22 @@ const styles = StyleSheet.create({
   buttonContainer: {
     borderRadius: normalize(5),
     height: hp(3.5),
-    width: wp(20),
+    width: wp(25),
+  },
+  iconContainer: {
+    width: hp(2.5),
+    height: hp(2.5),
+    borderRadius: normalize(3),
+    backgroundColor: colors.white2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countContainer: {
+    backgroundColor: colors.orange,
+    borderRadius: normalize(4),
+    justifyContent: 'space-between',
+    width: wp(25),
+    padding: hp(0.6),
+    marginTop: hp(2),
   },
 });

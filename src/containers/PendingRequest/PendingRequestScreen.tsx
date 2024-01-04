@@ -65,7 +65,7 @@ const PendingRequestScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -88,7 +88,7 @@ const PendingRequestScreen = ({navigation}: any) => {
             </FontText>
           </View>
         }
-      />
+      /> */}
       <Loader loading={isProcessing}/>
       {supplierList &&
         supplierList?.result &&

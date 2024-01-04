@@ -107,7 +107,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -130,7 +130,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
             </FontText>
           </View>
         }
-      />
+      /> */}
       <Loader loading={isFetching || isProcess} />
       <KeyboardAwareScrollView>
         <View style={[commonStyle.marginT2, {marginHorizontal: wp(4)}]}>

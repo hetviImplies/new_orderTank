@@ -16,18 +16,31 @@ import FilterModal from '../../components/FilterModal';
 import {useGetAllProductsQuery} from '../../api/product';
 import ProductComponent from '../../components/ProductComponent';
 import {useGetCartsQuery} from '../../api/cart';
+import {
+  addToCart,
+  decrementCartItem,
+  getCartItems,
+  incrementCartItem,
+  removeCartItem,
+  updateCartItems,
+} from '../Cart/Carthelper';
+import {useFocusEffect} from '@react-navigation/native';
+import Popup from '../../components/Popup';
 
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route.params.id;
   const company = route.params.company;
 
+  const filterRef: any = useRef(null);
   const [selectedItems, setSelectedItems] = useState<[]>([]);
   const [search, setSearch] = useState('');
   const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [productListData, setProductListData] = useState([]);
-  const filterRef: any = useRef(null);
+  const [cartItems, setCartItems] = useState<any>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState<any>({});
 
   const {
     data: productList,
@@ -44,9 +57,6 @@ const ProductListingScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
-  const {data: carts, isFetching} = useGetCartsQuery({
-    refetchOnMountOrArgChange: true,
-  });
 
   useEffect(() => {
     setProductListData(productList?.result);
@@ -63,10 +73,60 @@ const ProductListingScreen = ({navigation, route}: any) => {
     }
   }, [search]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        const items = await getCartItems();
+        setCartItems(items);
+      };
+      fetchCartItems();
+    }, []),
+  );
+
+  // useEffect(() => {
+  //   const fetchCartItems = async () => {
+  //     const items = await getCartItems();
+  //     setCartItems(items);
+  //   };
+  //   fetchCartItems();
+  // }, []);
+
+  const handleAddToCart = async (item: any) => {
+    const data = await addToCart(item);
+    console.log('DATA', data);
+    setCartItems(data);
+  };
+
+  const handleIncrement = async (cartId: any) => {
+    const data = await incrementCartItem(cartId);
+    console.log('DATA', data);
+    setCartItems(data);
+  };
+
+  const handleDecrement = async (cartId: any) => {
+    const data = await decrementCartItem(cartId);
+    console.log('DATA', data);
+
+    setCartItems(data);
+  };
+
   const onProductPress = (item: any) => {
-    navigation.navigate(RootScreens.ProductDetail, {
-      data: {item: item, companyId: id},
-    });
+    // navigation.navigate(RootScreens.ProductDetail, {
+    //   data: {item: item, companyId: id},
+    // });
+    if (cartItems.length > 0) {
+      let isSameCompany = cartItems.some(
+        (itm: any) => itm.companyId.toString() == item?.companyId.toString(),
+      );
+      if (isSameCompany) {
+        handleAddToCart(item);
+      } else {
+        setSelected(item);
+        setIsOpen(true);
+      }
+    } else {
+      handleAddToCart(item);
+    }
   };
 
   const onSearch = (selectedItems: any) => {
@@ -78,6 +138,20 @@ const ProductListingScreen = ({navigation, route}: any) => {
     setRefreshing(true);
     refetch();
     setRefreshing(false);
+  };
+
+  const handleOrderPlace = () => {
+    setIsOpen(false);
+    navigation.navigate(RootScreens.Cart);
+  }
+
+  const handleRemoveItem = async () => {
+    await updateCartItems([]);
+    let updatedCartItems = await getCartItems();
+    if (updatedCartItems?.length == 0) {
+      handleAddToCart(selected);
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -114,16 +188,16 @@ const ProductListingScreen = ({navigation, route}: any) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={commonStyle.iconView}
-              onPress={() => navigation.navigate(RootScreens.CartList)}>
+              onPress={() => navigation.navigate(RootScreens.Cart)}>
               <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
-              {carts && carts?.result && carts?.result?.cart?.length ? (
+              {cartItems?.length ? (
                 <View style={styles.countView}>
                   <FontText
                     color="white"
                     name="lexend-medium"
                     size={normalize(10)}
                     textAlign={'center'}>
-                    {carts?.result?.cart?.length}
+                    {cartItems?.length}
                   </FontText>
                 </View>
               ) : null}
@@ -131,14 +205,14 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </View>
         }
       />
-      <Loader loading={isProcessing || isFetching} />
+      <Loader loading={isProcessing} />
       <View
         style={[
           commonStyle.paddingH4,
           commonStyle.flex,
           {marginTop: hp(1), flexWrap: 'wrap'},
         ]}>
-        <View style={[commonStyle.rowJB, {marginBottom:hp(1)}]}>
+        <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
           <Input
             value={search}
             onChangeText={(text: any) => setSearch(text.trimStart())}
@@ -176,6 +250,9 @@ const ProductListingScreen = ({navigation, route}: any) => {
             onRefresh={onRefreshing}
             refresh={refreshing}
             isHorizontal={isHorizontal}
+            quantityDecrement={handleDecrement}
+            quantityIncrement={handleIncrement}
+            cartItems={cartItems}
           />
         ) : (
           <View style={[commonStyle.allCenter, commonStyle.flex]}>
@@ -189,6 +266,25 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </View>
         )}
       </View>
+      <Popup
+        visible={isOpen}
+        // onBackPress={() => setIsOpen(false)}
+        title={`Are you sure you want to discard items and add new or first place order existing one?`}
+        titleStyle={{fontSize: normalize(14)}}
+        leftBtnText={'Place Order'}
+        rightBtnText={'Yes, Discard'}
+        leftBtnPress={handleOrderPlace}
+        rightBtnPress={handleRemoveItem}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        leftBtnTextStyle={{
+          color: colors.blue,
+          fontSize: mediumFont,
+        }}
+        rightBtnTextStyle={{fontSize: mediumFont}}
+        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+      />
       <RBSheet
         ref={filterRef}
         height={hp(50)}

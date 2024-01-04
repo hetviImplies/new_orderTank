@@ -116,7 +116,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -155,7 +155,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         //     </TouchableOpacity>
         //   </View>
         // }
-      />
+      /> */}
       <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal>

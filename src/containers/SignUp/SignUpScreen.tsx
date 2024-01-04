@@ -87,7 +87,7 @@ const SignUpScreen = ({navigation}: any) => {
       };
       const {data, error}: any = await register(params);
       if (!error && data?.statusCode === 200) {
-        clearData();
+        // clearData();
         setCheckValid(false);
         setIsOpen(true);
         // utils.showSuccessToast(data.message);

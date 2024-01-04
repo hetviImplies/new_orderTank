@@ -125,7 +125,7 @@ const AddAddressScreen = (props: any) => {
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasCenter
         hasLeft
         left={
@@ -148,7 +148,7 @@ const AddAddressScreen = (props: any) => {
         hasRight
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
-      />
+      /> */}
       <Loader loading={isFetching || isProcess} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
