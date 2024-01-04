@@ -98,7 +98,9 @@ const CompanyDetail = (props: any) => {
   const [panNo, setPanNo] = useState('');
   const [company, setCompany] = useState('');
   const [name, setName] = useState('');
+  const [nameTemp, setNameTemp] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneTemp, setPhoneTemp] = useState('');
   const [address, setAddress] = useState('');
   const [locality, setLocality] = useState('');
   const [pinCode, setPinCode] = useState('');
@@ -115,19 +117,19 @@ const CompanyDetail = (props: any) => {
   };
 
   const isValidGstNo =
-    checkValid && (gstNo.length === 0 || !validationGstNo(gstNo));
+    checkValid && (gstNo?.length === 0 || !validationGstNo(gstNo));
   const isValidPanNo =
-    checkValid && (panNo.length === 0 || !validationPanNo(panNo));
-  const isValidCompanyName = checkValid && company.length === 0;
-  const isValidName = checkValid && name.length === 0;
+    checkValid && (panNo?.length === 0 || !validationPanNo(panNo));
+  const isValidCompanyName = checkValid && company?.length === 0;
+  const isValidName = checkValid && name?.length === 0;
   const isValidPhone =
     checkValid &&
-    (phone.length === 0 || phone.length < 10 || !validationNumber(phone));
-  const isValidAddress = checkValid && address.length === 0;
-  const isValidPinCode = checkValid && pinCode.length === 0;
-  const isValidLocality = checkValid && locality.length === 0;
-  const isValidCity = checkValid && city.length === 0;
-  const isValidState = checkValid && state.length === 0;
+    (phone?.length === 0 || phone?.length < 10 || !validationNumber(phone));
+  const isValidAddress = checkValid && address?.length === 0;
+  const isValidPinCode = checkValid && pinCode?.length === 0;
+  const isValidLocality = checkValid && locality?.length === 0;
+  const isValidCity = checkValid && city?.length === 0;
+  const isValidState = checkValid && state?.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
 
   useEffect(() => {
@@ -138,10 +140,10 @@ const CompanyDetail = (props: any) => {
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(name ? name : userData?.result?.name);
+    setName(nameTemp !== '' ? nameTemp : userData?.result?.name);
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
-    setPhone(phone ? phone : userData?.result?.phone);
+    setPhone(phoneTemp !==  '' ? phoneTemp : userData?.result?.phone);
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
@@ -154,9 +156,9 @@ const CompanyDetail = (props: any) => {
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
-  }, [data, isFetching]);
+  }, [data, isFetching, userData]);
 
-  console.log('ddsxkeoqwdk', name, phone);
+  // console.log('ddsxkeoqwdk', name, phone);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -528,7 +530,7 @@ const CompanyDetail = (props: any) => {
                 ref={nameRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={name}
-                onChangeText={(text: string) => setName(text.trimStart())}
+                onChangeText={(text: string) => {setName(text.trimStart()), setNameTemp(text.trimStart())}}
                 autoCapitalize="none"
                 placeholder={'Enter Full Name'}
                 placeholderTextColor={'placeholder'}
@@ -576,7 +578,7 @@ const CompanyDetail = (props: any) => {
                 ref={phoneRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={phone}
-                onChangeText={(text: string) => setPhone(text.trim())}
+                onChangeText={(text: string) => {setPhone(text.trim()), setPhoneTemp(text.trim())}}
                 placeholder={'Enter Mobile Number'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}

@@ -15,32 +15,41 @@ import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
 import {HISTORY_LIST} from '../../types/data';
+import messaging from '@react-native-firebase/messaging';
 import Popup from '../../components/Popup';
 import {useSelector} from 'react-redux';
 import CompanyDetail from '../../components/CompanyDetail';
 import utils from '../../helper/utils';
+import Images from '../../assets/images';
 import {useCompanyRequestMutation} from '../../api/company';
 import {FloatingAction} from 'react-native-floating-action';
 import {useGetOrdersQuery} from '../../api/order';
 import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { withInAppNotification } from '../../components/Common/InAppNotification';
+
 
 const actions = [
   {
     text: 'Add Supplier',
     icon: <SvgIcons.AddSupplier width={tabIcon} height={tabIcon} />,
     name: 'bt_supplier',
-    color: 'white',
+    color: '#EEEEEE',
     position: 2,
     buttonSize: hp(5.5),
+    textBackground: colors.orange,
+    textColor: 'white'
   },
   {
     text: 'Add Order',
     icon: <SvgIcons.AddOrder width={tabIcon} height={tabIcon} />,
     name: 'bt_order',
-    color: 'white',
+    color: '#EEEEEE',
     position: 1,
     buttonSize: hp(5.5),
+    textBackground: colors.orange,
+    textColor: 'white'
   },
 ];
 
@@ -82,7 +91,33 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     setOrderData(orderList?.result);
   }, [isProcessing]);
 
+useEffect(() => {
   console.log('orderData',JSON.stringify(orderData))
+    getNotification();
+  }, []);
+
+  const getNotification = async () => {
+    const notificationToken = await AsyncStorage.getItem('NotiToken');
+    console.log("home notitoken.......", notificationToken)
+    const onMessageListener = messaging().onMessage(async remoteMessage => {
+      showNotification({
+        title: remoteMessage?.notification?.title,
+        message: remoteMessage?.notification?.body,
+        icon: Images.notificationImg,
+        // leftIcon: `${URLS.BASE_URL}/notifications/${remoteMessage?.data?.notificationId}/attachments`,
+      });
+    });
+
+    return async () => {
+      try {
+        onMessageListener();
+        // onNotificationOpened();
+      } catch (error) {
+        utils.showErrorToast(error);
+      }
+    };
+  };
+
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -321,6 +356,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         buttonSize={hp(7)}
         iconHeight={hp(2.2)}
         iconWidth={hp(2.2)}
+        shadow={{ shadowOpacity: 0.35, shadowOffset: { width: 0, height: 5 }, shadowColor: "#FFFFFF", shadowRadius: 3 }}
       />
       {/* <TouchableOpacity
         onPress={() => navigation.navigate(RootScreens.Cart)}
@@ -342,8 +378,8 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   );
 };
 
-// export default withInAppNotification(HomeScreen);
-export default HomeScreen;
+export default withInAppNotification(HomeScreen);
+// export default HomeScreen;
 
 const styles = StyleSheet.create({
   avatar: {

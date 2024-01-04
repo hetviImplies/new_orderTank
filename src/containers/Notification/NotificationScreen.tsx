@@ -30,16 +30,16 @@ const NotificationScreen = ({navigation}: any) => {
     useGetNotificationQuery(null, {
       refetchOnMountOrArgChange: true,
     });
-  const [notifiedData, setNotifiedData] = useState([1, 2, 3]);
+  const [notifiedData, setNotifiedData] = useState([]);
 
   console.log('notification', noitification)
 
-  // useEffect(() => {
-  //   setNotifiedData(noitification?.result?.data);
-  // }, [isProcessing, noitification]);
+  useEffect(() => {
+    setNotifiedData(noitification?.result);
+  }, [isProcessing, noitification]);
 
   const _renderItem = ({item, index}: any) => {
-    const originalTimestamp = item?.notifications?.notificationId?.createdAt;
+    const originalTimestamp = item?.createdAt;
     const convertedTimestamp = moment(originalTimestamp)
       .utc()
       .format('DD/MM/YYYY, hh:mm A');
@@ -54,8 +54,7 @@ const NotificationScreen = ({navigation}: any) => {
             name="lexend-regular"
             size={normalize(10)}
             textAlign={'right'}>
-            {/* {convertedTimestamp} */}
-            {'20-04-2023, 02:00 PM'}
+            {convertedTimestamp}
           </FontText>
           <FontText
             color="black2"
@@ -64,10 +63,7 @@ const NotificationScreen = ({navigation}: any) => {
             size={normalize(13)}
             pBottom={hp(0.5)}
             textAlign={'left'}>
-            {/* {item?.notifications?.notificationId?.message} */}
-            {
-              'Your order has been received on 20-04-2023,at 01:00 PM Order id is : # 9854721 track now'
-            }
+            {item?.title}
           </FontText>
         </View>
       </View>
