@@ -74,6 +74,35 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     },
   );
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <View
+          style={[commonStyle.rowAC, {marginLeft: wp(4), paddingBottom: hp(1)}]}>
+          {userInfo && userInfo?.companyId?.logo ? (
+            <Image
+              source={{uri: userInfo?.companyId?.logo}}
+              style={styles.avatar}
+            />
+          ) : (
+            <View style={styles.avatar} />
+          )}
+        </View>
+      ),
+      headerRight: () => (
+        <View style={[commonStyle.row, {marginRight: wp(4)}]}>
+          <TouchableOpacity
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Notification)}>
+            <SvgIcons.Bell width={tabIcon} height={tabIcon} />
+            {Object.keys(notification).length !== 0 &&
+              !notification?.isRead && <View style={styles.countView} />}
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   useEffect(() => {
     setOpenPopup(userInfo?.companyCode ? false : true);
   }, [userInfo]);
@@ -82,7 +111,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     setOrderData(orderList?.result);
   }, [isProcessing]);
 
-  console.log('orderData',JSON.stringify(orderData))
+  console.log('orderData', JSON.stringify(orderData));
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -347,8 +376,8 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   avatar: {
-    width: hp(6),
-    height: hp(6),
+    width: hp(5),
+    height: hp(5),
     backgroundColor: colors.gray,
     borderRadius: 10,
     marginRight: wp(3),

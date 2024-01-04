@@ -92,6 +92,7 @@ const AddressScreen = ({navigation, route}: any) => {
               navigation.navigate(RootScreens.AddAddress, {
                 data: item,
                 address: data?.result?.address,
+                name: 'Edit Address'
               })
             }
             onDeletePress={() => onAddressDelete(item)}
@@ -137,6 +138,7 @@ const AddressScreen = ({navigation, route}: any) => {
           onPress={() => {
             navigation.navigate(RootScreens.AddAddress, {
               address: data?.result?.address,
+              name: 'Add Address'
             });
           }}
           style={styles.floatingButton}>

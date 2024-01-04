@@ -60,6 +60,25 @@ const SupplierScreen = ({navigation}: any) => {
     setRefreshing(false);
   };
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={[commonStyle.row,{marginRight:wp(4)}]}>
+          <TouchableOpacity
+            style={[{marginRight: wp(5)}]}
+            onPress={() => navigation.navigate(RootScreens.PendingRequest)}>
+            <SvgIcons.Timer width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            // style={commonStyle.iconView}
+            onPress={() => setIsOpen(true)}>
+            <SvgIcons.Code width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   useEffect(() => {
     setSupplierData(supplierList?.result);
   }, [isProcessing]);

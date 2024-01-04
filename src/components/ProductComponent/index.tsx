@@ -206,8 +206,7 @@ export default ProductComponent;
 
 const styles = StyleSheet.create({
   productContentContainer: {
-    marginTop: hp(1.5),
-    paddingTop: hp(0.5),
+    marginTop: hp(0.5),
     paddingHorizontal: wp(0.5),
   },
   itemContainer: {

@@ -58,17 +58,17 @@ const ProductListingScreen = ({navigation, route}: any) => {
     },
   );
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity
-          style={[{marginRight: wp(5)}]}
-          onPress={() => navigation.goBack()}>
-          <SvgIcons.BackArrow width={iconSize} height={iconSize} />
-        </TouchableOpacity>
-      ),
+      // headerLeft: () => (
+      //   <TouchableOpacity
+      //     style={[{marginRight: wp(5)}]}
+      //     onPress={() => navigation.goBack()}>
+      //     <SvgIcons.BackArrow width={iconSize} height={iconSize} />
+      //   </TouchableOpacity>
+      // ),
       headerRight: () => (
-        <View style={[commonStyle.rowAC]}>
+        <View style={[commonStyle.rowAC,{marginRight:wp(3)}]}>
           <TouchableOpacity
             style={[{marginRight: wp(5)}]}
             onPress={() => setIsHorizontal(!isHorizontal)}>

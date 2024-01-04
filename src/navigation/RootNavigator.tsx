@@ -1,5 +1,4 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from '../containers/Home/HomeScreen';
 import {RootScreens, RootStackParamList} from '../types/type';
 import LoginScreen from '../containers/Login/LoginScreen';
@@ -26,6 +25,8 @@ import PersonalDetailScreen from '../containers/PersonalDetail/PersonalDetailScr
 import CompanyDetailScreen from '../containers/CompanyDetail/CompanyDetailScreen';
 import SecureCheckoutScreen from '../containers/SecureCheckout/SecureCheckoutScreen';
 import ForgotPasswordScreen from '../containers/ForgotPassword/ForgotPasswordScreen';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
 
@@ -33,7 +34,7 @@ export function navigate(name: any, params?: any) {
   navigationRef.current?.navigate(name, params);
 }
 
-const RootStack = createNativeStackNavigator<RootStackParamList>();
+const RootStack = createStackNavigator<RootStackParamList>();
 const TabStack = createBottomTabNavigator<RootStackParamList>();
 
 function TabNavigator({route}: any) {
@@ -46,7 +47,10 @@ function TabNavigator({route}: any) {
       <TabStack.Screen
         name={RootScreens.Home}
         component={HomeScreen}
-        options={{title: 'Welcome to OrderTank', headerTitleAlign: 'left'}}
+        options={{
+          title: 'Welcome to OrderTank',
+          headerTitleAlign: 'center',
+        }}
       />
       <TabStack.Screen
         name={RootScreens.Supplier}
@@ -61,7 +65,7 @@ function TabNavigator({route}: any) {
       <TabStack.Screen
         name={RootScreens.Profile}
         component={ProfileScreen}
-        options={{title: 'Profile', headerTitleAlign: 'left'}}
+        options={{title: 'My Profile', headerTitleAlign: 'left'}}
       />
     </TabStack.Navigator>
   );
@@ -88,7 +92,11 @@ const RootNavigator = () => {
   return (
     <RootStack.Navigator
       initialRouteName={RootScreens.Splash}
-      screenOptions={{headerShown: true, headerBackTitleVisible:false}}>
+      screenOptions={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        headerTitleAlign: 'center',
+      }}>
       <RootStack.Screen
         name={RootScreens.Splash}
         component={SplashScreen}
@@ -139,7 +147,7 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.Cart}
         component={CartScreen}
-        options={{title: 'Selected Items', headerBackTitleVisible:false}}
+        options={{title: 'Selected Items'}}
       />
       <RootStack.Screen
         name={RootScreens.CartList}
@@ -169,7 +177,9 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.AddAddress}
         component={AddAddressScreen}
-        options={{title: 'Add Address'}}
+        options={({route}: any) => ({
+          title: route.params.name,
+        })}
       />
       <RootStack.Screen
         name={RootScreens.OrderPlaced}
