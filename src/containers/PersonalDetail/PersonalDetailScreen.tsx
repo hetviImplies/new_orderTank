@@ -27,14 +27,15 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const {data, isFetching} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
+  console.log("person......", data)
 
   const [updateProfile, {isLoading: isProcess}] = useUpdateProfileMutation();
   const dispatch = useDispatch();
   const emailRef: any = useRef();
   const phonNoRef: any = useRef();
-  const [userName, setUserName] = useState(data?.result?.name);
-  const [email, setEmail] = useState(data?.result?.email);
-  const [phoneNo, setPhoneNo] = useState(data?.result?.phone);
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNo, setPhoneNo] = useState('');
   const [checkValid, setCheckValid] = useState(false);
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Profile');
@@ -46,10 +47,16 @@ const PersonalDetailScreen = ({navigation}: any) => {
     return result;
   };
 
-  const isValidUserName = checkValid && userName.length === 0;
+  const isValidUserName = checkValid && userName?.length === 0;
   const isValidEmail =
-    checkValid && (email.length === 0 || !validationEmail(email));
-  const isValidPhoneNo = checkValid && (phoneNo.length === 0 || phoneNo.length < 10);
+    checkValid && (email?.length === 0 || !validationEmail(email));
+  const isValidPhoneNo = checkValid && (phoneNo?.length === 0 || phoneNo?.length < 10);
+
+  useEffect(() => {
+    setUserName(data?.result?.name);
+    setPhoneNo(data?.result?.phone);
+    setEmail(data?.result?.email);
+  }, [data]);
 
   useEffect(() => {
     dispatch(setCurrentUser(data?.result));

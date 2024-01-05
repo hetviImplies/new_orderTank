@@ -79,7 +79,7 @@ const RootNavigator = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    console.log('RootNavigator', userInfo);
+    // console.log('RootNavigator', userInfo);
     if (
       (userInfo && Object.keys(userInfo).length === 0) ||
       userInfo === undefined

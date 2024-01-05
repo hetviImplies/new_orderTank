@@ -64,9 +64,8 @@ const CartScreen = ({navigation, route}: any) => {
 
   const placeOrderPress = () => {
     const address = userInfo?.companyId?.address.find(
-      (item: any) => item.isPriority,
+      (item: any) => item?.isPriority,
     );
-    console.log('ADDD', address)
     navigation.navigate(RootScreens.SecureCheckout, {
       deliveryAdd: address,
       billingAdd: address,

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
 import {useDispatch} from 'react-redux';
 import Images from '../../assets/images';
@@ -36,6 +36,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // import {requestPermission} from '../../helper/PushNotification';
 import colors from '../../assets/colors';
 import Popup from '../../components/Popup';
+import { requestPermission } from '../../helper/PushNotification';
 
 const LoginScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -61,24 +62,25 @@ const LoginScreen = ({navigation}: any) => {
   const isValidPassword =
     checkValid && (password.length === 0 || password.length < 8);
 
-  // useEffect(() => {
-  //   getToken();
-  // }, []);
+  useEffect(() => {
+    getToken();
+  }, []);
 
-  // const getToken = async () => {
-  //   const notificationToken = await AsyncStorage.getItem('NotiToken');
-  //   const navigateTo: any = await AsyncStorage.getItem('navigateTo');
-  //   if (navigateTo === RootScreens.DashBoard) {
-  //     setIsLogin(true);
-  //   }
-  //   if (!notificationToken) {
-  //     requestPermission();
-  //   }
-  //   const token: any = await AsyncStorage.getItem('token');
-  //   if (token && token.trim() !== '') {
-  //     dispatch(setIsAuthenticated(true));
-  //   }
-  // };
+  const getToken = async () => {
+    const notificationToken = await AsyncStorage.getItem('NotiToken');
+    console.log("login notitoken.......", notificationToken)
+    const navigateTo: any = await AsyncStorage.getItem('navigateTo');
+    if (navigateTo === RootScreens.DashBoard) {
+      setIsLogin(true);
+    }
+    if (!notificationToken) {
+      requestPermission();
+    }
+    const token: any = await AsyncStorage.getItem('token');
+    if (token && token.trim() !== '') {
+      dispatch(setIsAuthenticated(true));
+    }
+  };
 
   const clearData = async () => {
     setEmail('');
@@ -94,7 +96,7 @@ const LoginScreen = ({navigation}: any) => {
         email,
         password,
         isMobile: true,
-        // notificationToken,
+        notificationToken,
       });
       console.log('Data: ', data, error);
       if (!error && data?.statusCode === 200) {
