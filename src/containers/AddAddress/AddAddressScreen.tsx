@@ -53,7 +53,7 @@ const AddAddressScreen = (props: any) => {
   const pinCodeRef: any = useRef();
   const cityRef: any = useRef();
   const stateRef: any = useRef();
-  const countryRef: any = useRef();
+  // const countryRef: any = useRef();
 
   const [checkValid, setCheckValid] = useState(false);
   const [addressName, setAddressName] = useState(item ? item?.addressName : '');
@@ -63,7 +63,7 @@ const AddAddressScreen = (props: any) => {
   const [city, setCity] = useState(item ? item?.city : '');
   const [state, setState] = useState(item ? item?.state : '');
   const [selectedState, setSelectedState] = useState('');
-  const [country, setCountry] = useState(item ? item?.country : '');
+  // const [country, setCountry] = useState(item ? item?.country : '');
 
   const isValidAddressName = checkValid && addressName.length === 0;
   const isValidAddress = checkValid && address.length === 0;
@@ -71,7 +71,15 @@ const AddAddressScreen = (props: any) => {
   const isValidLocality = checkValid && locality.length === 0;
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
-  const isValidCountry = checkValid && country.length === 0;
+  // const isValidCountry = checkValid && country.length === 0;
+  
+  useEffect(() => {
+    STATES_DATA.map((state, index) => {
+      if (item?.state === state.label) {
+        setSelectedState(state.value);
+      }
+    });
+  }, []);
 
   console.log('addressList', addressList, item);
 
@@ -83,7 +91,7 @@ const AddAddressScreen = (props: any) => {
       locality.length !== 0 &&
       city.length !== 0 &&
       pinCode.length !== 0 &&
-      state.length !== 0 
+      state.length !== 0
       // && country.length !== 0
     ) {
       const formData = new FormData();

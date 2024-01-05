@@ -106,10 +106,10 @@ const CompanyDetail = (props: any) => {
   const [pinCode, setPinCode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
-  const [country, setCountry] = useState('');
+  // const [country, setCountry] = useState('');
   const [numberType, setNumberType] = useState(1);
-  const [search, setSearch] = useState('');
-  const [selectedState, setSelectedState] = useState<number>();
+  // const [search, setSearch] = useState('');
+  const [selectedState, setSelectedState] = useState('');
 
   const validationNumber = (val: any) => {
     const result = phoneRegx.test(val.trim());
@@ -152,7 +152,8 @@ const CompanyDetail = (props: any) => {
     setState(data?.result ? data?.result.address[0]?.state : '');
     STATES_DATA.map((state, index) => {
       if (data?.result?.address[0]?.state === state.label) {
-        setSelectedState(index);
+        console.log('index', index, state)
+        setSelectedState(state.value);
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
@@ -967,7 +968,7 @@ const CompanyDetail = (props: any) => {
           selectedIndex={selectedState}
           onPress={(item: any, index: any) => {
             console.log('item selected', item, index);
-            setSelectedState(index);
+            setSelectedState(item?.value);
             setState(item?.label);
             stateRef?.current?.close();
           }}

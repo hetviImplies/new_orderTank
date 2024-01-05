@@ -8,13 +8,12 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
-import {FontText, Button, NavigationBar, Input} from '../../components';
+import {FontText, Input, Loader} from '../../components';
 import {fontSize, mediumFont, smallFont, tabIcon} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
-import {HISTORY_LIST} from '../../types/data';
 import messaging from '@react-native-firebase/messaging';
 import Popup from '../../components/Popup';
 import {useSelector} from 'react-redux';
@@ -27,8 +26,7 @@ import {useGetOrdersQuery} from '../../api/order';
 import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { withInAppNotification } from '../../components/Common/InAppNotification';
-
+import {withInAppNotification} from '../../components/Common/InAppNotification';
 
 const actions = [
   {
@@ -39,7 +37,7 @@ const actions = [
     position: 2,
     buttonSize: hp(5.5),
     textBackground: colors.orange,
-    textColor: 'white'
+    textColor: 'white',
   },
   {
     text: 'Add Order',
@@ -49,7 +47,7 @@ const actions = [
     position: 1,
     buttonSize: hp(5.5),
     textBackground: colors.orange,
-    textColor: 'white'
+    textColor: 'white',
   },
 ];
 
@@ -57,9 +55,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-
-  const isGuest =
-    (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
   const [notification, setNotification] = useState<any>({});
   const [isOpenPopup, setOpenPopup] = useState<boolean>(
@@ -87,7 +82,10 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     navigation.setOptions({
       headerLeft: () => (
         <View
-          style={[commonStyle.rowAC, {marginLeft: wp(4), paddingBottom: hp(1)}]}>
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), paddingBottom: hp(1)},
+          ]}>
           {userInfo && userInfo?.companyId?.logo ? (
             <Image
               source={{uri: userInfo?.companyId?.logo}}
@@ -120,14 +118,14 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     setOrderData(orderList?.result);
   }, [isProcessing]);
 
-useEffect(() => {
-  console.log('orderData',JSON.stringify(orderData))
+  useEffect(() => {
+    console.log('orderData', JSON.stringify(orderData));
     getNotification();
   }, []);
 
   const getNotification = async () => {
     const notificationToken = await AsyncStorage.getItem('NotiToken');
-    console.log("home notitoken.......", notificationToken)
+    console.log('home notitoken.......', notificationToken);
     const onMessageListener = messaging().onMessage(async remoteMessage => {
       showNotification({
         title: remoteMessage?.notification?.title,
@@ -146,7 +144,6 @@ useEffect(() => {
       }
     };
   };
-
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -314,6 +311,7 @@ useEffect(() => {
         //   </View>
         // }
       /> */}
+      <Loader loading={isProcessing} />
       <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal>
@@ -385,7 +383,12 @@ useEffect(() => {
         buttonSize={hp(7)}
         iconHeight={hp(2.2)}
         iconWidth={hp(2.2)}
-        shadow={{ shadowOpacity: 0.35, shadowOffset: { width: 0, height: 5 }, shadowColor: "trasparent", shadowRadius: 3 }}
+        shadow={{
+          shadowOpacity: 0.35,
+          shadowOffset: {width: 0, height: 5},
+          shadowColor: 'trasparent',
+          shadowRadius: 3,
+        }}
       />
       {/* <TouchableOpacity
         onPress={() => navigation.navigate(RootScreens.Cart)}
