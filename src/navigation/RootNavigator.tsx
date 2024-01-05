@@ -144,6 +144,7 @@ const RootNavigator = () => {
         component={CompanyDetailScreen}
         options={({route}: any) => ({
           title: route.params.name,
+          gestureEnabled: route.params.name === 'Profile' ? true : false,
         })}
       />
       <RootStack.Screen

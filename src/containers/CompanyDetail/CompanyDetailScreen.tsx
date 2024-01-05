@@ -15,9 +15,12 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
+  console.log('from', from)
+
   React.useLayoutEffect(() => {
     if(from !== 'Profile') {
       navigation.setOptions({
+        headerleft: () => <></>,
         headerRight: () => (
           <TouchableOpacity onPress={logoutPress} style={{marginRight:wp(2)}}>
             <SvgIcons.PowerOff

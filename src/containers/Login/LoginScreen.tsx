@@ -237,48 +237,48 @@ const LoginScreen = ({navigation}: any) => {
                     {'Password:'}
                   </FontText>
                 </View>
-                <Input
-                  ref={passwordRef}
-                  value={password}
-                  onChangeText={(text: string) => setPassword(text.trim())}
-                  placeholder={'Enter Password'}
-                  placeholderTextColor={'placeholder'}
-                  fontSize={fontSize}
-                  color={'black'}
-                  inputStyle={[styles.inputText, {paddingRight: wp(12)}]}
-                  style={styles.input}
-                  secureTextEntry={!eyeIcon}
-                  returnKeyType={'done'}
-                  children={
-                    <View
-                      style={[
-                        commonStyle.abs,
-                        commonStyle.rowJB,
-                        {left: wp(4), width: '100%'},
-                      ]}>
-                      <SvgIcons.Lock width={iconSize} height={iconSize} />
-                      <TouchableOpacity
-                        onPress={handleEyePress}
-                        style={{
-                          right: wp(7),
-                          padding: wp(2),
-                        }}>
-                        {eyeIcon ? (
-                          <SvgIcons.EyeOpen
-                            width={iconSize}
-                            height={iconSize}
-                          />
-                        ) : (
-                          <SvgIcons.EyeClose
-                            width={iconSize}
-                            height={iconSize}
-                          />
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  }
-                  onSubmit={() => Keyboard.dismiss()}
-                />
+                <View style={commonStyle.rowAC}>
+                  <Input
+                    ref={passwordRef}
+                    value={password}
+                    onChangeText={(text: string) => setPassword(text.trim())}
+                    placeholder={'Enter Password'}
+                    placeholderTextColor={'placeholder'}
+                    fontSize={fontSize}
+                    color={'black'}
+                    inputStyle={[styles.inputText, {paddingRight: wp(12)}]}
+                    style={[styles.input]}
+                    secureTextEntry={!eyeIcon}
+                    returnKeyType={'done'}
+                    blurOnSubmit
+                    children={
+                      <View
+                        style={[
+                          commonStyle.abs,
+                          commonStyle.rowJB,
+                          {left: wp(4)},
+                        ]}>
+                        <SvgIcons.Lock width={iconSize} height={iconSize} />
+                      </View>
+                    }
+                    onSubmit={() => Keyboard.dismiss()}
+                  />
+                  <TouchableOpacity
+                    onPress={handleEyePress}
+                    style={[
+                      commonStyle.abs,
+                      {
+                        right: wp(3),
+                        padding: wp(2),
+                      },
+                    ]}>
+                    {eyeIcon ? (
+                      <SvgIcons.EyeOpen width={iconSize} height={iconSize} />
+                    ) : (
+                      <SvgIcons.EyeClose width={iconSize} height={iconSize} />
+                    )}
+                  </TouchableOpacity>
+                </View>
                 {isValidPassword && (
                   <FontText
                     size={normalize(12)}

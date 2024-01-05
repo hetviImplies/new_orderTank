@@ -1,10 +1,11 @@
 import {ImageBackground} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useLayoutEffect} from 'react';
 // import {requestPermission} from '../../helper/PushNotification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {RootScreens} from '../../types/type';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import { useGetCurrentUserQuery } from '../../api/auth';
 
 const SplashScreen = ({navigation}: any) => {
   // useEffect(() => {
@@ -17,16 +18,20 @@ const SplashScreen = ({navigation}: any) => {
   //     requestPermission();
   //   }
   // };
-  const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const {data, isFetching} = useGetCurrentUserQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
+  // const dispatch = useDispatch();
+  // const userInfo = useSelector((state: any) => state.auth.userInfo);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTimeout(async () => {
       const token: any = await AsyncStorage.getItem('token');
       if (token && token.trim() !== '') {
-        console.log('data?.result.companyCode', userInfo.companyCode);
+        console.log('data?.result.companyCode', data?.result?.companyCode);
         if (
-          userInfo?.companyCode === undefined ||
-          userInfo?.companyCode === ''
+           data?.result?.companyCode === undefined ||
+           data?.result?.companyCode === ''
         ) {
           console.log('if......');
           navigation.navigate(RootScreens.CompanyDetail, {
@@ -42,7 +47,7 @@ const SplashScreen = ({navigation}: any) => {
         resetNavigateTo(navigation, RootScreens.Login);
       }
     }, 1000);
-  }, []);
+  }, [isFetching]);
 
   return (
     <ImageBackground

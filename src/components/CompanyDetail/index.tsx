@@ -72,6 +72,8 @@ const CompanyDetail = (props: any) => {
     return result;
   };
 
+  console.log('userInfo', userInfo, data);
+
   const regRef: any = useRef();
   const nameRef: any = useRef();
   const phoneRef: any = useRef();
@@ -125,10 +127,10 @@ const CompanyDetail = (props: any) => {
   const isValidState = checkValid && state?.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
 
-  useEffect(() => {
-    console.log('Checking...');
-    dispatch(setCurrentUser(userData?.result));
-  }, [isProcessing]);
+  // useEffect(() => {
+  //   console.log('Checking...');
+  //   dispatch(setCurrentUser(userData?.result));
+  // }, [isProcessing]);
 
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
@@ -164,9 +166,10 @@ const CompanyDetail = (props: any) => {
     file: any,
   ) => {
     const newUrl = isAndroid ? `file://${url}` : url;
-    if (file <= 5000000) {
-      setImageUrl(newUrl);
-      setImageRes(res);
+    if (file >= 5000000) {
+      utils.showWarningToast('Image size must be less than 5MB.')
+      // setImageUrl(newUrl);
+      // setImageRes(res);
     } else {
       const result = await imageCompress.Image.compress(newUrl, {
         compressionMethod: 'auto',
