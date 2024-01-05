@@ -51,7 +51,10 @@ const ProfileScreen = ({navigation}: any) => {
         navigation.navigate(RootScreens.PersonalDetail);
         break;
       case 1:
-        navigation.navigate(RootScreens.CompanyDetail);
+        navigation.navigate(RootScreens.CompanyDetail, {
+          from: 'Profile',
+          name: 'Company detail',
+        });
         break;
       case 2:
         navigation.navigate(RootScreens.Address);

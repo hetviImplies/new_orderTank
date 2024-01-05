@@ -1,5 +1,4 @@
 import {
-  Dimensions,
   Image,
   StyleSheet,
   TouchableOpacity,
@@ -7,16 +6,13 @@ import {
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import colors from '../../assets/colors';
-import {Button, FontText, Input, Loader, NavigationBar} from '..';
+import {Button, FontText, Input, Loader} from '..';
 import SvgIcons from '../../assets/SvgIcons';
 import {
   iconSize,
   fontSize,
-  mediumLarge1Font,
   mediumFont,
-  smallFont,
   tabIcon,
-  mediumLargeFont,
 } from '../../styles';
 import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -26,10 +22,8 @@ import imageCompress from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
 // import BottomSheet from '../BottomSheet';
 import {
-  COUNTRY_LIST,
   NUMBER_TYPE,
   STATES_DATA,
-  STATES_LIST,
 } from '../../types/data';
 import {
   useAddCompanyMutation,
@@ -38,17 +32,14 @@ import {
 } from '../../api/company';
 import utils from '../../helper/utils';
 import {useDispatch, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {authReset, setCurrentUser} from '../../redux/slices/authSlice';
-import {RootScreens} from '../../types/type';
-import {resetNavigateTo} from '../../helper/navigationHelper';
+import { setCurrentUser} from '../../redux/slices/authSlice';
 import RadioButton from '../Common/RadioButton';
 import {useUpdateProfileMutation} from '../../api/profile';
 import BottomSheet from '../BottomSheet';
 import {useGetCurrentUserQuery} from '../../api/auth';
 
 const CompanyDetail = (props: any) => {
-  const {setOpenPopup, from, navigation} = props;
+  const {loading, from, navigation} = props;
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
@@ -62,12 +53,14 @@ const CompanyDetail = (props: any) => {
   const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const gstNoRegx = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   // const gstNoRegx =
   //   /^[0-9]{2}[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   const panNoRegx = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
   const phoneRegx = /^[6-9]\d{9}$/;
+
+  console.log('data', data)
 
   const validationGstNo = (val: any) => {
     const result = gstNoRegx.test(val.trim());
@@ -143,7 +136,7 @@ const CompanyDetail = (props: any) => {
     setName(nameTemp !== '' ? nameTemp : userData?.result?.name);
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
-    setPhone(phoneTemp !==  '' ? phoneTemp : userData?.result?.phone);
+    setPhone(phoneTemp !== '' ? phoneTemp : userData?.result?.phone);
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
@@ -152,7 +145,7 @@ const CompanyDetail = (props: any) => {
     setState(data?.result ? data?.result.address[0]?.state : '');
     STATES_DATA.map((state, index) => {
       if (data?.result?.address[0]?.state === state.label) {
-        console.log('index', index, state)
+        console.log('index', index, state);
         setSelectedState(state.value);
       }
     });
@@ -284,12 +277,13 @@ const CompanyDetail = (props: any) => {
             };
             const {data, error: err}: any = await updateProfile(params);
             if (!err) {
-              setOpenPopup && setOpenPopup(false);
+              // setOpenPopup && setOpenPopup(false);
+              utils.showSuccessToast(data.message);
             } else {
-              utils.showSuccessToast(err.message);
+              utils.showErrorToast(err.message);
             }
           } else {
-            setOpenPopup && setOpenPopup(false);
+            utils.showErrorToast(error.message);
           }
         } else {
           utils.showErrorToast(data.message || error);
@@ -311,12 +305,13 @@ const CompanyDetail = (props: any) => {
             };
             const {data, error: err}: any = await updateProfile(params);
             if (!err) {
-              setOpenPopup && setOpenPopup(false);
+              // setOpenPopup && setOpenPopup(false);
+              utils.showSuccessToast(data.message);
             } else {
-              utils.showSuccessToast(err.message);
+              utils.showErrorToast(err.message);
             }
           } else {
-            setOpenPopup && setOpenPopup(false);
+            utils.showErrorToast(error.message);
           }
           // utils.showSuccessToast(data.message);
         } else {
@@ -339,22 +334,22 @@ const CompanyDetail = (props: any) => {
     }
   };
 
-  const logoutPress = async () => {
-    setOpenPopup(false);
-    setTimeout(async () => {
-      // setLoading(true);
-      // await AsyncStorage.clear();
-      // await AsyncStorage.removeItem('token');
-      // dispatch(authReset());
-      // setLoading(false);
-      resetNavigateTo(navigation, RootScreens.Login);
-    }, 500);
-    // dispatch(setIsAuthenticated(false));
-  };
+  // const logoutPress = async () => {
+  //   setOpenPopup(false);
+  //   setTimeout(async () => {
+  //     // setLoading(true);
+  //     // await AsyncStorage.clear();
+  //     // await AsyncStorage.removeItem('token');
+  //     // dispatch(authReset());
+  //     // setLoading(false);
+  //     resetNavigateTo(navigation, RootScreens.Login);
+  //   }, 500);
+  //   // dispatch(setIsAuthenticated(false));
+  // };
 
   return (
     <View style={commonStyle.container}>
-      {from !== 'Profile' ? (
+      {/* {from !== 'Profile' ? (
         <NavigationBar
           hasCenter
           hasRight
@@ -383,7 +378,7 @@ const CompanyDetail = (props: any) => {
           style={{marginHorizontal: wp(2.5)}}
           borderBottomWidth={0}
         />
-      ) : null}
+      ) : null} */}
       <Loader
         loading={
           isFetching ||
@@ -531,7 +526,9 @@ const CompanyDetail = (props: any) => {
                 ref={nameRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={name}
-                onChangeText={(text: string) => {setName(text.trimStart()), setNameTemp(text.trimStart())}}
+                onChangeText={(text: string) => {
+                  setName(text.trimStart()), setNameTemp(text.trimStart());
+                }}
                 autoCapitalize="none"
                 placeholder={'Enter Full Name'}
                 placeholderTextColor={'placeholder'}
@@ -579,7 +576,9 @@ const CompanyDetail = (props: any) => {
                 ref={phoneRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={phone}
-                onChangeText={(text: string) => {setPhone(text.trim()), setPhoneTemp(text.trim())}}
+                onChangeText={(text: string) => {
+                  setPhone(text.trim()), setPhoneTemp(text.trim());
+                }}
                 placeholder={'Enter Mobile Number'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}

@@ -36,7 +36,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // import {requestPermission} from '../../helper/PushNotification';
 import colors from '../../assets/colors';
 import Popup from '../../components/Popup';
-import { requestPermission } from '../../helper/PushNotification';
+import {requestPermission} from '../../helper/PushNotification';
 
 const LoginScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -48,7 +48,6 @@ const LoginScreen = ({navigation}: any) => {
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
   const emailRegx =
     /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
@@ -68,11 +67,7 @@ const LoginScreen = ({navigation}: any) => {
 
   const getToken = async () => {
     const notificationToken = await AsyncStorage.getItem('NotiToken');
-    console.log("login notitoken.......", notificationToken)
-    const navigateTo: any = await AsyncStorage.getItem('navigateTo');
-    if (navigateTo === RootScreens.DashBoard) {
-      setIsLogin(true);
-    }
+    console.log('login notitoken.......', notificationToken);
     if (!notificationToken) {
       requestPermission();
     }
@@ -101,13 +96,26 @@ const LoginScreen = ({navigation}: any) => {
       console.log('Data: ', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
-        resetNavigateTo(navigation, 'DashBoard');
         dispatch(setCurrentUser(data?.result));
         dispatch(setToken(data?.token));
         dispatch(setFrom('Login'));
         // dispatch(setIsAuthenticated(true));
         await AsyncStorage.setItem('token', data?.token);
-        utils.showSuccessToast(data.message);
+        // utils.showSuccessToast(data.message);
+        console.log('Data: ', data?.result, data?.result?.companyCode);
+        if (
+          data?.result?.companyCode === undefined ||
+          data?.result?.companyCode === ''
+        ) {
+          console.log('if......');
+          navigation.navigate(RootScreens.CompanyDetail, {
+            from: 'Login',
+            name: 'Enter your company detail',
+          });
+        } else {
+          console.log('else......');
+          resetNavigateTo(navigation, RootScreens.DashBoard);
+        }
       } else {
         dispatch(setIsAuthenticated(false));
         data?.message !== 'Please verified email first' &&

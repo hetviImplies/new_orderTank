@@ -142,7 +142,9 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.CompanyDetail}
         component={CompanyDetailScreen}
-        options={{title: 'Company Detail'}}
+        options={({route}: any) => ({
+          title: route.params.name,
+        })}
       />
       <RootStack.Screen
         name={RootScreens.Cart}

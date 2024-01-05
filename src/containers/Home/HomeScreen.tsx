@@ -57,9 +57,9 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
 
   const [notification, setNotification] = useState<any>({});
-  const [isOpenPopup, setOpenPopup] = useState<boolean>(
-    userInfo?.companyCode ? false : true,
-  );
+  // const [isOpenPopup, setOpenPopup] = useState<boolean>(
+  //   userInfo?.companyCode ? false : true,
+  // );
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
   const [orderData, setOrderData] = React.useState([]);
@@ -110,9 +110,9 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    setOpenPopup(userInfo?.companyCode ? false : true);
-  }, [userInfo]);
+  // useEffect(() => {
+  //   setOpenPopup(userInfo?.companyCode ? false : true);
+  // }, [userInfo]);
 
   useEffect(() => {
     setOrderData(orderList?.result);
@@ -312,9 +312,9 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         // }
       /> */}
       <Loader loading={isProcessing} />
-      <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
+      {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
-      </Modal>
+      </Modal> */}
       {orderData && orderData.length !== 0 ? (
         <FlatList
           data={orderData}

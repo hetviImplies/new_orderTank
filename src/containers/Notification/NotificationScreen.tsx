@@ -73,7 +73,7 @@ const NotificationScreen = ({navigation}: any) => {
   return (
     <View style={commonStyle.container}>
       <Loader loading={isProcessing} />
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -95,7 +95,7 @@ const NotificationScreen = ({navigation}: any) => {
             </FontText>
           </View>
         }
-      />
+      /> */}
       {notifiedData && notifiedData.length !== 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
