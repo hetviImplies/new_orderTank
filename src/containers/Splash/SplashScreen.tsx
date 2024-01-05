@@ -4,50 +4,49 @@ import React, {useEffect, useLayoutEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {RootScreens} from '../../types/type';
-import {useDispatch, useSelector} from 'react-redux';
-import { useGetCurrentUserQuery } from '../../api/auth';
+import {useGetCurrentUserQuery} from '../../api/auth';
 
 const SplashScreen = ({navigation}: any) => {
-  // useEffect(() => {
-  //   getToken();
-  // }, []);
-
-  // const getToken = async () => {
-  //   const notificationToken = await AsyncStorage.getItem('NotiToken');
-  //   if (!notificationToken) {
-  //     requestPermission();
-  //   }
-  // };
   const {data, isFetching} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-  // const dispatch = useDispatch();
-  // const userInfo = useSelector((state: any) => state.auth.userInfo);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await data.fetch();
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [data]);
 
   useLayoutEffect(() => {
-    setTimeout(async () => {
+    const checkCompanyCode = async () => {
       const token: any = await AsyncStorage.getItem('token');
       if (token && token.trim() !== '') {
-        console.log('data?.result.companyCode', data?.result?.companyCode);
         if (
-           data?.result?.companyCode === undefined ||
-           data?.result?.companyCode === ''
+          data?.result?.companyCode === undefined ||
+          data?.result?.companyCode === ''
         ) {
-          console.log('if......');
           navigation.navigate(RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
           });
         } else {
-          console.log('else......');
           resetNavigateTo(navigation, RootScreens.DashBoard);
         }
       } else {
-        console.log('else...last...');
         resetNavigateTo(navigation, RootScreens.Login);
       }
-    }, 1000);
-  }, [isFetching]);
+    };
+
+    if (!isFetching) {
+      checkCompanyCode();
+    }
+  }, [isFetching, data, navigation]);
 
   return (
     <ImageBackground

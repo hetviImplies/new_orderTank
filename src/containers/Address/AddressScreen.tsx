@@ -1,6 +1,6 @@
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import commonStyle, {fontSize, mediumLargeFont, tabIcon} from '../../styles';
+import commonStyle, {fontSize, tabIcon} from '../../styles';
 import {
   Button,
   CheckPreferenceItem,
@@ -37,8 +37,6 @@ const AddressScreen = ({navigation, route}: any) => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
   }, [type]);
 
-  console.log('type: ', addressData, checkedData);
-
   useEffect(() => {
     setAddressData(data?.result?.address);
   }, [data, isFetching]);
@@ -72,7 +70,6 @@ const AddressScreen = ({navigation, route}: any) => {
   };
 
   const _renderItem = ({item, index}: any) => {
-    console.log('item?._id === checkedData?._id',item?._id , checkedData?._id)
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}

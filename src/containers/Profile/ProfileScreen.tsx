@@ -1,49 +1,35 @@
 import {
   FlatList,
-  Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import commonStyle, {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLargeFont,
-  smallFont,
-} from '../../styles';
-import {Button, FontText, Loader, NavigationBar} from '../../components';
+import React, {useState} from 'react';
+import commonStyle, {fontSize} from '../../styles';
+import {FontText, Loader} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
-import {BASE_URL, PROFILE_LIST} from '../../types/data';
+import {PROFILE_LIST} from '../../types/data';
 import {RootScreens} from '../../types/type';
-import {useGetCurrentUserQuery} from '../../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  authReset,
-  setCurrentUser,
-  setIsAuthenticated,
-} from '../../redux/slices/authSlice';
+import {authReset} from '../../redux/slices/authSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
-  const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const {data, isFetching: isLoading} = useGetCurrentUserQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
+  // const userInfo = useSelector((state: any) => state.auth.userInfo);
+  // const {data, isFetching: isLoading} = useGetCurrentUserQuery(null, {
+  //   refetchOnMountOrArgChange: true,
+  // });
   const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
-    dispatch(setCurrentUser(data?.result));
-  }, [data, isLoading]);
+  // React.useEffect(() => {
+  //   dispatch(setCurrentUser(data?.result));
+  // }, [data, isLoading]);
 
-  const isGuest =
-    (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
+  // const isGuest =
+  //   (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -107,7 +93,6 @@ const ProfileScreen = ({navigation}: any) => {
     dispatch(authReset());
     setLoading(false);
     resetNavigateTo(navigation, RootScreens.Login);
-    // dispatch(setIsAuthenticated(false));
   };
 
   return (
@@ -128,7 +113,7 @@ const ProfileScreen = ({navigation}: any) => {
           </FontText>
         }
       /> */}
-      <Loader loading={isLoading || loading} />
+      <Loader loading={loading} />
       <View style={[commonStyle.paddingH4, {marginTop: hp(1)}]}>
         <FlatList
           data={PROFILE_LIST}

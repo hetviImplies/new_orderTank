@@ -24,7 +24,6 @@ import AddressComponent from '../../components/AddressComponent';
 import IconHeader from '../IconHeader';
 import CartCountModule from '../../components/CartCountModule';
 import utils from '../../helper/utils';
-import {useRemoveCartMutation} from '../../api/cart';
 import {
   calculateTotalPrice,
   getCartItems,
@@ -34,9 +33,6 @@ import {
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
   const [cancleOrder, {isLoading: isFetching}] = useUpdateOrderStatusMutation();
-  const [removeCart, {isLoading: isFetch}] = useRemoveCartMutation();
-  // const cartData = route.params.data;
-  // const companyId = route.params.companyId;
   const deliveryAdd = route.params.deliveryAdd;
   const billingAdd = route.params.billingAdd;
   const from = route.params.from;
@@ -50,8 +46,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const product = isOrder ? orderDetails?.orderDetails : cartData;
-
-  console.log('orderDetails.......;//////', JSON.stringify(product));
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -75,7 +69,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const _renderItem = ({item, index}: any) => {
-    console.log('item', item);
     return (
       <>
         <View style={[styles.itemContainer]}>
@@ -140,7 +133,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 deliveryAdd: deliveryAdd,
                 billingAdd: billingAdd,
                 cartData: cartData,
-                // companyId: companyId,
               },
             });
           }}
@@ -174,20 +166,13 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       companyId: ids.companyId,
       isBuyer: true,
     };
-    console.log('params', JSON.stringify(params));
     const {data: order, error}: any = await createOrder(params);
-    console.log('createOrder: ', order, error);
     if (!error && order?.statusCode === 201) {
       await updateCartItems([]);
       let updatedCartItems = await getCartItems();
       if (updatedCartItems?.length == 0) {
         navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
       }
-      // const {data, error: err}: any = await removeCart({ids: ids});
-      // console.log('removeCart: ', data, error);
-
-      // if (!err && data?.statusCode === 200) {
-      // }
     } else {
       utils.showErrorToast(error.message);
     }
@@ -201,7 +186,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       id: orderDetails._id,
     };
     const {data, error}: any = await cancleOrder(params);
-    console.log('cancelOrder: ', data, error);
     if (!error && data?.statusCode === 200) {
       utils.showSuccessToast('Order Cancel Successfully.');
       navigation.goBack();
@@ -237,7 +221,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           </View>
         }
       /> */}
-      <Loader loading={isLoading || isFetch || isFetching} />
+      <Loader loading={isLoading || isFetching} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: hp(2), paddingTop: hp(2)}}

@@ -24,13 +24,12 @@ import {
   useCompanyRequestMutation,
   useGetSupplierQuery,
 } from '../../api/company';
-import {err} from 'react-native-svg';
 import utils from '../../helper/utils';
 import {useFocusEffect} from '@react-navigation/native';
 
 const SupplierScreen = ({navigation}: any) => {
   const [search, setSearch] = useState('');
-  const [searchText, setSearchText] = useState('');
+  // const [searchText, setSearchText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
   const {
@@ -128,16 +127,15 @@ const SupplierScreen = ({navigation}: any) => {
   };
 
   const applyCodePress = async () => {
+    setIsOpen(false);
     let params = {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
     if (!error) {
-      setIsOpen(false);
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
-      setIsOpen(false);
       setCode('');
       utils.showErrorToast(error.message);
     }
@@ -181,7 +179,7 @@ const SupplierScreen = ({navigation}: any) => {
         <Input
           value={search}
           onChangeText={(text: any) => setSearch(text.trimStart())}
-          onSubmit={(text: any) => setSearchText(text.trimStart())}
+          // onSubmit={(text: any) => setSearchText(text.trimStart())}
           blurOnSubmit
           autoCapitalize="none"
           placeholder={'Search a seller'}
@@ -236,7 +234,7 @@ const SupplierScreen = ({navigation}: any) => {
         children={
           <Input
             value={code}
-            onChangeText={(text: string) => setCode(text)}
+            onChangeText={(text: string) => setCode(text.trimStart())}
             placeholder={''}
             autoCapitalize="none"
             placeholderTextColor={'placeholder'}
@@ -266,7 +264,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(10),
     color: colors.black2,
     fontSize: normalize(12),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.white2,
     height: hp(6.5),
   },

@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(10),
     color: colors.black2,
     fontSize: normalize(12),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.white2,
     height: hp(6.5),
   },

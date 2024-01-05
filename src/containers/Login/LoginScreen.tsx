@@ -21,7 +21,6 @@ import {
 import SvgIcons from '../../assets/SvgIcons';
 import {
   setCurrentUser,
-  setFrom,
   setIsAuthenticated,
   setToken,
 } from '../../redux/slices/authSlice';
@@ -67,7 +66,6 @@ const LoginScreen = ({navigation}: any) => {
 
   const getToken = async () => {
     const notificationToken = await AsyncStorage.getItem('NotiToken');
-    console.log('login notitoken.......', notificationToken);
     if (!notificationToken) {
       requestPermission();
     }
@@ -87,33 +85,28 @@ const LoginScreen = ({navigation}: any) => {
     if (email.length !== 0 && validationEmail(email) && password.length !== 0) {
       setCheckValid(false);
       const notificationToken: any = await AsyncStorage.getItem('NotiToken');
+      console.log('Notification token', notificationToken);
       const {data, error}: any = await login({
         email,
         password,
         isMobile: true,
         notificationToken,
       });
-      console.log('Data: ', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
         dispatch(setCurrentUser(data?.result));
         dispatch(setToken(data?.token));
-        dispatch(setFrom('Login'));
-        // dispatch(setIsAuthenticated(true));
         await AsyncStorage.setItem('token', data?.token);
         // utils.showSuccessToast(data.message);
-        console.log('Data: ', data?.result, data?.result?.companyCode);
         if (
           data?.result?.companyCode === undefined ||
           data?.result?.companyCode === ''
         ) {
-          console.log('if......');
           navigation.navigate(RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
           });
         } else {
-          console.log('else......');
           resetNavigateTo(navigation, RootScreens.DashBoard);
         }
       } else {
@@ -369,7 +362,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(12),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.gray2,
   },
   input: {

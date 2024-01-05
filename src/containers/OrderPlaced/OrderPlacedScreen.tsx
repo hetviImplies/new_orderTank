@@ -4,14 +4,12 @@ import commonStyle, {
   mediumFont,
   mediumLarge1Font,
   mediumLargeFont,
-  smallFont,
 } from '../../styles';
 import {FontText} from '../../components';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {hp, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
 import {RootScreens} from '../../types/type';
-import moment from 'moment';
 
 const OrderPlacedScreen = ({navigation, route}: any) => {
   const data = route?.params?.data;
@@ -23,7 +21,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
         commonStyle.paddingH4,
         {flex: 1},
       ]}>
-         <FontText
+      <FontText
         color="black2"
         name="lexend-regular"
         size={mediumLargeFont}

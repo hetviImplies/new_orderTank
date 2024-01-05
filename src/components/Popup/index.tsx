@@ -1,23 +1,16 @@
 import {
   Animated,
-  Keyboard,
   Modal,
-  Pressable,
   StyleSheet,
-  Text,
-  TouchableNativeFeedback,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Button, FontText} from '..';
 import {
   fontSize,
-  iconSize,
-  mediumFont,
   mediumLarge1Font,
-  mediumLargeFont,
   smallFont,
   tabIcon,
 } from '../../styles';

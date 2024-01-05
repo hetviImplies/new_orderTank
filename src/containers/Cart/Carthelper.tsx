@@ -8,7 +8,7 @@ const getCartItems = async () => {
     const cartItems = await AsyncStorage.getItem(CART_KEY);
     return cartItems ? JSON.parse(cartItems) : [];
   } catch (error) {
-    console.error('Error getting cart items:', error);
+    console.log('Error getting cart items:', error);
     return [];
   }
 };
@@ -18,7 +18,7 @@ const updateCartItems = async (cartItems: any) => {
   try {
     await AsyncStorage.setItem(CART_KEY, JSON.stringify(cartItems));
   } catch (error) {
-    console.error('Error updating cart items:', error);
+    console.log('Error updating cart items:', error);
   }
 };
 
@@ -46,7 +46,7 @@ const addToCart = async (item: any) => {
     await updateCartItems(updatedCartItems);
     return updatedCartItems;
   } catch (error) {
-    console.error('Error adding item to cart:', error);
+    console.log('Error adding item to cart:', error);
   }
 };
 
@@ -65,7 +65,7 @@ const incrementCartItem = async (itemId: any) => {
       return updatedCartItems;
     }
   } catch (error) {
-    console.error('Error incrementing item quantity:', error);
+    console.log('Error incrementing item quantity:', error);
   }
 };
 
@@ -90,7 +90,7 @@ const decrementCartItem = async (itemId: any) => {
       return updatedCartItems;
     }
   } catch (error) {
-    console.error('Error decrementing item quantity:', error);
+    console.log('Error decrementing item quantity:', error);
   }
 };
 
@@ -105,7 +105,7 @@ const removeCartItem = async (itemId: any) => {
     await updateCartItems(updatedCartItems);
     return updatedCartItems;
   } catch (error) {
-    console.error('Error removing item from cart:', error);
+    console.log('Error removing item from cart:', error);
   }
 };
 
@@ -118,7 +118,7 @@ const calculateTotalPrice = async () => {
     );
     return totalPrice;
   } catch (error) {
-    console.error('Error calculating total price:', error);
+    console.log('Error calculating total price:', error);
     return 0;
   }
 };

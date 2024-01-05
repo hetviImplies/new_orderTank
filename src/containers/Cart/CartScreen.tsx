@@ -10,8 +10,6 @@ import commonStyle, {
   fontSize,
   mediumFont,
   mediumLarge1Font,
-  mediumLargeFont,
-  tabIcon,
 } from '../../styles';
 import {FontText, Loader, NavigationBar} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';

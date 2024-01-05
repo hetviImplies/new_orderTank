@@ -60,8 +60,6 @@ const CompanyDetail = (props: any) => {
   const panNoRegx = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
   const phoneRegx = /^[6-9]\d{9}$/;
 
-  console.log('data', data)
-
   const validationGstNo = (val: any) => {
     const result = gstNoRegx.test(val.trim());
     return result;
@@ -71,8 +69,6 @@ const CompanyDetail = (props: any) => {
     const result = panNoRegx.test(val.trim());
     return result;
   };
-
-  console.log('userInfo', userInfo, data);
 
   const regRef: any = useRef();
   const nameRef: any = useRef();
@@ -128,7 +124,6 @@ const CompanyDetail = (props: any) => {
   // const isValidCountry = checkValid && country.length === 0;
 
   // useEffect(() => {
-  //   console.log('Checking...');
   //   dispatch(setCurrentUser(userData?.result));
   // }, [isProcessing]);
 
@@ -147,14 +142,11 @@ const CompanyDetail = (props: any) => {
     setState(data?.result ? data?.result.address[0]?.state : '');
     STATES_DATA.map((state, index) => {
       if (data?.result?.address[0]?.state === state.label) {
-        console.log('index', index, state);
         setSelectedState(state.value);
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
   }, [data, isFetching, userData]);
-
-  // console.log('ddsxkeoqwdk', name, phone);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -267,7 +259,6 @@ const CompanyDetail = (props: any) => {
           _id: userData?.result?.companyId?._id,
         };
         const {data, error}: any = await updateCompany(body);
-        console.log('DATA', data, error);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           if (
@@ -295,7 +286,6 @@ const CompanyDetail = (props: any) => {
         setEditInformation(false);
       } else {
         const {data, error}: any = await addCompany(formData);
-        console.log('DATA', data, error);
         if (!error && data?.statusCode === 201) {
           setCheckValid(false);
           if (
@@ -969,7 +959,6 @@ const CompanyDetail = (props: any) => {
           data={STATES_DATA}
           selectedIndex={selectedState}
           onPress={(item: any, index: any) => {
-            console.log('item selected', item, index);
             setSelectedState(item?.value);
             setState(item?.label);
             stateRef?.current?.close();
@@ -1090,7 +1079,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(12),
     color: colors.black,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.gray2,
   },
   input: {

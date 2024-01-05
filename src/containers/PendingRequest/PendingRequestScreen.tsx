@@ -9,17 +9,15 @@ import {
 import React from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
-import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
+import {NavigationBar, FontText, Button, Loader} from '../../components';
 import commonStyle, {
   mediumLargeFont,
   tabIcon,
   fontSize,
-  iconSize,
   smallFont,
   mediumFont,
 } from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {RootScreens} from '../../types/type';
 import {useGetSupplierQuery} from '../../api/company';
 
 const PendingRequestScreen = ({navigation}: any) => {
@@ -32,8 +30,7 @@ const PendingRequestScreen = ({navigation}: any) => {
 
   const _renderItem = ({item, index}: any) => {
     return (
-      <View
-        style={[styles.itemContainer, commonStyle.shadowContainer]}>
+      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
           <Image source={{uri: item?.logo}} style={styles.logo} />
           <View>
@@ -89,26 +86,26 @@ const PendingRequestScreen = ({navigation}: any) => {
           </View>
         }
       /> */}
-      <Loader loading={isProcessing}/>
+      <Loader loading={isProcessing} />
       {supplierList &&
-        supplierList?.result &&
-        supplierList?.result?.length > 0 ? (
-          <FlatList
-            data={supplierList?.result}
-            renderItem={_renderItem}
-            contentContainerStyle={styles.containerContent}
-          />
-        ) : (
-          <View style={commonStyle.flexJC}>
-            <FontText
-              name={'lexend-regular'}
-              size={mediumFont}
-              color={'gray3'}
-              textAlign={'center'}>
-              {'No Result Found.'}
-            </FontText>
-          </View>
-        )}
+      supplierList?.result &&
+      supplierList?.result?.length > 0 ? (
+        <FlatList
+          data={supplierList?.result}
+          renderItem={_renderItem}
+          contentContainerStyle={styles.containerContent}
+        />
+      ) : (
+        <View style={commonStyle.flexJC}>
+          <FontText
+            name={'lexend-regular'}
+            size={mediumFont}
+            color={'gray3'}
+            textAlign={'center'}>
+            {'No Result Found.'}
+          </FontText>
+        </View>
+      )}
     </View>
   );
 };
@@ -116,20 +113,6 @@ const PendingRequestScreen = ({navigation}: any) => {
 export default PendingRequestScreen;
 
 const styles = StyleSheet.create({
-  inputText: {
-    borderRadius: normalize(10),
-    paddingLeft: wp(10),
-    color: colors.black2,
-    fontSize: normalize(12),
-    fontFamily: 'lexend-regular',
-    backgroundColor: colors.white2,
-  },
-  input: {
-    width: '100%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    height: hp(6),
-  },
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

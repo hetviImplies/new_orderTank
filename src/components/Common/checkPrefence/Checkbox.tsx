@@ -33,7 +33,7 @@ const Checkbox = (props:any) => {
           <Text
             style={{
               fontSize: normalize(16),
-              fontFamily: 'opensans-semibold',
+              fontFamily: 'Lexend-Medium',
               paddingHorizontal: wp(4),
               color:'black',
             }}>

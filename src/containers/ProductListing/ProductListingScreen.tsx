@@ -21,7 +21,6 @@ import {
   decrementCartItem,
   getCartItems,
   incrementCartItem,
-  removeCartItem,
   updateCartItems,
 } from '../Cart/Carthelper';
 import {useFocusEffect} from '@react-navigation/native';
@@ -60,15 +59,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      // headerLeft: () => (
-      //   <TouchableOpacity
-      //     style={[{marginRight: wp(5)}]}
-      //     onPress={() => navigation.goBack()}>
-      //     <SvgIcons.BackArrow width={iconSize} height={iconSize} />
-      //   </TouchableOpacity>
-      // ),
       headerRight: () => (
-        <View style={[commonStyle.rowAC,{marginRight:wp(3)}]}>
+        <View style={[commonStyle.rowAC, {marginRight: wp(3)}]}>
           <TouchableOpacity
             style={[{marginRight: wp(5)}]}
             onPress={() => setIsHorizontal(!isHorizontal)}>
@@ -132,20 +124,16 @@ const ProductListingScreen = ({navigation, route}: any) => {
 
   const handleAddToCart = async (item: any) => {
     const data = await addToCart(item);
-    console.log('DATA', data);
     setCartItems(data);
   };
 
   const handleIncrement = async (cartId: any) => {
     const data = await incrementCartItem(cartId);
-    console.log('DATA', data);
     setCartItems(data);
   };
 
   const handleDecrement = async (cartId: any) => {
     const data = await decrementCartItem(cartId);
-    console.log('DATA', data);
-
     setCartItems(data);
   };
 
@@ -354,7 +342,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(10),
     color: colors.black2,
     fontSize: normalize(12),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.white2,
     height: hp(6.5),
   },
@@ -363,31 +351,6 @@ const styles = StyleSheet.create({
     borderRadius: normalize(10),
     justifyContent: 'center',
     height: hp(6.5),
-  },
-  itemContainer: {
-    alignItems: 'center',
-    paddingVertical: hp(2),
-    backgroundColor: colors.white,
-    borderRadius: normalize(10),
-    marginBottom: hp(1.5),
-    width: '48%',
-  },
-  logo: {
-    width: hp(12),
-    height: hp(12),
-    resizeMode: 'cover',
-    borderRadius: normalize(6),
-  },
-  buttonContainer: {
-    borderRadius: normalize(5),
-    height: hp(4),
-    width: '50%',
-  },
-  productContentContainer: {
-    marginTop: hp(1.5),
-    paddingTop: hp(0.5),
-    paddingBottom: hp(16),
-    paddingHorizontal: wp(0.5),
   },
   btSheetContainer: {
     borderTopLeftRadius: normalize(30),

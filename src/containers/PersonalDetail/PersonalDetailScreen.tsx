@@ -27,7 +27,6 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const {data, isFetching} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-  console.log("person......", data)
 
   const [updateProfile, {isLoading: isProcess}] = useUpdateProfileMutation();
   const dispatch = useDispatch();
@@ -295,20 +294,12 @@ const PersonalDetailScreen = ({navigation}: any) => {
 export default PersonalDetailScreen;
 
 const styles = StyleSheet.create({
-  headerImg: {
-    width: '100%',
-    height: hp(36),
-  },
-  middleContainer: {
-    flex: 1,
-    marginHorizontal: wp(6),
-  },
   inputText: {
     borderRadius: 10,
     paddingLeft: wp(13),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.gray2,
   },
   input: {
@@ -325,9 +316,5 @@ const styles = StyleSheet.create({
   },
   marginTopView: {
     marginTop: hp(1.5),
-  },
-  agreeContainer: {
-    marginTop: hp(6),
-    flexWrap: 'wrap',
   },
 });

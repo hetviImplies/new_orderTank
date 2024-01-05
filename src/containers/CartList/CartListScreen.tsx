@@ -1,13 +1,8 @@
 import {
-  Button,
   FlatList,
   Image,
-  ImageBackground,
-  Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -15,18 +10,15 @@ import React, {useEffect, useState} from 'react';
 import {FontText, Loader, NavigationBar} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import commonStyle, {
-  fontSize,
   mediumFont,
   mediumLarge1Font,
-  mediumLargeFont,
   smallFont,
-  tabIcon,
 } from '../../styles';
 import {useGetCartsQuery} from '../../api/cart';
 import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
-import {useFocusEffect} from '@react-navigation/native';
+// import {useFocusEffect} from '@react-navigation/native';
 
 const CartListScreen = ({navigation}: any) => {
   const {

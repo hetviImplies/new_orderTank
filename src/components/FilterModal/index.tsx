@@ -12,7 +12,6 @@ import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {useGetCategoryQuery} from '../../api/category';
 import Button from '../Common/Button';
-import {RootScreens} from '../../types/type';
 import SvgIcons from '../../assets/SvgIcons';
 import commonStyle from '../../styles';
 
@@ -26,8 +25,6 @@ const FilterModal = (props: any) => {
   );
   const [categoryData, setCategoryData] = useState([]);
   const [selectedItems, setSelectedItems] = useState<any>(filterItems);
-
-  console.log('category', category);
 
   useEffect(() => {
     setCategoryData(category?.result);
@@ -48,7 +45,6 @@ const FilterModal = (props: any) => {
   // };
 
   // const toggleSelection = (item: any) => {
-  //   console.log('Toggle selection', selectedItems, item._id)
   //   var idx = selectedItems.findIndex((i: any) => i === item._id);
   //   if (idx !== -1) {
   //     selectedItems.splice(idx, 1);

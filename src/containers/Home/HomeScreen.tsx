@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  Modal,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -17,7 +16,6 @@ import commonStyle from '../../styles';
 import messaging from '@react-native-firebase/messaging';
 import Popup from '../../components/Popup';
 import {useSelector} from 'react-redux';
-import CompanyDetail from '../../components/CompanyDetail';
 import utils from '../../helper/utils';
 import Images from '../../assets/images';
 import {useCompanyRequestMutation} from '../../api/company';
@@ -27,6 +25,7 @@ import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {withInAppNotification} from '../../components/Common/InAppNotification';
+import {useFocusEffect} from '@react-navigation/native';
 
 const actions = [
   {
@@ -53,13 +52,9 @@ const actions = [
 
 const HomeScreen = ({navigation, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const from = useSelector((state: any) => state.auth.from);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
 
   const [notification, setNotification] = useState<any>({});
-  // const [isOpenPopup, setOpenPopup] = useState<boolean>(
-  //   userInfo?.companyCode ? false : true,
-  // );
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
   const [orderData, setOrderData] = React.useState([]);
@@ -78,13 +73,19 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     },
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, []),
+  );
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <View
           style={[
             commonStyle.rowAC,
-            {marginLeft: wp(4), paddingBottom: hp(1)},
+            {marginLeft: wp(4)},
           ]}>
           {userInfo && userInfo?.companyId?.logo ? (
             <Image
@@ -110,16 +111,11 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   setOpenPopup(userInfo?.companyCode ? false : true);
-  // }, [userInfo]);
-
   useEffect(() => {
     setOrderData(orderList?.result);
   }, [isProcessing]);
 
   useEffect(() => {
-    console.log('orderData', JSON.stringify(orderData));
     getNotification();
   }, []);
 
@@ -254,16 +250,15 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   };
 
   const applyCodePress = async () => {
+    setIsOpen(false);
     let params = {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
     if (!error) {
-      setIsOpen(false);
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
-      setIsOpen(false);
       setCode('');
       utils.showErrorToast(error.message);
     }
@@ -311,7 +306,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         //   </View>
         // }
       /> */}
-      <Loader loading={isProcessing} />
+      <Loader loading={isProcessing || isProcess} />
       {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal> */}
@@ -351,7 +346,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         children={
           <Input
             value={code}
-            onChangeText={(text: string) => setCode(text)}
+            onChangeText={(text: string) => setCode(text.trimStart())}
             placeholder={''}
             autoCapitalize="none"
             placeholderTextColor={'placeholder'}
@@ -419,14 +414,14 @@ const styles = StyleSheet.create({
     height: hp(5),
     backgroundColor: colors.gray,
     borderRadius: 10,
-    marginRight: wp(3),
+    // marginRight: wp(3),
   },
   inputText: {
     borderRadius: 10,
     paddingLeft: wp(3),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.white,
     borderStyle: 'dashed',
     borderWidth: 1,

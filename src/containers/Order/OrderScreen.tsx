@@ -37,11 +37,18 @@ const OrderScreen = ({navigation}: any) => {
     },
   );
 
-  // console.log('orderList?.result', orderList);
-
   useFocusEffect(
     React.useCallback(() => {
       refetch();
+    }, []),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectOrder({
+        label: 'All Order',
+        value: 'all',
+      });
     }, []),
   );
 
@@ -68,7 +75,7 @@ const OrderScreen = ({navigation}: any) => {
           {
             backgroundColor: colors.white,
             borderRadius: normalize(10),
-            paddingVertical:hp(1.5)
+            paddingVertical: hp(1.5),
           },
         ]}>
         <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
@@ -98,7 +105,7 @@ const OrderScreen = ({navigation}: any) => {
           </FontText>
         </View>
         <View style={[styles.dashedLine]} />
-        <View style={[{marginTop: hp(1), paddingHorizontal:wp(2)}]}>
+        <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>
           <AddressComponent
             item={item?.deliveryAddress}
             from={RootScreens.SecureCheckout}
@@ -161,7 +168,7 @@ const OrderScreen = ({navigation}: any) => {
           horizontal
           data={ORDERTYPE}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{marginHorizontal: wp(-1), paddingTop:hp(1)}}
+          contentContainerStyle={{marginHorizontal: wp(-1), paddingTop: hp(1)}}
           renderItem={({item, index}) => {
             return (
               <TouchableOpacity

@@ -8,7 +8,7 @@ const showToast = (title = 'Error!', message: any, type: any = 'error') => {
     description: message,
     type,
     textStyle: {
-      fontFamily: 'poppins-medium',
+      fontFamily: 'Lexend-Medium',
       fontSize: normalize(14),
     },
     backgroundColor:

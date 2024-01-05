@@ -20,7 +20,7 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
   React.useLayoutEffect(() => {
     if(from !== 'Profile') {
       navigation.setOptions({
-        headerleft: () => <></>,
+        headerLeft: () => <></>,
         headerRight: () => (
           <TouchableOpacity onPress={logoutPress} style={{marginRight:wp(2)}}>
             <SvgIcons.PowerOff
@@ -32,7 +32,7 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
         ),
       });
     }
-  }, [navigation]);
+  }, [navigation, from]);
 
   const logoutPress = async () => {
     setTimeout(async () => {

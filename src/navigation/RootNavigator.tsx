@@ -27,6 +27,9 @@ import SecureCheckoutScreen from '../containers/SecureCheckout/SecureCheckoutScr
 import ForgotPasswordScreen from '../containers/ForgotPassword/ForgotPasswordScreen';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createStackNavigator} from '@react-navigation/stack';
+import {hp, isIOS, normalize} from '../styles/responsiveScreen';
+import {StyleSheet} from 'react-native';
+import colors from '../assets/colors';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
 
@@ -49,23 +52,37 @@ function TabNavigator({route}: any) {
         component={HomeScreen}
         options={{
           title: 'Welcome to OrderTank',
-          headerTitleAlign: 'center',
+          headerTitleAlign: 'left',
+          headerStyle: {height: isIOS ? hp(13) : hp(7)},
+          headerTitleStyle: styles.title,
         }}
       />
       <TabStack.Screen
         name={RootScreens.Supplier}
         component={SupplierScreen}
-        options={{title: 'Supplier', headerTitleAlign: 'left'}}
+        options={{
+          title: 'Supplier',
+          headerTitleAlign: 'left',
+          headerTitleStyle: styles.title,
+        }}
       />
       <TabStack.Screen
         name={RootScreens.Order}
         component={OrderScreen}
-        options={{title: 'Order', headerTitleAlign: 'left'}}
+        options={{
+          title: 'Order',
+          headerTitleAlign: 'left',
+          headerTitleStyle: styles.title,
+        }}
       />
       <TabStack.Screen
         name={RootScreens.Profile}
         component={ProfileScreen}
-        options={{title: 'My Profile', headerTitleAlign: 'left'}}
+        options={{
+          title: 'My Profile',
+          headerTitleAlign: 'left',
+          headerTitleStyle: styles.title,
+        }}
       />
     </TabStack.Navigator>
   );
@@ -125,19 +142,20 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.PendingRequest}
         component={PendingRequestScreen}
-        options={{title: 'Pending Request'}}
+        options={{title: 'Pending Request', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.ProductListing}
         component={ProductListingScreen}
         options={({route}: any) => ({
           title: route.params.company,
+          headerTitleStyle: styles.title,
         })}
       />
       <RootStack.Screen
         name={RootScreens.PersonalDetail}
         component={PersonalDetailScreen}
-        options={{title: 'Personal Detail'}}
+        options={{title: 'Personal Detail', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.CompanyDetail}
@@ -145,12 +163,13 @@ const RootNavigator = () => {
         options={({route}: any) => ({
           title: route.params.name,
           gestureEnabled: route.params.name === 'Profile' ? true : false,
+          headerTitleStyle: styles.title,
         })}
       />
       <RootStack.Screen
         name={RootScreens.Cart}
         component={CartScreen}
-        options={{title: 'Selected Items'}}
+        options={{title: 'Selected Items', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.CartList}
@@ -162,6 +181,7 @@ const RootNavigator = () => {
         options={({route}: any) => ({
           title: route.params.name,
           headerBackTitleVisible: false,
+          headerTitleStyle: styles.title,
         })}
       />
       <RootStack.Screen
@@ -171,17 +191,19 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.Notification}
         component={NotificationScreen}
+        options={{headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.Address}
         component={AddressScreen}
-        options={{title: 'My Address'}}
+        options={{title: 'My Address', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.AddAddress}
         component={AddAddressScreen}
         options={({route}: any) => ({
           title: route.params.name,
+          headerTitleStyle: styles.title,
         })}
       />
       <RootStack.Screen
@@ -193,3 +215,11 @@ const RootNavigator = () => {
 };
 
 export default RootNavigator;
+
+const styles = StyleSheet.create({
+  title: {
+    color: colors.black2,
+    fontSize: normalize(18),
+    fontFamily: 'Lexend-Medium',
+  },
+});

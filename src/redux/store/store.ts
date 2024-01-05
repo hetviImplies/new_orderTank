@@ -3,35 +3,25 @@ import {authApi} from '../../api/auth';
 import {categoryApi} from '../../api/category';
 import {productApi} from '../../api/product';
 import {profileApi} from '../../api/profile';
-import {brandApi} from '../../api/brand';
 import {cartApi} from '../../api/cart';
 import {orderApi} from '../../api/order';
 import authSlice from '../slices/authSlice';
-import categorySlice from '../slices/categorySlice';
-import productSlice from '../slices/productSlice';
 import cartSlice from '../slices/cartSlice';
 import {notificationApi} from '../../api/notification';
-import {wishlistApi} from '../../api/wishlist';
-import {paymentApi} from '../../api/payemnt';
-import { companyApi } from '../../api/company';
+import {companyApi} from '../../api/company';
 
 export const store = configureStore({
   reducer: {
     auth: authSlice,
-    category: categorySlice,
-    product: productSlice,
     cart: cartSlice,
     [authApi.reducerPath]: authApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
-    [brandApi.reducerPath]: brandApi.reducer,
     [cartApi.reducerPath]: cartApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
-    [wishlistApi.reducerPath]: wishlistApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
-    [paymentApi.reducerPath]: paymentApi.reducer,
   },
   middleware: (getDefaultMiddleware: any) =>
     getDefaultMiddleware({
@@ -42,12 +32,9 @@ export const store = configureStore({
       .concat(categoryApi.middleware)
       .concat(productApi.middleware)
       .concat(profileApi.middleware)
-      .concat(brandApi.middleware)
       .concat(cartApi.middleware)
       .concat(orderApi.middleware)
-      .concat(wishlistApi.middleware)
-      .concat(notificationApi.middleware)
-      .concat(paymentApi.middleware),
+      .concat(notificationApi.middleware),
 });
 // const createActions = (slice: any) =>
 //   _.mapValues(

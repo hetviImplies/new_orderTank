@@ -1,5 +1,4 @@
 import {
-  Alert,
   ImageBackground,
   Keyboard,
   StyleSheet,
@@ -179,7 +178,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(12),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.gray2,
   },
   input: {

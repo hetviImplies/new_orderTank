@@ -21,9 +21,6 @@ export const authSlice = createSlice({
     setIsAuthenticated: (state, action) => {
       state.authenticated = action.payload;
     },
-    setFrom: (state, action) => {
-      state.from = action.payload;
-    },
     authReset: () => initialState,
   },
 });
@@ -32,7 +29,6 @@ export const {
   setCurrentUser,
   setToken,
   setIsAuthenticated,
-  setFrom,
   authReset,
 } = authSlice.actions;
 export default authSlice.reducer;

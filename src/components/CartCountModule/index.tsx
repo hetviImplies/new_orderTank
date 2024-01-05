@@ -6,7 +6,7 @@ import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 
 const CartCountModule = (props: any) => {
-  const {cartData, onPress, btnText, btnColor, orderDetails, isShow, showText, total} = props;
+  const {cartData, onPress, btnText, btnColor, isShow, showText, total} = props;
   return (
     <View>
       {cartData && cartData?.length !== 0 && (

@@ -1,44 +1,25 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import colors from '../../assets/colors';
 import {Button, FontText, Input, Loader, NavigationBar} from '../../components';
 import SvgIcons from '../../assets/SvgIcons';
-import {
-  iconSize,
-  fontSize,
-  mediumLarge1Font,
-  mediumFont,
-  smallFont,
-  tabIcon,
-  mediumLargeFont,
-} from '../../styles';
-import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
+import {iconSize, fontSize, mediumFont} from '../../styles';
+import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
-import ImageCropPicker from 'react-native-image-crop-picker';
-import imageCompress from 'react-native-compressor';
-import RBSheet from 'react-native-raw-bottom-sheet';
+import {ADDRESS_TYPE, COUNTRY_LIST, STATES_DATA} from '../../types/data';
 import {
-  ADDRESS_TYPE,
-  COUNTRY_LIST,
-  STATES_DATA,
-  STATES_LIST,
-} from '../../types/data';
-import {
-  useAddCompanyMutation,
   useCreateAddressMutation,
   useGetCompanyQuery,
   useUpdateAddressMutation,
-  useUpdateCompanyMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
 import {useSelector} from 'react-redux';
 import BottomSheet from '../../components/BottomSheet';
 
 const AddAddressScreen = (props: any) => {
-  const {from, navigation, route} = props;
+  const {navigation, route} = props;
   const item = route?.params?.data;
-  const addressList = route?.params?.address;
 
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
@@ -72,7 +53,7 @@ const AddAddressScreen = (props: any) => {
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
-  
+
   useEffect(() => {
     STATES_DATA.map((state, index) => {
       if (item?.state === state.label) {
@@ -80,8 +61,6 @@ const AddAddressScreen = (props: any) => {
       }
     });
   }, []);
-
-  console.log('addressList', addressList, item);
 
   const submitPress = async () => {
     setCheckValid(true);
@@ -105,7 +84,6 @@ const AddAddressScreen = (props: any) => {
         state: state,
         // country: country,
       };
-      console.log('address../...........', addressObj);
       // addressObj.forEach((value: any, index: any) => {
       //   for (var key in value) {
       //     formData.append(`address[${[index]}][${key}]`, value[key]);
@@ -118,10 +96,8 @@ const AddAddressScreen = (props: any) => {
         addressId: item?._id,
       };
       item === undefined && delete body.addressId;
-      console.log('body', body);
       if (item) {
         const {data, error}: any = await updateAddress(body);
-        console.log('updateAddress', data);
         if (!error && data?.statusCode === 200) {
           navigation.goBack();
           setCheckValid(false);
@@ -131,7 +107,6 @@ const AddAddressScreen = (props: any) => {
         }
       } else {
         const {data, error}: any = await addAddress(body);
-        console.log('addAddress', data, error);
         navigation.goBack();
       }
     }
@@ -497,26 +472,6 @@ const AddAddressScreen = (props: any) => {
             stateRef?.current?.close();
           }}
         />
-        {/* <BottomSheet
-          height={hp(75)}
-          sheetRef={stateRef}
-          itemPress={(val: any) => {
-            setState(val);
-            stateRef.current.close();
-          }}
-          selectedItem={state}
-          data={STATES_LIST}
-        /> */}
-        {/* <BottomSheet
-          height={hp(75)}
-          sheetRef={countryRef}
-          itemPress={(val: any) => {
-            setCountry(val);
-            countryRef.current.close();
-          }}
-          selectedItem={country}
-          data={COUNTRY_LIST}
-        /> */}
       </View>
     </View>
   );
@@ -530,7 +485,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(12),
     color: colors.black,
     fontSize: normalize(14),
-    fontFamily: 'lexend-regular',
+    fontFamily: 'Lexend-Regular',
     backgroundColor: colors.gray2,
   },
   input: {
@@ -554,22 +509,5 @@ const styles = StyleSheet.create({
     height: hp(6),
     backgroundColor: colors.gray2,
     paddingHorizontal: wp(3),
-  },
-  uploadImgContainer: {
-    backgroundColor: colors.white2,
-    paddingVertical: hp(3),
-    paddingHorizontal: wp(8),
-    borderRadius: normalize(6),
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginBottom: hp(2.5),
-  },
-  avatar: {
-    width: hp(15),
-    height: hp(15),
-    borderRadius: 6,
-    alignSelf: 'center',
-    resizeMode: 'cover',
-    marginBottom: hp(2),
   },
 });
