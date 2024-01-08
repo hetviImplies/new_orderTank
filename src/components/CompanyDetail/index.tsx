@@ -436,14 +436,14 @@ const CompanyDetail = (props: any) => {
                   marginBottom: hp(1),
                 },
               ]}>
-              <FontText
+              {from !== 'Profile' ? null : <FontText
                 name={'lexend-regular'}
                 size={mediumFont}
                 color={'gray3'}
                 pLeft={wp(1)}
                 textAlign={'left'}>
                 {numberType === 1 ? 'GST Number:' : 'PAN Number:'}
-              </FontText>
+              </FontText>}
             </View>
             <Input
               editable={from === 'Profile' ? false : true}

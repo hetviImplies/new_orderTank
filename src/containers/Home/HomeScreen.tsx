@@ -310,7 +310,17 @@ const HomeScreen = ({navigation, showNotification}: any) => {
       {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal> */}
-      {orderData && orderData.length !== 0 ? (
+      {orderData && orderData.length === 0 ? (
+        <View style={[commonStyle.allCenter, {flex: 1}]}>
+          <FontText
+            color="gray"
+            name="lexend-regular"
+            size={mediumFont}
+            textAlign={'center'}>
+            {'No pending orders are available.'}
+          </FontText>
+        </View>
+      ) : (
         <FlatList
           data={orderData}
           renderItem={_renderItem}
@@ -319,16 +329,6 @@ const HomeScreen = ({navigation, showNotification}: any) => {
             paddingBottom: hp(2),
           }}
         />
-      ) : (
-        <View style={[commonStyle.allCenter, {flex: 1}]}>
-          <FontText
-            color="gray"
-            name="lexend-regular"
-            size={mediumFont}
-            textAlign={'center'}>
-            {'No Data found.'}
-          </FontText>
-        </View>
       )}
       {/* <Button
           bgColor={'orange'}
@@ -370,7 +370,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           if (name === 'bt_supplier') {
             onAddCodePress();
           } else {
-            navigation.navigate(RootScreens.Order);
+            navigation.navigate(RootScreens.Supplier);
           }
         }}
         showBackground={true}
