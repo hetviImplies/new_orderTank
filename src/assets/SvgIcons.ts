@@ -64,6 +64,7 @@ import Delete from './svgs/delete.svg';
 import PowerOff from './svgs/power-off.svg';
 import AddOrder from './svgs/add-order.svg';
 import AddSupplier from './svgs/add-supplier.svg';
+import AndroidBack from './svgs/android-back.svg';
 
 export default {
   BackRound,
@@ -131,5 +132,6 @@ export default {
   Delete,
   PowerOff,
   AddOrder, 
-  AddSupplier
+  AddSupplier,
+  AndroidBack
 };

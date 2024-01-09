@@ -26,7 +26,7 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`$${total}`}
+                  {'₹'}{`${total}`}
                 </FontText>
               </View>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
@@ -43,7 +43,7 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`$0`}
+                  {'₹'}{`0`}
                 </FontText>
               </View>
             </View>
@@ -60,7 +60,7 @@ const CartCountModule = (props: any) => {
                 name="lexend-regular"
                 size={mediumFont}
                 textAlign={'left'}>
-                {`$${total}`}
+                {'₹'}{`${total}`}
               </FontText>
             </View>
             {showText}

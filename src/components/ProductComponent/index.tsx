@@ -14,6 +14,7 @@ import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import commonStyle from '../../styles';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
+import Images from '../../assets/images';
 
 const ProductComponent = (props: any) => {
   const {
@@ -33,7 +34,11 @@ const ProductComponent = (props: any) => {
         // onPress={() => productPress(item)}
         style={[styles.itemVerticalContainer, commonStyle.shadowContainer]}>
         <View style={[commonStyle.rowAC, {width: '70%'}]}>
-          <Image source={{uri: item.image}} style={styles.productImg} />
+          {item?.image ? (
+            <Image source={{uri: item.image}} style={styles.productImg} />
+          ) : (
+            <Image source={Images.productImg} style={styles.productImg} />
+          )}
           <View style={{marginLeft: wp(4)}}>
             <FontText
               name={'lexend-regular'}
@@ -49,12 +54,12 @@ const ProductComponent = (props: any) => {
               color={'black2'}
               pTop={wp(2)}
               textAlign={'left'}>
-              {'$'}
+              {'₹'}
               {item?.price}
             </FontText>
           </View>
         </View>
-        {cartItems.filter(
+        {cartItems?.filter(
           (itm: any) => itm._id.toString() == item?._id.toString(),
         ).length > 0 ? (
           <View style={[commonStyle.rowAC, styles.countContainer]}>
@@ -71,7 +76,7 @@ const ProductComponent = (props: any) => {
               size={mediumFont}
               textAlign={'left'}>
               {
-                cartItems.find((itm: any) => {
+                cartItems?.find((itm: any) => {
                   return itm._id.toString() == item?._id.toString();
                 }).quantity
               }
@@ -93,10 +98,7 @@ const ProductComponent = (props: any) => {
             bgColor={'orange'}
             onPress={() => productPress(item)}
             style={[styles.buttonContainer, commonStyle.marginT2]}>
-            <FontText
-              name={'lexend-regular'}
-              size={normalize(9)}
-              color={'white'}>
+            <FontText name={'lexend-medium'} size={smallFont} color={'white'}>
               {'Add to Cart'}
             </FontText>
           </Button>
@@ -109,6 +111,7 @@ const ProductComponent = (props: any) => {
     <>
       {isHorizontal ? (
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             commonStyle.rowJB,
             {flexWrap: 'wrap', paddingHorizontal: wp(0.2)},
@@ -118,7 +121,11 @@ const ProductComponent = (props: any) => {
               <View
                 // onPress={() => productPress(item)}
                 style={[styles.itemContainer, commonStyle.shadowContainer]}>
-                <Image source={{uri: item.image}} style={styles.logo} />
+                {item?.image ? (
+                  <Image source={{uri: item.image}} style={styles.productImg} />
+                ) : (
+                  <Image source={Images.productImg} style={styles.productImg} />
+                )}
                 <FontText
                   name={'lexend-regular'}
                   size={smallFont}
@@ -134,17 +141,17 @@ const ProductComponent = (props: any) => {
                   pTop={wp(1)}
                   //   pBottom={wp(2)}
                   textAlign={'left'}>
-                  {'$'}
+                  {'₹'}
                   {item?.price}
                 </FontText>
-                {cartItems.filter(
+                {cartItems?.filter(
                   (itm: any) => itm._id.toString() == item?._id.toString(),
                 ).length > 0 ? (
                   <View style={[commonStyle.rowAC, styles.countContainer]}>
                     <TouchableOpacity
                       style={styles.iconContainer}
                       onPress={() => {
-                        quantityDecrement(item);
+                        quantityDecrement(item?._id);
                       }}>
                       <SvgIcons.Remove width={wp(4)} height={wp(4)} />
                     </TouchableOpacity>
@@ -154,7 +161,7 @@ const ProductComponent = (props: any) => {
                       size={mediumFont}
                       textAlign={'left'}>
                       {
-                        cartItems.find((itm: any) => {
+                        cartItems?.find((itm: any) => {
                           return itm._id.toString() == item?._id.toString();
                         })?.quantity
                       }
@@ -162,7 +169,7 @@ const ProductComponent = (props: any) => {
                     <TouchableOpacity
                       style={styles.iconContainer}
                       onPress={() => {
-                        quantityIncrement(item);
+                        quantityIncrement(item?._id);
                       }}>
                       <SvgIcons.Plus
                         width={wp(4)}
@@ -193,6 +200,7 @@ const ProductComponent = (props: any) => {
           data={data}
           renderItem={_renderItemVertical}
           contentContainerStyle={styles.productContentContainer}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
           }
@@ -207,6 +215,7 @@ export default ProductComponent;
 const styles = StyleSheet.create({
   productContentContainer: {
     marginTop: hp(0.5),
+    paddingTop: hp(0.5),
     paddingHorizontal: wp(0.5),
   },
   itemContainer: {

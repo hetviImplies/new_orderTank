@@ -102,7 +102,7 @@ const LoginScreen = ({navigation}: any) => {
           data?.result?.companyCode === undefined ||
           data?.result?.companyCode === ''
         ) {
-          navigation.navigate(RootScreens.CompanyDetail, {
+          resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
           });

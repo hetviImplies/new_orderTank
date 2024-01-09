@@ -96,12 +96,10 @@ const RootNavigator = () => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    // console.log('RootNavigator', userInfo);
     if (
       (userInfo && Object.keys(userInfo).length === 0) ||
       userInfo === undefined
     ) {
-      console.log('userInfo....../////////////', data?.result);
       dispatch(setCurrentUser(data?.result));
     }
   }, [data, isFetching]);
@@ -164,6 +162,7 @@ const RootNavigator = () => {
           title: route.params.name,
           gestureEnabled: route.params.name === 'Profile' ? true : false,
           headerTitleStyle: styles.title,
+          headerTitleAlign:'center',
         })}
       />
       <RootStack.Screen
@@ -209,6 +208,7 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.OrderPlaced}
         component={OrderPlacedScreen}
+        options={{headerShown: false}}
       />
     </RootStack.Navigator>
   );

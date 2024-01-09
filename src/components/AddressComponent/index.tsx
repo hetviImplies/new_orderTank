@@ -9,9 +9,13 @@ import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
 
 const AddressComponent = (props: any) => {
-  const {item, onEditPress, onDeletePress, from} = props;
+  const {item, onEditPress, onDeletePress, from, isEditDelete} = props;
   return (
-    <View style={styles.childContainer}>
+    <View
+      style={[
+        styles.childContainer,
+        {width: from !== RootScreens.SecureCheckout ? '100%' : '96%'},
+      ]}>
       <View style={[commonStyle.rowJB, {marginBottom: wp(1), width: '100%'}]}>
         <View style={commonStyle.rowAC}>
           {item?.addressName === 'Company' ? (
@@ -43,8 +47,8 @@ const AddressComponent = (props: any) => {
             {item?.addressName}
           </FontText>
         </View>
-        {from !== RootScreens.SecureCheckout && (
-          <View style={commonStyle.rowAC}>
+        {isEditDelete && (
+          <View style={commonStyle.rowJC}>
             <TouchableOpacity onPress={onEditPress}>
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
@@ -126,7 +130,6 @@ export default AddressComponent;
 
 const styles = StyleSheet.create({
   childContainer: {
-    width: '100%',
     paddingLeft: wp(2),
   },
 });

@@ -25,6 +25,7 @@ import {
 } from '../Cart/Carthelper';
 import {useFocusEffect} from '@react-navigation/native';
 import Popup from '../../components/Popup';
+import { useGetCategoryQuery } from '../../api/category';
 
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route.params.id;
@@ -40,6 +41,14 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<any>({});
+
+  const {data: category, isFetching} = useGetCategoryQuery(
+    {companyId: id},
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  
 
   const {
     data: productList,
@@ -96,7 +105,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
       setProductListData(productList?.result);
     } else {
       const data = productList?.result.filter((item: any) => {
-        return item.name.includes(search);
+        return item.name.toUpperCase().includes(search.toUpperCase());
       });
       setProductListData(data);
     }
@@ -133,7 +142,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId);
+    const data = await decrementCartItem(cartId, 'Product');
     setCartItems(data);
   };
 
@@ -141,8 +150,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
     // navigation.navigate(RootScreens.ProductDetail, {
     //   data: {item: item, companyId: id},
     // });
-    if (cartItems.length > 0) {
-      let isSameCompany = cartItems.some(
+    if (cartItems?.length > 0) {
+      let isSameCompany = cartItems?.some(
         (itm: any) => itm.companyId.toString() == item?.companyId.toString(),
       );
       if (isSameCompany) {
@@ -232,7 +241,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </View>
         }
       /> */}
-      <Loader loading={isProcessing || loading} />
+      <Loader loading={isProcessing || loading || isFetching} />
       <View
         style={[
           commonStyle.paddingH4,
@@ -328,6 +337,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           id={id}
           onApply={onSearch}
           filterItems={selectedItems}
+          category={category?.result}
         />
       </RBSheet>
     </View>

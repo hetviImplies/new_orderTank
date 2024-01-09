@@ -16,19 +16,19 @@ import SvgIcons from '../../assets/SvgIcons';
 import commonStyle from '../../styles';
 
 const FilterModal = (props: any) => {
-  const {filterItems, onApplyPress, id, onApply} = props;
-  const {data: category, isFetching} = useGetCategoryQuery(
-    {companyId: id},
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
-  const [categoryData, setCategoryData] = useState([]);
+  const {filterItems, onApplyPress, id, onApply, category} = props;
+  // const {data: category, isFetching} = useGetCategoryQuery(
+  //   {companyId: id},
+  //   {
+  //     refetchOnMountOrArgChange: true,
+  //   },
+  // );
+  const [categoryData, setCategoryData] = useState(category);
   const [selectedItems, setSelectedItems] = useState<any>(filterItems);
 
-  useEffect(() => {
-    setCategoryData(category?.result);
-  }, [isFetching]);
+  // useEffect(() => {
+  //   setCategoryData(category?.result);
+  // }, [isFetching]);
 
   const onReset = () => {
     setSelectedItems([]);
@@ -95,7 +95,7 @@ const FilterModal = (props: any) => {
 
   return (
     <View style={[commonStyle.container, commonStyle.paddingH4]}>
-      <Loader loading={isFetching} />
+      {/* <Loader loading={isFetching} /> */}
       <View style={[commonStyle.rowJB]}>
         <FontText
           color="black2"

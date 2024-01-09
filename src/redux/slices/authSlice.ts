@@ -1,3 +1,4 @@
+import {companyApi} from './../../api/company';
 import {createSlice} from '@reduxjs/toolkit';
 import {AuthState} from '../../types/auth';
 
@@ -6,6 +7,8 @@ const initialState: AuthState = {
   authenticated: false,
   token: '',
   from: '',
+  companyId: '',
+  companyLogo: '',
 };
 
 export const authSlice = createSlice({
@@ -14,6 +17,12 @@ export const authSlice = createSlice({
   reducers: {
     setCurrentUser: (state, action) => {
       state.userInfo = action.payload;
+    },
+    setCompanyId: (state, action) => {
+      state.companyId = action.payload;
+    },
+    setCompanyLogo: (state, action) => {
+      state.companyLogo = action.payload;
     },
     setToken: (state, action) => {
       state.token = action.payload;
@@ -30,5 +39,7 @@ export const {
   setToken,
   setIsAuthenticated,
   authReset,
+  setCompanyId,
+  setCompanyLogo
 } = authSlice.actions;
 export default authSlice.reducer;

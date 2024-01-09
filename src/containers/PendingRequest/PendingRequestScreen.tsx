@@ -19,6 +19,7 @@ import commonStyle, {
 } from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {useGetSupplierQuery} from '../../api/company';
+import Images from '../../assets/images';
 
 const PendingRequestScreen = ({navigation}: any) => {
   const {data: supplierList, isFetching: isProcessing} = useGetSupplierQuery(
@@ -32,7 +33,11 @@ const PendingRequestScreen = ({navigation}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
-          <Image source={{uri: item?.logo}} style={styles.logo} />
+          {item?.logo !== 'null' ? (
+            <Image source={{uri: item?.logo}} style={styles.logo} />
+          ) : (
+            <Image source={Images.supplierImg} style={styles.logo} />
+          )}
           <View>
             <FontText
               name={'lexend-regular'}

@@ -1,6 +1,6 @@
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import commonStyle, {fontSize, tabIcon} from '../../styles';
+import commonStyle, {fontSize, mediumFont, tabIcon} from '../../styles';
 import {
   Button,
   CheckPreferenceItem,
@@ -9,21 +9,24 @@ import {
   NavigationBar,
 } from '../../components';
 import SvgIcons from '../../assets/SvgIcons';
-import {hp, wp} from '../../styles/responsiveScreen';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
 import {useSelector} from 'react-redux';
 import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import AddressComponent from '../../components/AddressComponent';
 import utils from '../../helper/utils';
+import Popup from '../../components/Popup';
 
-const AddressScreen = ({navigation, route}: any) => {
+const AddressScreen = ({navigation, route, props}: any) => {
   const from = route?.params?.data?.from;
   // const companyId = route?.params?.data?.companyId;
   const cartData = route?.params?.data?.cartData;
   const deliveryAdd = route?.params?.data.deliveryAdd;
   const billingAdd = route?.params?.data.billingAdd;
   const type = route?.params?.data?.type;
+  const notes = route?.params?.data?.notes;
+  const date = route?.params?.data?.expectedDate;
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
@@ -32,6 +35,8 @@ const AddressScreen = ({navigation, route}: any) => {
 
   const [addressData, setAddressData] = useState<any>([]);
   const [checkedData, setCheckedData] = useState<any>({});
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
@@ -46,17 +51,23 @@ const AddressScreen = ({navigation, route}: any) => {
   };
 
   const continuePress = () => {
-    navigation.navigate(RootScreens.SecureCheckout, {
+    let params = {
       deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
       billingAdd: type === 'Billing address' ? checkedData : billingAdd,
       data: cartData,
       // companyId: companyId,
       from: RootScreens.Address,
-      name: 'Place Order'
-    });
+      name: 'Place Order',
+      notes: notes,
+      expectedDate: date,
+    };
+    // navigation.navigate(RootScreens.SecureCheckout);
+    navigation.goBack();
+    route.params.onGoBack(params);
   };
 
   const onAddressDelete = async (item: any) => {
+    setIsOpen(false);
     let params = {
       companyId: userInfo?.companyId?._id,
       addressId: item._id,
@@ -89,10 +100,11 @@ const AddressScreen = ({navigation, route}: any) => {
               navigation.navigate(RootScreens.AddAddress, {
                 data: item,
                 address: data?.result?.address,
-                name: 'Edit Address'
+                name: 'Edit Address',
               })
             }
-            onDeletePress={() => onAddressDelete(item)}
+            onDeletePress={() => {setIsOpen(true);setSelectedItem(item);}}
+            isEditDelete={true}
           />
         }
         disabled={from === RootScreens.SecureCheckout ? false : true}
@@ -135,7 +147,7 @@ const AddressScreen = ({navigation, route}: any) => {
           onPress={() => {
             navigation.navigate(RootScreens.AddAddress, {
               address: data?.result?.address,
-              name: 'Add Address'
+              name: 'Add Address',
             });
           }}
           style={styles.floatingButton}>
@@ -152,6 +164,25 @@ const AddressScreen = ({navigation, route}: any) => {
           </Button>
         ) : null}
       </View>
+      <Popup
+        visible={isOpen}
+        // onBackPress={() => setIsOpen(false)}
+        title={`Are you sure you want to Remove\n this Address?`}
+        titleStyle={{fontSize: normalize(14)}}
+        leftBtnText={'No'}
+        rightBtnText={'Yes'}
+        leftBtnPress={() => setIsOpen(false)}
+        rightBtnPress={() => onAddressDelete(selectedItem)}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        leftBtnTextStyle={{
+          color: colors.blue,
+          fontSize: mediumFont,
+        }}
+        rightBtnTextStyle={{fontSize: mediumFont}}
+        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+      />
     </View>
   );
 };

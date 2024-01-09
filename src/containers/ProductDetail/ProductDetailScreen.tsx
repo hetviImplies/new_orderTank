@@ -140,7 +140,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
             size={mediumLarge2Font}
             pTop={wp(2)}
             color={'orange'}>
-            {'$'}
+            {'₹'}
             {productDetail?.price}
           </FontText>
         </View>

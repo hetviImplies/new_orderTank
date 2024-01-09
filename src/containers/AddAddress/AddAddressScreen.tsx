@@ -138,7 +138,7 @@ const AddAddressScreen = (props: any) => {
         style={{marginHorizontal: wp(2.5)}}
         borderBottomWidth={0}
       /> */}
-      <Loader loading={isFetching || isProcess} />
+      <Loader loading={isFetching || isProcess || isLoading} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.marginTopView}>
@@ -204,17 +204,16 @@ const AddAddressScreen = (props: any) => {
               placeholderTextColor={'placeholder'}
               fontSize={fontSize}
               color={'black'}
-              inputStyle={styles.inputText}
-              style={styles.input}
+              inputStyle={[styles.inputText, {paddingTop: hp(2)}]}
+              style={[styles.input, {marginVertical: hp(2)}]}
               returnKeyType={'next'}
               multiline
-              multilineHeight={null}
               blurOnSubmit
               onSubmit={() => {
                 localityRef?.current.focus();
               }}
               children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                <View style={[commonStyle.abs, {left: wp(4), top: 0}]}>
                   <SvgIcons.Location width={iconSize} height={iconSize} />
                 </View>
               }

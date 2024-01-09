@@ -15,10 +15,10 @@ import {RootScreens} from '../../types/type';
 import commonStyle from '../../styles';
 import messaging from '@react-native-firebase/messaging';
 import Popup from '../../components/Popup';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import utils from '../../helper/utils';
 import Images from '../../assets/images';
-import {useCompanyRequestMutation} from '../../api/company';
+import {useCompanyRequestMutation, useGetCompanyQuery} from '../../api/company';
 import {FloatingAction} from 'react-native-floating-action';
 import {useGetOrdersQuery} from '../../api/order';
 import moment from 'moment';
@@ -26,6 +26,8 @@ import AddressComponent from '../../components/AddressComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {useFocusEffect} from '@react-navigation/native';
+import {setCurrentUser} from '../../redux/slices/authSlice';
+import {useGetCurrentUserQuery} from '../../api/auth';
 
 const actions = [
   {
@@ -50,10 +52,21 @@ const actions = [
   },
 ];
 
-const HomeScreen = ({navigation, showNotification}: any) => {
+const HomeScreen = ({navigation, route, showNotification}: any) => {
+  const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
+  const companyId = useSelector((state: any) => state.auth.companyId);
+  // const userData = route?.params?.data;
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-
+  const {data, isFetching} = useGetCompanyQuery(
+    userInfo?.companyId?._id || userInfo?.companyId || companyId,
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
+  const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
   const [notification, setNotification] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
@@ -73,6 +86,10 @@ const HomeScreen = ({navigation, showNotification}: any) => {
     },
   );
 
+  useEffect(() => {
+    dispatch(setCurrentUser(userData?.result));
+  }, [isFetch]);
+
   useFocusEffect(
     React.useCallback(() => {
       refetch();
@@ -82,18 +99,19 @@ const HomeScreen = ({navigation, showNotification}: any) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
-        <View
-          style={[
-            commonStyle.rowAC,
-            {marginLeft: wp(4)},
-          ]}>
-          {userInfo && userInfo?.companyId?.logo ? (
+        <View style={[commonStyle.rowAC, {marginLeft: wp(4)}]}>
+          {userInfo?.companyId?.logo || data?.result ? (
             <Image
-              source={{uri: userInfo?.companyId?.logo}}
+              source={{
+                uri: data?.result?.logo
+                  ? data?.result?.logo
+                  : userInfo?.companyId?.logo,
+              }}
               style={styles.avatar}
             />
           ) : (
-            <View style={styles.avatar} />
+            // <View style={styles.avatar} />
+            <Image source={Images.companyImg} style={styles.avatar} />
           )}
         </View>
       ),
@@ -109,7 +127,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, userInfo, isFetching]);
 
   useEffect(() => {
     setOrderData(orderList?.result);
@@ -201,7 +219,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
             size={smallFont}
             textAlign={'right'}
             name={'lexend-medium'}>
-            {'$'}
+            {'₹'}
             {item?.totalAmount}
           </FontText>
         </View>
@@ -374,6 +392,7 @@ const HomeScreen = ({navigation, showNotification}: any) => {
           }
         }}
         showBackground={true}
+        overlayColor='rgba(52, 52, 52, 0.5)'
         color={colors.orange}
         buttonSize={hp(7)}
         iconHeight={hp(2.2)}
@@ -412,7 +431,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: hp(5),
     height: hp(5),
-    backgroundColor: colors.gray,
+    // backgroundColor: colors.white2,
     borderRadius: 10,
     // marginRight: wp(3),
   },

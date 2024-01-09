@@ -26,6 +26,7 @@ import {
   incrementCartItem,
   removeCartItem,
 } from './Carthelper';
+import Images from '../../assets/images';
 
 const CartScreen = ({navigation, route}: any) => {
   // const companyId = route.params.companyId;
@@ -46,6 +47,19 @@ const CartScreen = ({navigation, route}: any) => {
   const [selectedItem, setSelectedItem] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
 
+  const [notes, setNotes] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [deliAdd, setDeliAdd] = useState<any>(
+    userInfo
+      ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
+      : {},
+  );
+  const [billAdd, setBillAdd] = useState<any>(
+    userInfo
+      ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
+      : {},
+  );
+
   useEffect(() => {
     const fetchCartItems = async () => {
       const items = await getCartItems();
@@ -65,10 +79,18 @@ const CartScreen = ({navigation, route}: any) => {
       (item: any) => item?.isPriority,
     );
     navigation.navigate(RootScreens.SecureCheckout, {
-      deliveryAdd: address,
-      billingAdd: address,
+      deliveryAdd: deliAdd,
+      billingAdd: billAdd,
       from: RootScreens.Cart,
-      name: 'Place Order'
+      name: 'Place Order',
+      expectedDate: date,
+      notes: notes,
+      onGoBackCart: (paramCart: any) => {
+        setDeliAdd(paramCart?.deliveryAdd);
+        setBillAdd(paramCart?.billingAdd);
+        setNotes(paramCart?.notes);
+        setDate(paramCart?.expectedDate);
+      },
     });
   };
 
@@ -127,20 +149,26 @@ const CartScreen = ({navigation, route}: any) => {
   };
 
   const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId);
+    const data = await decrementCartItem(cartId, 'Cart');
     setCartData(data);
   };
 
   const handleRemoveItem = async (cartId: any) => {
     const data = await removeCartItem(cartId);
     setCartData(data);
+    setIsOpen(false);
   };
 
   const _renderItem = ({item, index}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={[commonStyle.rowAC, commonStyle.flex]}>
-          <Image source={{uri: item?.image}} style={styles.logo} />
+          {item?.image ? (
+            <Image source={{uri: item.image}} style={styles.logo} />
+          ) : (
+            <Image source={Images.productImg} style={styles.logo} />
+          )}
+          {/* <Image source={{uri: item?.image}} style={styles.logo} /> */}
           <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
               name={'lexend-regular'}
@@ -156,7 +184,7 @@ const CartScreen = ({navigation, route}: any) => {
               color={'black2'}
               pTop={wp(2)}
               textAlign={'left'}>
-              {'$'}
+              {'₹'}
               {item?.price}
             </FontText>
             <View
@@ -195,7 +223,9 @@ const CartScreen = ({navigation, route}: any) => {
         </View>
         <TouchableOpacity
           onPress={() => {
-            handleRemoveItem(item._id);
+            setIsOpen(true);
+            setSelectedItem(item._id);
+            // handleRemoveItem(item._id);
           }}>
           <SvgIcons.Trash width={wp(4)} height={wp(4)} />
         </TouchableOpacity>
@@ -235,7 +265,7 @@ const CartScreen = ({navigation, route}: any) => {
   };
 
   return (
-    <View style={[commonStyle.container,{paddingTop:hp(1.5)}]}>
+    <View style={[commonStyle.container, {paddingTop: hp(1.5)}]}>
       {/* <NavigationBar
         hasLeft
         hasRight
@@ -319,7 +349,7 @@ const CartScreen = ({navigation, route}: any) => {
         leftBtnText={'No, don’t cancel'}
         rightBtnText={'Yes, cancel'}
         leftBtnPress={() => setIsOpen(false)}
-        rightBtnPress={removeCartItem}
+        rightBtnPress={() => handleRemoveItem(selectedItem)}
         onTouchPress={() => setIsOpen(false)}
         leftBtnStyle={{width: '48%', borderColor: colors.blue}}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}

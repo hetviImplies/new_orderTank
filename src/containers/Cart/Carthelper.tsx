@@ -70,7 +70,7 @@ const incrementCartItem = async (itemId: any) => {
 };
 
 // Function to decrement quantity of an item in the cart
-const decrementCartItem = async (itemId: any) => {
+const decrementCartItem = async (itemId: any, from:string) => {
   try {
     let updatedCartItems = await getCartItems();
 
@@ -83,9 +83,9 @@ const decrementCartItem = async (itemId: any) => {
       await updateCartItems(updatedCartItems);
       return updatedCartItems;
     } else if (itemToDecrement && itemToDecrement.quantity === 1) {
-      updatedCartItems = updatedCartItems.filter(
+      updatedCartItems = from === 'Product' ? updatedCartItems.filter(
         (cartItem: any) => cartItem._id !== itemId,
-      );
+      ) : updatedCartItems;
       await updateCartItems(updatedCartItems);
       return updatedCartItems;
     }

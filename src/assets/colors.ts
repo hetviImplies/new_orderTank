@@ -19,6 +19,7 @@ const colors: any = {
   red2:'#CB202D',
   green:'#23CF5F',
   blue: '#3071FF',
+  blue2:'#006bf8',
   yellow: '#FFD012',
   black3:'rgba(39, 45, 47, 0.7)'
 };

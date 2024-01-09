@@ -91,7 +91,12 @@ const BottomSheet = (props: any) => {
             </FontText>
           </Button>
         )}
-        <TouchableOpacity style={styles.modalBtn} onPress={onPressCloseModal}>
+        <TouchableOpacity
+          style={styles.modalBtn}
+          onPress={() => {
+            setFinaldata('');
+            onPressCloseModal();
+          }}>
           <SvgIcons.Close height={tabIcon} width={tabIcon} />
         </TouchableOpacity>
       </View>
@@ -200,6 +205,7 @@ const BottomSheet = (props: any) => {
       closeOnPressMask
       closeOnPressBack
       closeOnDragDown
+      onClose={() => setFinaldata('')}
       customStyles={{
         container: styles.modalStyle,
       }}

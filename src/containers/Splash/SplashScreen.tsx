@@ -31,7 +31,11 @@ const SplashScreen = ({navigation}: any) => {
           data?.result?.companyCode === undefined ||
           data?.result?.companyCode === ''
         ) {
-          navigation.navigate(RootScreens.CompanyDetail, {
+          // navigation.navigate(RootScreens.CompanyDetail, {
+          //   from: 'Login',
+          //   name: 'Enter your company detail',
+          // });
+          resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
           });

@@ -10,7 +10,12 @@ import {
 import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import {FontText, Loader, Input, Button} from '../../components';
-import commonStyle, {iconSize, mediumFont, smallFont} from '../../styles';
+import commonStyle, {
+  iconSize,
+  mediumFont,
+  smallFont,
+  tabIcon,
+} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -29,6 +34,8 @@ import {
   getCartItems,
   updateCartItems,
 } from '../Cart/Carthelper';
+import Popup from '../../components/Popup';
+import Images from '../../assets/images';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
@@ -37,15 +44,53 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const billingAdd = route.params.billingAdd;
   const from = route.params.from;
   const orderDetails = route.params.orderDetails;
-  const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date());
+  const note = route?.params?.notes;
+  const expectedDate = route?.params?.expectedDate;
+  const [notes, setNotes] = useState(note ? note : '');
+  const [date, setDate] = useState(expectedDate ? expectedDate : new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [deliAdd, setDeliAdd] = useState<any>(deliveryAdd ? deliveryAdd : {});
+  const [billAdd, setBillAdd] = useState<any>(billingAdd ? billingAdd : {});
   const isOrder = from === RootScreens.Order;
 
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const product = isOrder ? orderDetails?.orderDetails : cartData;
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          style={[
+            // commonStyle.iconView,
+            {marginLeft: wp(1)},
+          ]}
+          onPress={() => navigation.goBack()}>
+          {Platform.OS === 'android' ? (
+            <SvgIcons.AndroidBack
+              width={wp(6)}
+              height={wp(6)}
+              style={{marginLeft: wp(2)}}
+            />
+          ) : (
+            <SvgIcons.BackArrow
+              width={wp(5)}
+              height={wp(5)}
+              fill={colors.blue2}
+              stroke={colors.blue2}
+            />
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    setDeliAdd(deliveryAdd);
+    setBillAdd(billingAdd);
+  }, [route.params]);
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -73,10 +118,18 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       <>
         <View style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
-            <Image
+            {/* <Image
               source={{uri: isOrder ? item?.productData?.image : item?.image}}
               style={styles.logo}
-            />
+            /> */}
+            {item?.image || item?.productData?.image ? (
+              <Image
+                source={{uri: isOrder ? item?.productData?.image : item?.image}}
+                style={styles.logo}
+              />
+            ) : (
+              <Image source={Images.productImg} style={styles.logo} />
+            )}
             <View style={{width: '50%'}}>
               <FontText
                 name={'lexend-regular'}
@@ -91,7 +144,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 color={'black2'}
                 pTop={wp(2)}
                 textAlign={'left'}>
-                {'$'}
+                {'₹'}
                 {item?.price} ({item?.quantity} qty)
               </FontText>
             </View>
@@ -101,7 +154,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 size={mediumFont}
                 textAlign={'right'}
                 color={'orange'}>
-                {'$'}
+                {'₹'}
                 {item?.price * item?.quantity}
               </FontText>
             </View>
@@ -126,20 +179,28 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           }
           isEdit={isOrder ? false : true}
           onEditPress={() => {
+            let params = {
+              from: RootScreens.SecureCheckout,
+              type: index === 0 ? 'Delivery address' : 'Billing address',
+              deliveryAdd: deliAdd,
+              billingAdd: billAdd,
+              cartData: cartData,
+              notes: notes,
+              expectedDate: date,
+            };
             navigation.navigate(RootScreens.Address, {
-              data: {
-                from: RootScreens.SecureCheckout,
-                type: index === 0 ? 'Delivery address' : 'Billing address',
-                deliveryAdd: deliveryAdd,
-                billingAdd: billingAdd,
-                cartData: cartData,
+              data: params,
+              onGoBack: (param: any) => {
+                setDeliAdd(param?.deliveryAdd);
+                setBillAdd(param?.billingAdd);
               },
             });
           }}
         />
         <AddressComponent
-          item={index === 0 ? deliveryAdd : billingAdd}
+          item={index === 0 ? deliAdd : billAdd}
           from={RootScreens.SecureCheckout}
+          isEditDelete={false}
         />
         {index === 0 && <View style={styles.line} />}
       </View>
@@ -174,7 +235,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
       }
     } else {
-      utils.showErrorToast(error.message);
+      utils.showErrorToast(order?.message ? order?.message : error?.message);
     }
   };
 
@@ -284,7 +345,17 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <TouchableOpacity
               style={styles.editBtn}
               onPress={() => {
-                navigation.navigate(RootScreens.Cart);
+                // navigation.navigate(RootScreens.Cart);
+                let params = {
+                  from: RootScreens.SecureCheckout,
+                  deliveryAdd: deliAdd,
+                  billingAdd: billAdd,
+                  cartData: cartData,
+                  notes: notes,
+                  expectedDate: date,
+                };
+                navigation.goBack();
+                route.params.onGoBackCart(params);
               }}>
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
@@ -326,6 +397,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 borderRadius: normalize(5),
                 width: wp(27),
                 marginTop: hp(0.5),
+                alignSelf: 'center',
               }}>
               <FontText
                 name={'lexend-medium'}
@@ -339,7 +411,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <Button
               onPress={showDatepicker}
               bgColor={'white2'}
-              style={styles.quantityBtn}>
+              style={[styles.quantityBtn, {alignSelf: 'center'}]}>
               <FontText
                 name={'lexend-medium'}
                 size={smallFont}
@@ -364,51 +436,73 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         cartData={product}
         orderDetails={orderDetails}
         isShow={isOrder ? orderDetails?.status === 'pending' : true}
-        onPress={isOrder ? cancelOrder : placeOrderPress}
+        onPress={() => {
+          isOrder ? setIsOpen(true) : placeOrderPress();
+        }}
         total={isOrder ? orderDetails?.totalAmount : totalPrice.toFixed(2)}
         showText={
           <View>
-            {orderDetails ? (
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'orange'}
-                pTop={wp(2)}
-                pBottom={wp(2)}
-                textAlign={'center'}>
-                {'Order Status:'}
+            {
+              orderDetails ? (
                 <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
-                  color={'black2'}
+                  color={'orange'}
+                  pTop={wp(2)}
+                  pBottom={wp(2)}
                   textAlign={'center'}>
-                  {' '}
-                  {orderDetails?.status}
+                  {'Order Status:'}
+                  <FontText
+                    name={'lexend-regular'}
+                    size={mediumFont}
+                    color={'black2'}
+                    textAlign={'center'}>
+                    {' '}
+                    {orderDetails?.status}
+                  </FontText>
                 </FontText>
-              </FontText>
-            ) : (
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'orange'}
-                pTop={wp(2)}
-                pBottom={wp(2)}
-                textAlign={'center'}>
-                {'Delivered On:'}
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'black2'}
-                  textAlign={'center'}>
-                  {' '}
-                  {moment(newDate.setDate(newDate.getDate() + 5)).format(
-                    'DD-MM-YYYY',
-                  )}
-                </FontText>
-              </FontText>
-            )}
+              ) : null
+              // <FontText
+              //   name={'lexend-regular'}
+              //   size={mediumFont}
+              //   color={'orange'}
+              //   pTop={wp(2)}
+              //   pBottom={wp(2)}
+              //   textAlign={'center'}>
+              //   {'Delivered On:'}
+              //   <FontText
+              //     name={'lexend-regular'}
+              //     size={mediumFont}
+              //     color={'black2'}
+              //     textAlign={'center'}>
+              //     {' '}
+              //     {moment(newDate.setDate(newDate.getDate() + 5)).format(
+              //       'DD-MM-YYYY',
+              //     )}
+              //   </FontText>
+              // </FontText>
+            }
           </View>
         }
+      />
+      <Popup
+        visible={isOpen}
+        // onBackPress={() => setIsOpen(false)}
+        title={`Are you sure you want to Cancel\n this Order?`}
+        titleStyle={{fontSize: normalize(14)}}
+        leftBtnText={'No, don’t cancel'}
+        rightBtnText={'Yes, cancel'}
+        leftBtnPress={() => setIsOpen(false)}
+        rightBtnPress={() => cancelOrder()}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        leftBtnTextStyle={{
+          color: colors.blue,
+          fontSize: mediumFont,
+        }}
+        rightBtnTextStyle={{fontSize: mediumFont}}
+        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
       />
       {show && (
         <View style={styles.datePickerStyle}>

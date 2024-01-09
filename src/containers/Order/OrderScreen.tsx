@@ -100,7 +100,7 @@ const OrderScreen = ({navigation}: any) => {
             size={smallFont}
             textAlign={'right'}
             name={'lexend-medium'}>
-            {'$'}
+            {'₹'}
             {item?.totalAmount}
           </FontText>
         </View>
@@ -194,7 +194,7 @@ const OrderScreen = ({navigation}: any) => {
                     name={'lexend-regular'}>
                     {item?.label}{' '}
                     {selectOrder?.label === item?.label
-                      ? orderList?.result?.length === undefined
+                      ? (orderList?.result?.length === undefined || orderList?.result?.length === 0 )
                         ? ''
                         : `(${orderList?.result?.length})`
                       : ''}

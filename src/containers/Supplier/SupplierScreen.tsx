@@ -26,6 +26,7 @@ import {
 } from '../../api/company';
 import utils from '../../helper/utils';
 import {useFocusEffect} from '@react-navigation/native';
+import Images from '../../assets/images';
 
 const SupplierScreen = ({navigation}: any) => {
   const [search, setSearch] = useState('');
@@ -62,7 +63,7 @@ const SupplierScreen = ({navigation}: any) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <View style={[commonStyle.row,{marginRight:wp(4)}]}>
+        <View style={[commonStyle.row, {marginRight: wp(4)}]}>
           <TouchableOpacity
             style={[{marginRight: wp(5)}]}
             onPress={() => navigation.navigate(RootScreens.PendingRequest)}>
@@ -87,7 +88,7 @@ const SupplierScreen = ({navigation}: any) => {
       setSupplierData(supplierList?.result);
     } else {
       const data = supplierList?.result.filter((item: any) => {
-        return item.companyName.includes(search);
+        return item.companyName.toUpperCase().includes(search.toUpperCase());
       });
       setSupplierData(data);
     }
@@ -103,7 +104,11 @@ const SupplierScreen = ({navigation}: any) => {
             company: item?.companyName,
           })
         }>
-        <Image source={{uri: item?.logo}} style={styles.logo} />
+        {item?.logo !== 'null' ? (
+          <Image source={{uri: item?.logo}} style={styles.logo} />
+        ) : (
+          <Image source={Images.supplierImg} style={styles.logo} />
+        )}
         <View style={{width: '80%'}}>
           <FontText
             name={'lexend-regular'}
