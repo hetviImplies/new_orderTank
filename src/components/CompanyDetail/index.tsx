@@ -8,7 +8,7 @@ import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import imageCompress from 'react-native-compressor';
+import imageCompress,{getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
 // import BottomSheet from '../BottomSheet';
 import {NUMBER_TYPE, STATES_DATA} from '../../types/data';
@@ -141,7 +141,7 @@ const CompanyDetail = (props: any) => {
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
-  }, [data, isFetching, userData]);
+  }, [data, userData]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -152,6 +152,7 @@ const CompanyDetail = (props: any) => {
     url: any,
     file: any,
   ) => {
+    console.log('res', res)
     const newUrl = isAndroid ? `file://${url}` : url;
     if (file >= 5000000) {
       utils.showWarningToast('Image size must be less than 5MB.');
@@ -163,6 +164,8 @@ const CompanyDetail = (props: any) => {
           console.log('error', error);
         },
       );
+      const metadata = await getImageMetaData(result);
+      console.log('result', metadata)
       setImageUrl(result);
       setImageRes(res);
     }
@@ -276,7 +279,7 @@ const CompanyDetail = (props: any) => {
           //   utils.showErrorToast(error.message);
           // }
         } else {
-          utils.showErrorToast(data.message || error);
+          utils.showErrorToast(data?.message ? data?.message : error?.message);
         }
         setBtnText('Edit Details');
         setEditInformation(false);
@@ -310,11 +313,9 @@ const CompanyDetail = (props: any) => {
           //     name: name,
           //     phone: phone,
           //   };
-          //   console.log('params/...', params);
           //   const {data: profileData, error: err}: any = await updateProfile(
           //     params,
           //   );
-          //   console.log('updateProfile..///', data, err);
           //   if (!err) {
           //     // setOpenPopup && setOpenPopup(false);
           //     dispatch(setCompanyId(data?.result?._id));
@@ -361,7 +362,7 @@ const CompanyDetail = (props: any) => {
           // }
           // utils.showSuccessToast(data.message);
         } else {
-          utils.showErrorToast(data.message || error.message);
+          utils.showErrorToast(data?.message ? data?.message : error?.message);
         }
       }
     }

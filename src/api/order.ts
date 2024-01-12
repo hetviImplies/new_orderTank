@@ -29,7 +29,7 @@ export const orderApi = createApi({
           body,
         };
       },
-      invalidatesTags: ['orders'],
+      // invalidatesTags: ['orders'],
     }),
     updateOrder: builder.mutation({
       query: body => {

@@ -7,6 +7,7 @@ const showToast = (title = 'Error!', message: any, type: any = 'error') => {
     message: title,
     description: message,
     type,
+    duration: 3000,
     textStyle: {
       fontFamily: 'Lexend-Medium',
       fontSize: normalize(14),

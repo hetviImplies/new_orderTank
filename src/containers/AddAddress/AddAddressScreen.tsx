@@ -16,6 +16,8 @@ import {
 import utils from '../../helper/utils';
 import {useSelector} from 'react-redux';
 import BottomSheet from '../../components/BottomSheet';
+import {getAddressList, updateAddressList} from '../Cart/Carthelper';
+import {useFocusEffect} from '@react-navigation/native';
 
 const AddAddressScreen = (props: any) => {
   const {navigation, route} = props;
@@ -24,6 +26,7 @@ const AddAddressScreen = (props: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
+    skip : item ? false : true
   });
   const [addAddress, {isLoading}] = useCreateAddressMutation();
   const [updateAddress, {isLoading: isProcess}] = useUpdateAddressMutation();
@@ -44,6 +47,7 @@ const AddAddressScreen = (props: any) => {
   const [city, setCity] = useState(item ? item?.city : '');
   const [state, setState] = useState(item ? item?.state : '');
   const [selectedState, setSelectedState] = useState('');
+  const [addressData, setAddressData] = useState([]);
   // const [country, setCountry] = useState(item ? item?.country : '');
 
   const isValidAddressName = checkValid && addressName.length === 0;
@@ -62,6 +66,41 @@ const AddAddressScreen = (props: any) => {
     });
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAddressItems = async () => {
+        const items = await getAddressList();
+        setAddressData(items);
+      };
+      fetchAddressItems();
+    }, []),
+  );
+
+  function mergeArrays(array1: any, array2: any) {
+    const resultArray: any = [];
+
+    array1.forEach((obj1: any) => {
+      const matchingObj2 = array2.find((obj2: any) => obj2._id === obj1._id);
+
+      if (matchingObj2) {
+        const mergedObject = {
+          ...obj1,
+          billingAdd: matchingObj2.billingAdd,
+          deliveryAdd: matchingObj2.deliveryAdd,
+        };
+        resultArray.push(mergedObject);
+      } else {
+        resultArray.push({
+          ...obj1,
+          billingAdd: false,
+          deliveryAdd: false,
+        });
+      }
+    });
+
+    return resultArray;
+  }
+
   const submitPress = async () => {
     setCheckValid(true);
     if (
@@ -73,8 +112,6 @@ const AddAddressScreen = (props: any) => {
       state.length !== 0
       // && country.length !== 0
     ) {
-      const formData = new FormData();
-
       const addressObj = {
         addressName: addressName,
         addressLine: address,
@@ -95,19 +132,51 @@ const AddAddressScreen = (props: any) => {
         companyId: userInfo?.companyId?._id,
         addressId: item?._id,
       };
+      console.log('body', body);
       item === undefined && delete body.addressId;
       if (item) {
         const {data, error}: any = await updateAddress(body);
+        console.log('data?.result?.address', data?.result?.address);
         if (!error && data?.statusCode === 200) {
-          navigation.goBack();
           setCheckValid(false);
+          const mergedArray = mergeArrays(data?.result?.address, addressData);
+          console.log(mergedArray);
+          await updateAddressList(mergedArray);
+          navigation.goBack();
+          route?.params?.onGoBack();
           utils.showSuccessToast(data.message);
         } else {
-          utils.showErrorToast(data.message || error);
+          utils.showErrorToast(data?.message ? data?.message : error?.message);
         }
       } else {
         const {data, error}: any = await addAddress(body);
-        navigation.goBack();
+        console.log('addAddress DATA: ' + JSON.stringify(data));
+        if (!error && data?.statusCode === 200) {
+          setCheckValid(false);
+          utils.showSuccessToast(data.message);
+          let updateData = data?.result?.address.map((address: any) => {
+            console.log('address', address);
+            let find = addressData.find(
+              (item: any) => item._id === address._id,
+            );
+            console.log('FOUND', find);
+            if (!find) {
+              console.log('Hello....');
+              return {
+                ...address,
+                deliveryAdd: false,
+                billingAdd: false,
+              };
+            }
+            return find;
+          });
+          console.log('updateData......//////////', updateData);
+          await updateAddressList(updateData);
+          navigation.goBack();
+          route?.params?.onGoBack();
+        } else {
+          utils.showErrorToast(data?.message ? data?.message : error?.message);
+        }
       }
     }
   };

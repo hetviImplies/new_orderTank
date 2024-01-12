@@ -32,8 +32,6 @@ const NotificationScreen = ({navigation}: any) => {
     });
   const [notifiedData, setNotifiedData] = useState([]);
 
-  console.log('notification', noitification)
-
   useEffect(() => {
     setNotifiedData(noitification?.result);
   }, [isProcessing, noitification]);

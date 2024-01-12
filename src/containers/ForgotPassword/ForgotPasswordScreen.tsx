@@ -23,7 +23,8 @@ import utils from '../../helper/utils';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
 import Popup from '../../components/Popup';
-import { RootScreens } from '../../types/type';
+import {RootScreens} from '../../types/type';
+import { resetNavigateTo } from '../../helper/navigationHelper';
 
 const ForgotPasswordScreen = ({navigation}: any) => {
   const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
@@ -53,7 +54,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         // utils.showSuccessToast(data.message);
         setIsOpen(true);
       } else {
-        utils.showErrorToast(data.message || error);
+        utils.showErrorToast(data?.message ? data?.message : error?.message);
       }
     }
   };
@@ -150,10 +151,13 @@ const ForgotPasswordScreen = ({navigation}: any) => {
       <Popup
         visible={isOpen}
         // onBackPress={() => setIsOpen(false)}
-        title={'OrderTank'}
-        description={`Please check your email.`}
+        // title={'OrderTank'}
+        description={`We sent you email with instructions to reset your password.`}
         rightBtnText={'Ok'}
-        rightBtnPress={() => {setIsOpen(false); navigation.navigate(RootScreens.Login)}}
+        rightBtnPress={() => {
+          setIsOpen(false);
+          resetNavigateTo(navigation, RootScreens.Login);;
+        }}
         // onTouchPress={() => setIsOpen(false)}
         // btnConatiner={{width:'100%'}}
         rightBtnStyle={{width: '100%', height: hp(6)}}

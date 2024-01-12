@@ -43,8 +43,9 @@ export const PROFILE_LIST = [
 export const ORDERTYPE = [
   {label: 'All Order', value: 'all'},
   {label: 'Pending', value: 'pending'},
-  {label: 'On going', value: 'processing'},
-  {label: 'Completed', value: 'delivered'},
+  {label: 'In Process', value: 'inProcess'},
+  {label: 'Partial Delivered', value: 'partialDelivered'},
+  {label: 'Delivered', value: 'delivered'},
   {label: 'Cancelled', value: 'cancelled'},
 ];
 // export const ORDERTYPE = [

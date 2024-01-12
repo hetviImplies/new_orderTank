@@ -31,11 +31,13 @@ import CartCountModule from '../../components/CartCountModule';
 import utils from '../../helper/utils';
 import {
   calculateTotalPrice,
+  getAddressList,
   getCartItems,
   updateCartItems,
 } from '../Cart/Carthelper';
 import Popup from '../../components/Popup';
 import Images from '../../assets/images';
+import {useFocusEffect} from '@react-navigation/native';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
@@ -53,11 +55,15 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [deliAdd, setDeliAdd] = useState<any>(deliveryAdd ? deliveryAdd : {});
   const [billAdd, setBillAdd] = useState<any>(billingAdd ? billingAdd : {});
   const isOrder = from === RootScreens.Order;
+  const [addressData, setAddressData] = useState([]);
+  // const addressData = useSelector((state: any) => state.address.addressData);
 
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const product = isOrder ? orderDetails?.orderDetails : cartData;
+
+  console.log('orderDetails', orderDetails);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -102,6 +108,16 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     fetchCartItems();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchAddressItems = async () => {
+        const items = await getAddressList();
+        console.log('Place Order address items', items);
+        setAddressData(items);
+      };
+      fetchAddressItems();
+    }, []),
+  );
   const onChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
     setShow(Platform.OS === 'ios');
@@ -166,6 +182,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const addressRenderItem = ({item, index}: any) => {
+    let delivery = addressData?.find((d: any) => d.deliveryAdd);
+    console.log('DELEVERY', delivery);
+    let billing = addressData?.find((d: any) => d.billingAdd);
+    console.log('BILL', billing);
+    console.log('ADDDRESSSS..........///', index, addressData);
     return (
       <View>
         <IconHeader
@@ -182,8 +203,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             let params = {
               from: RootScreens.SecureCheckout,
               type: index === 0 ? 'Delivery address' : 'Billing address',
-              deliveryAdd: deliAdd,
-              billingAdd: billAdd,
+              deliveryAdd: delivery,
+              billingAdd: billing,
               cartData: cartData,
               notes: notes,
               expectedDate: date,
@@ -197,11 +218,19 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             });
           }}
         />
-        <AddressComponent
-          item={index === 0 ? deliAdd : billAdd}
-          from={RootScreens.SecureCheckout}
-          isEditDelete={false}
-        />
+        {isOrder ? (
+          <AddressComponent
+            item={index === 0 ? orderDetails?.deliveryAddress :  orderDetails?.billingAddress}
+            from={RootScreens.SecureCheckout}
+            isEditDelete={false}
+          />
+        ) : (
+          <AddressComponent
+            item={index === 0 ? delivery : billing}
+            from={RootScreens.SecureCheckout}
+            isEditDelete={false}
+          />
+        )}
         {index === 0 && <View style={styles.line} />}
       </View>
     );
@@ -251,7 +280,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       utils.showSuccessToast('Order Cancel Successfully.');
       navigation.goBack();
     } else {
-      utils.showErrorToast(error.message);
+      utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
   };
 
@@ -285,7 +314,10 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       <Loader loading={isLoading || isFetching} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: hp(2), paddingTop: hp(2)}}
+        contentContainerStyle={{
+          paddingBottom: hp(2),
+          paddingTop: isOrder ? hp(2) : 0,
+        }}
         nestedScrollEnabled
         style={[commonStyle.paddingH4]}>
         {isOrder ? (

@@ -79,8 +79,8 @@ const CartScreen = ({navigation, route}: any) => {
       (item: any) => item?.isPriority,
     );
     navigation.navigate(RootScreens.SecureCheckout, {
-      deliveryAdd: deliAdd,
-      billingAdd: billAdd,
+      // deliveryAdd: deliAdd,
+      // billingAdd: billAdd,
       from: RootScreens.Cart,
       name: 'Place Order',
       expectedDate: date,
@@ -118,9 +118,7 @@ const CartScreen = ({navigation, route}: any) => {
   //     body: body,
   //     _id: selectedItem?._id,
   //   };
-  //   console.log('Params', params);
   //   const {data, error}: any = await updateCart(params);
-  //   console.log('UPDATA', data, error);
 
   //   if (!error && data?.statusCode === 200) {
   //     quantityRef.current.close();
@@ -132,9 +130,7 @@ const CartScreen = ({navigation, route}: any) => {
 
   // const removeCartItem = async () => {
   //   setIsOpen(false);
-  //   console.log('productId', [selectedItem?._id]);
   //   const {data, error}: any = await removeCart({ids: [selectedItem?._id]});
-  //   console.log('DATA', data, error);
   //   if (!error) {
   //     // refetch();
   //     utils.showSuccessToast(data.message);

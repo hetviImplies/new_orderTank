@@ -66,6 +66,12 @@ const ProductListingScreen = ({navigation, route}: any) => {
     },
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );  
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (

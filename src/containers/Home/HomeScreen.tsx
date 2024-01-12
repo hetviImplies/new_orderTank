@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -28,6 +29,8 @@ import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {useFocusEffect} from '@react-navigation/native';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
+import {setAddressList} from '../../redux/slices/addressSlice';
+import {getAddressList, updateAddressList} from '../Cart/Carthelper';
 
 const actions = [
   {
@@ -71,6 +74,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
   const [orderData, setOrderData] = React.useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
     data: orderList,
@@ -86,9 +90,72 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     },
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
+
   useEffect(() => {
     dispatch(setCurrentUser(userData?.result));
   }, [isFetch]);
+
+  // useEffect(() => {
+  //   let list = data?.result?.address.map((item: any) => ({
+  //     ...item,
+  //     deliveryAdd: item.isPriority,
+  //     billingAdd: item.isPriority,
+  //   }));
+  //   console.log('list', list);
+  //   dispatch(setAddressList(list));
+  // }, [data, isFetching]);
+
+  useEffect(() => {
+    getAddressData();
+  }, [data, isFetching]);
+
+  const getAddressData = async () => {
+    const addressData = await getAddressList();
+    console.log(
+      'data.....//////',
+      addressData.length,
+      addressData,
+    );
+    if (data?.result && addressData.length === 0) {
+      console.log('address', data?.result?.address[0]);
+
+      let upadetdData: any = [];
+      upadetdData.push({
+        ...data?.result?.address[0],
+        deliveryAdd: true,
+        billingAdd: true,
+      });
+      // let list: any = data?.result?.address.map((item: any) => ({
+      //   ...item,
+      //   deliveryAdd: item.isPriority,
+      //   billingAdd: item.isPriority,
+      // }));
+      console.log('list', upadetdData);
+      await updateAddressList(upadetdData);
+    } else {
+      // console.log('address', addressData);
+      let updateData = data?.result?.address.map((address: any) => {
+        let find = addressData.find((item: any) => item._id === address._id);
+        // let find = addressData.includes(address._id);
+        console.log('FOUND', find);
+        if (!find) {
+          return {
+            ...address,
+            deliveryAdd: false,
+            billingAdd: false,
+          };
+        }
+        return find;
+      });
+      // console.log('updateData', updateData);
+      await updateAddressList(updateData);
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -96,11 +163,13 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     }, []),
   );
 
+  console.log('Data', userInfo?.companyId?.logo || data?.result)
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <View style={[commonStyle.rowAC, {marginLeft: wp(4)}]}>
-          {userInfo?.companyId?.logo || data?.result ? (
+          {userInfo?.companyId?.logo || data?.result?.logo ? (
             <Image
               source={{
                 uri: data?.result?.logo
@@ -273,13 +342,19 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    if (!error) {
+    if (!error && data?.statusCode === 200) {
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
       setCode('');
-      utils.showErrorToast(error.message);
+      utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
+  };
+
+  const onRefreshing = () => {
+    setRefreshing(true);
+    refetch();
+    setRefreshing(false);
   };
 
   return (
@@ -346,6 +421,9 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             paddingHorizontal: wp(4),
             paddingBottom: hp(2),
           }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+          }
         />
       )}
       {/* <Button
@@ -392,7 +470,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           }
         }}
         showBackground={true}
-        overlayColor='rgba(52, 52, 52, 0.5)'
+        overlayColor="rgba(52, 52, 52, 0.5)"
         color={colors.orange}
         buttonSize={hp(7)}
         iconHeight={hp(2.2)}

@@ -18,6 +18,7 @@ import {RootScreens} from '../../types/type';
 import utils from '../../helper/utils';
 import commonStyle from '../../styles';
 import Popup from '../../components/Popup';
+import { resetNavigateTo } from '../../helper/navigationHelper';
 
 const SignUpScreen = ({navigation}: any) => {
   const [register, {isLoading}] = useRegisterMutation();
@@ -64,7 +65,7 @@ const SignUpScreen = ({navigation}: any) => {
   };
 
   const signInPress = () => {
-    navigation.navigate(RootScreens.Login);
+    resetNavigateTo(navigation, RootScreens.Login);;
   };
 
   const onSignUpPress = async () => {
@@ -417,7 +418,7 @@ const SignUpScreen = ({navigation}: any) => {
           description={`Please verify your email address by clicking the link sent to ${email}.`}
           rightBtnText={'OK'}
           rightBtnPress={() => {
-            navigation.navigate(RootScreens.Login);
+            resetNavigateTo(navigation, RootScreens.Login);;
             setIsOpen(false);
           }}
           // btnConatiner={{width:'100%'}}

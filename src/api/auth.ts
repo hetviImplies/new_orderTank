@@ -33,7 +33,6 @@ export const authApi = createApi({
     }),
     register: builder.mutation({
       query: body => {
-        console.log('Body: ', body);
         return {
           url: 'register',
           method: 'POST',

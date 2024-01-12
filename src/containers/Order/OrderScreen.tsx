@@ -1,5 +1,11 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useEffect} from 'react';
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {NavigationBar, FontText, Loader} from '../../components';
 import commonStyle, {
   mediumFont,
@@ -17,11 +23,13 @@ import AddressComponent from '../../components/AddressComponent';
 import {useFocusEffect} from '@react-navigation/native';
 
 const OrderScreen = ({navigation}: any) => {
-  const [selectOrder, setSelectOrder] = React.useState<any>({
+  const flatListRef: any = useRef(null);
+  const [selectOrder, setSelectOrder] = useState<any>({
     label: 'All Order',
     value: 'all',
   });
-  const [orderData, setOrderData] = React.useState([]);
+  const [orderData, setOrderData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
     data: orderList,
@@ -38,13 +46,14 @@ const OrderScreen = ({navigation}: any) => {
   );
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       refetch();
-    }, []),
+    }, [refetch]),
   );
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
+      flatListRef.current.scrollToIndex({ animated: true, index: 0 });
       setSelectOrder({
         label: 'All Order',
         value: 'all',
@@ -55,6 +64,13 @@ const OrderScreen = ({navigation}: any) => {
   useEffect(() => {
     setOrderData(orderList?.result);
   }, [isProcess, selectOrder]);
+
+
+  const onRefreshing = () => {
+    setRefreshing(true);
+    refetch();
+    setRefreshing(false);
+  };
 
   const onViewDetail = (item: any) => {
     navigation.navigate(RootScreens.SecureCheckout, {
@@ -120,7 +136,9 @@ const OrderScreen = ({navigation}: any) => {
                 ? 'red'
                 : item?.status === 'delivered'
                 ? 'green'
-                : item?.status === 'processing'
+                : item?.status === 'partialDelivered'
+                ? 'lightblue'
+                : item?.status === 'inProcess'
                 ? 'yellow'
                 : 'black'
             }
@@ -166,6 +184,7 @@ const OrderScreen = ({navigation}: any) => {
       <View style={commonStyle.paddingH4}>
         <FlatList
           horizontal
+          ref={flatListRef}
           data={ORDERTYPE}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{marginHorizontal: wp(-1), paddingTop: hp(1)}}
@@ -194,7 +213,8 @@ const OrderScreen = ({navigation}: any) => {
                     name={'lexend-regular'}>
                     {item?.label}{' '}
                     {selectOrder?.label === item?.label
-                      ? (orderList?.result?.length === undefined || orderList?.result?.length === 0 )
+                      ? orderList?.result?.length === undefined ||
+                        orderList?.result?.length === 0
                         ? ''
                         : `(${orderList?.result?.length})`
                       : ''}
@@ -205,7 +225,20 @@ const OrderScreen = ({navigation}: any) => {
           }}
         />
       </View>
-      {orderData && orderData.length !== 0 ? (
+      {orderData && orderData.length === 0 ? (
+        <View style={[commonStyle.allCenter, {flex: 1}]}>
+          <FontText
+            color="gray"
+            name="lexend-regular"
+            size={mediumFont}
+            textAlign={'center'}>
+            {`${
+              selectOrder?.label === 'All Order' ? '' : selectOrder?.label
+            } Orders are not available.`}
+            {/* {'There are no orders at the moment.'} */}
+          </FontText>
+        </View>
+      ) : (
         <FlatList
           data={orderData}
           renderItem={_renderItem}
@@ -213,17 +246,10 @@ const OrderScreen = ({navigation}: any) => {
             paddingHorizontal: wp(4),
             paddingBottom: hp(2),
           }}
+          refreshControl={
+            <RefreshControl onRefresh={onRefreshing} refreshing={refreshing} />
+          }
         />
-      ) : (
-        <View style={[commonStyle.allCenter, {flex: 1}]}>
-          <FontText
-            color="gray"
-            name="lexend-regular"
-            size={mediumFont}
-            textAlign={'center'}>
-            {'No Data found.'}
-          </FontText>
-        </View>
       )}
     </View>
   );

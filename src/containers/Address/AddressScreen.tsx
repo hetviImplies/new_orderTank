@@ -12,14 +12,18 @@ import SvgIcons from '../../assets/SvgIcons';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import AddressComponent from '../../components/AddressComponent';
 import utils from '../../helper/utils';
 import Popup from '../../components/Popup';
+import {setAddressList} from '../../redux/slices/addressSlice';
+import {getAddressList, updateAddressList} from '../Cart/Carthelper';
+import {useFocusEffect} from '@react-navigation/native';
 
 const AddressScreen = ({navigation, route, props}: any) => {
   const from = route?.params?.data?.from;
+  const dispatch = useDispatch();
   // const companyId = route?.params?.data?.companyId;
   const cartData = route?.params?.data?.cartData;
   const deliveryAdd = route?.params?.data.deliveryAdd;
@@ -37,20 +41,108 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const [checkedData, setCheckedData] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
+  const [updateAdd, setUpdateAdd] = useState([]);
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
   }, [type]);
 
-  useEffect(() => {
-    setAddressData(data?.result?.address);
-  }, [data, isFetching]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAddressItems();
+    }, [isLoading]),
+  );
 
-  const handleCheck = (item: any) => {
-    setCheckedData(item);
+  const fetchAddressItems = async () => {
+    const items = await getAddressList();
+    console.log('Obtain address items', items);
+    setAddressData(items);
   };
 
-  const continuePress = () => {
+  // useEffect(() => {
+  //   const fetchAddressItems = async () => {
+  //     const items = await getAddressList();
+  //     setAddressData(items);
+  //   };
+  //   fetchAddressItems();
+  // }, [addressData]);
+
+  // useEffect(() => {
+  //   let list = data?.result?.address.map((item: any) => ({
+  //     ...item,
+  //     deliveryAdd: item.isPriority,
+  //     billingAdd: item.isPriority,
+  //   }));
+  //   console.log('list', list);
+  //   setAddressData(list);
+  //   dispatch(setAddressList(list));
+  // }, [data, isFetching]);
+
+  const handleCheck = (item: any, checkboxIndex: any) => {
+    let updateAddress: any =
+      type === 'Delivery address'
+        ? addressData.map((address: any) => {
+            if (address._id === item._id) {
+              let result = {
+                ...address,
+                deliveryAdd: type === 'Delivery address' ? true : false,
+              };
+              // console.log('Delivery RESULT: ', result);
+              setCheckedData(result);
+              return result;
+            }
+            return {...address, deliveryAdd: false};
+          })
+        : addressData.map((address: any) => {
+            if (address._id === item._id) {
+              let result = {
+                ...address,
+                billingAdd: type !== 'Delivery address' ? true : false,
+              };
+              // console.log('Billing RESULT: ', result);
+              setCheckedData(result);
+              return result;
+            }
+            return {...address, billingAdd: false};
+          });
+    console.log('updateAddress', updateAddress);
+    setUpdateAdd(updateAddress);
+    // let data = addressData.map((address: any, index: any) => {
+    //   console.log('handleCheck',item?._id === address?._id,)
+    //   if (item?._id === address?._id) {
+    //     address.deliveryAdd = type === 'Delivery address' ? true : false;
+    //     address.billingAdd = type !== 'Delivery address' ? true : false;
+    //   } else {
+    //     address.deliveryAdd = false;
+    //     address.billingAdd = false;
+    //   }
+    //   return item;
+    // });
+    // let data = {
+    //   ...item,
+    //   deliveryAdd: type === 'Delivery address' ? true : false,
+    //   billingAdd: type !== 'Delivery address' ? true : false,
+    // };
+    // let Add = addressData.map((address: any, index: any) => {
+    //   if (item?._id === address?._id) {
+
+    //     return {
+    //       ...address,
+    //       // deliveryAdd: type === 'Delivery address' ? true : false,
+    //       // billingAdd: type !== 'Delivery address' ? true : false,
+    //     };
+    //   } else {
+    //     return {...address, deliveryAdd: false, billingAdd: false};
+    //   }
+    // });
+    // console.log('item', addressData);
+    // setCheckedData(data);
+  };
+
+  const continuePress = async () => {
+    console.log('updateAdd', updateAdd);
+    await updateAddressList(updateAdd);
+    // dispatch(setAddressList(updateAdd));
     let params = {
       deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
       billingAdd: type === 'Billing address' ? checkedData : billingAdd,
@@ -66,6 +158,31 @@ const AddressScreen = ({navigation, route, props}: any) => {
     route.params.onGoBack(params);
   };
 
+  function mergeArrays(array1: any, array2: any) {
+    const resultArray: any = [];
+
+    array1.forEach((obj1: any) => {
+      const matchingObj2 = array2.find((obj2: any) => obj2._id === obj1._id);
+
+      if (matchingObj2) {
+        const mergedObject = {
+          ...obj1,
+          billingAdd: matchingObj2.billingAdd,
+          deliveryAdd: matchingObj2.deliveryAdd,
+        };
+        resultArray.push(mergedObject);
+      } else {
+        resultArray.push({
+          ...obj1,
+          billingAdd: false,
+          deliveryAdd: false,
+        });
+      }
+    });
+
+    return resultArray;
+  }
+
   const onAddressDelete = async (item: any) => {
     setIsOpen(false);
     let params = {
@@ -73,10 +190,14 @@ const AddressScreen = ({navigation, route, props}: any) => {
       addressId: item._id,
     };
     const {data, error}: any = await deleteAddress(params);
+    console.log('DELETED', data, error);
     if (!error && data?.statusCode === 200) {
+      const mergedArray = mergeArrays(data?.result?.address, addressData);
+      console.log(mergedArray);
+      await updateAddressList(mergedArray);
       utils.showSuccessToast(data.message);
     } else {
-      utils.showErrorToast(error.message);
+      utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
   };
 
@@ -101,14 +222,18 @@ const AddressScreen = ({navigation, route, props}: any) => {
                 data: item,
                 address: data?.result?.address,
                 name: 'Edit Address',
+                onGoBack: () => fetchAddressItems(),
               })
             }
-            onDeletePress={() => {setIsOpen(true);setSelectedItem(item);}}
+            onDeletePress={() => {
+              setIsOpen(true);
+              setSelectedItem(item);
+            }}
             isEditDelete={true}
           />
         }
         disabled={from === RootScreens.SecureCheckout ? false : true}
-        handleCheck={() => handleCheck(item)}
+        handleCheck={() => handleCheck(item, index)}
         checked={item?._id === checkedData?._id}
       />
     );

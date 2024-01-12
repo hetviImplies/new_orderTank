@@ -1,5 +1,5 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import {BackHandler, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, { useEffect } from 'react';
 import commonStyle, {
   mediumFont,
   mediumLarge1Font,
@@ -10,9 +10,23 @@ import {hp, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';
 import {RootScreens} from '../../types/type';
+import { resetNavigateTo } from '../../helper/navigationHelper';
 
 const OrderPlacedScreen = ({navigation, route}: any) => {
   const data = route?.params?.data;
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, []);
+
+  const backAction = () => {
+    resetNavigateTo(navigation, RootScreens.DashBoard);
+    return true;
+  };
+  
   return (
     <ScrollView
       contentContainerStyle={[
@@ -49,7 +63,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
       </FontText>
       <TouchableOpacity
         style={styles.buttonContainer}
-        onPress={() => navigation.navigate(RootScreens.DashBoard)}>
+        onPress={backAction}>
         <FontText
           color="orange"
           name="lexend-bold"

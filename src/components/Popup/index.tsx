@@ -8,12 +8,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import {Button, FontText} from '..';
-import {
-  fontSize,
-  mediumLarge1Font,
-  smallFont,
-  tabIcon,
-} from '../../styles';
+import {fontSize, mediumLarge1Font, smallFont, tabIcon} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import commonStyle from '../../styles';
@@ -67,22 +62,23 @@ const Popup = (props: any) => {
             </TouchableOpacity>
           ) : null}
           {image}
-          <FontText
-            color="black"
-            name="lexend-semibold"
-            size={mediumLarge1Font}
-            pTop={wp(1)}
-            pBottom={wp(2)}
-            style={titleStyle}
-            textAlign={'center'}>
-            {title}
-          </FontText>
+          {title ? (
+            <FontText
+              color="black"
+              name="lexend-semibold"
+              size={mediumLarge1Font}
+              pTop={wp(1)}
+              pBottom={wp(4)}
+              style={titleStyle}
+              textAlign={'center'}>
+              {title}
+            </FontText>
+          ) : null}
           {description ? (
             <FontText
               color="black"
               name="lexend-regular"
               size={smallFont}
-              pTop={wp(2)}
               textAlign={'center'}>
               {description}
             </FontText>

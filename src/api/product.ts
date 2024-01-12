@@ -18,7 +18,6 @@ export const productApi = createApi({
     getAllProducts: builder.query({
       query: ((params) => {
         // const {brands, category} = params;
-        console.log('params', params)
         return {
           url: '/',
           method: 'GET',

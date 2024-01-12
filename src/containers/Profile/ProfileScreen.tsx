@@ -1,11 +1,6 @@
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
-import commonStyle, {fontSize} from '../../styles';
+import commonStyle, {fontSize, mediumFont} from '../../styles';
 import {FontText, Loader} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
@@ -15,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authReset} from '../../redux/slices/authSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {resetNavigateTo} from '../../helper/navigationHelper';
+import Popup from '../../components/Popup';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -23,7 +19,7 @@ const ProfileScreen = ({navigation}: any) => {
   //   refetchOnMountOrArgChange: true,
   // });
   const [loading, setLoading] = useState(false);
-
+  const [isOpen, setIsOpen] = useState(false);
   // React.useEffect(() => {
   //   dispatch(setCurrentUser(data?.result));
   // }, [data, isLoading]);
@@ -46,7 +42,7 @@ const ProfileScreen = ({navigation}: any) => {
         navigation.navigate(RootScreens.Address);
         break;
       case 3:
-        logoutPress();
+        setIsOpen(true);
         // navigation.navigate(RootScreens.VEHICLE, {From: 'Step'});
         break;
       case 4:
@@ -87,6 +83,7 @@ const ProfileScreen = ({navigation}: any) => {
   };
 
   const logoutPress = async () => {
+    setIsOpen(false);
     setLoading(true);
     await AsyncStorage.clear();
     await AsyncStorage.removeItem('token');
@@ -119,6 +116,24 @@ const ProfileScreen = ({navigation}: any) => {
           data={PROFILE_LIST}
           renderItem={_renderItem}
           contentContainerStyle={{padding: wp(0.5)}}
+        />
+        <Popup
+          visible={isOpen}
+          title={'Log out'}
+          description={`Are you sure you want to logout?`}
+          leftBtnText={'No'}
+          rightBtnText={'Yes'}
+          leftBtnPress={() => setIsOpen(false)}
+          rightBtnPress={() => logoutPress()}
+          onTouchPress={() => setIsOpen(false)}
+          leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+          rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+          leftBtnTextStyle={{
+            color: colors.blue,
+            fontSize: mediumFont,
+          }}
+          rightBtnTextStyle={{fontSize: mediumFont}}
+          // style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
         />
       </View>
     </View>

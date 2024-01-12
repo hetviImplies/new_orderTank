@@ -51,8 +51,8 @@ const SupplierScreen = ({navigation}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       refetch();
-    }, []),
-  );
+    }, [refetch]),
+  );  
 
   const onRefreshing = () => {
     setRefreshing(true);
@@ -137,12 +137,13 @@ const SupplierScreen = ({navigation}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    if (!error) {
+    console.log('DATA', data, error);
+    if (!error && data.statusCode === 200) {
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
       setCode('');
-      utils.showErrorToast(error.message);
+      utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
   };
 
@@ -204,7 +205,17 @@ const SupplierScreen = ({navigation}: any) => {
             </View>
           }
         />
-        {suppplierData && suppplierData?.length > 0 ? (
+        {suppplierData && suppplierData?.length === 0 ? (
+          <View style={commonStyle.flexJC}>
+            <FontText
+              name={'lexend-regular'}
+              size={mediumFont}
+              color={'gray'}
+              textAlign={'center'}>
+              {'No Supplier are available.'}
+            </FontText>
+          </View>
+        ) : (
           <FlatList
             data={suppplierData}
             renderItem={_renderItem}
@@ -216,16 +227,6 @@ const SupplierScreen = ({navigation}: any) => {
               />
             }
           />
-        ) : (
-          <View style={commonStyle.flexJC}>
-            <FontText
-              name={'lexend-regular'}
-              size={mediumFont}
-              color={'gray3'}
-              textAlign={'center'}>
-              {'No Result Found.'}
-            </FontText>
-          </View>
         )}
       </View>
       <Popup

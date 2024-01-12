@@ -72,7 +72,7 @@ export const companyApi = createApi({
           body: body.params,
         };
       },
-      invalidatesTags: ['company'],
+      // invalidatesTags: ['company'],
     }),
     updateAddress: builder.mutation({
       query: body => {
@@ -82,7 +82,7 @@ export const companyApi = createApi({
           body: body.params,
         };
       },
-      invalidatesTags: ['company'],
+      // invalidatesTags: ['company'],
     }),
     removeAddress: builder.mutation({
       query: body => {

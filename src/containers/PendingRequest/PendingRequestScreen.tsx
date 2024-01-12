@@ -94,22 +94,22 @@ const PendingRequestScreen = ({navigation}: any) => {
       <Loader loading={isProcessing} />
       {supplierList &&
       supplierList?.result &&
-      supplierList?.result?.length > 0 ? (
+      supplierList?.result?.length === 0 ? (
+        <View style={commonStyle.flexJC}>
+          <FontText
+            name={'lexend-regular'}
+            size={mediumFont}
+            color={'gray'}
+            textAlign={'center'}>
+            {'No Pending request available.'}
+          </FontText>
+        </View>
+      ) : (
         <FlatList
           data={supplierList?.result}
           renderItem={_renderItem}
           contentContainerStyle={styles.containerContent}
         />
-      ) : (
-        <View style={commonStyle.flexJC}>
-          <FontText
-            name={'lexend-regular'}
-            size={mediumFont}
-            color={'gray3'}
-            textAlign={'center'}>
-            {'No Result Found.'}
-          </FontText>
-        </View>
       )}
     </View>
   );

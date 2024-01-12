@@ -92,6 +92,7 @@ const LoginScreen = ({navigation}: any) => {
         isMobile: true,
         notificationToken,
       });
+      console.log('Data', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
         dispatch(setCurrentUser(data?.result));
@@ -112,7 +113,7 @@ const LoginScreen = ({navigation}: any) => {
       } else {
         dispatch(setIsAuthenticated(false));
         data?.message !== 'Please verified email first' &&
-          utils.showErrorToast(data.message || error);
+          utils.showErrorToast(data.message || error.message);
         data?.message === 'Please verified email first' && setIsOpen(true);
       }
     }
@@ -135,7 +136,7 @@ const LoginScreen = ({navigation}: any) => {
     if (!error && data?.statusCode === 200) {
       setIsOpen(false);
     } else {
-      utils.showErrorToast(data.message || error);
+      utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
   };
 

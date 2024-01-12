@@ -37,7 +37,6 @@ const CartListScreen = ({navigation}: any) => {
   //       await refetch();
   //     };
   //     fetchData();
-  //     console.log('carts', carts?.result);
   //   }, [navigation, refetch]),
   // );
 

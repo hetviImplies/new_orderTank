@@ -9,11 +9,13 @@ import authSlice from '../slices/authSlice';
 import cartSlice from '../slices/cartSlice';
 import {notificationApi} from '../../api/notification';
 import {companyApi} from '../../api/company';
+import addressSlice from '../slices/addressSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authSlice,
     cart: cartSlice,
+    address: addressSlice,
     [authApi.reducerPath]: authApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,

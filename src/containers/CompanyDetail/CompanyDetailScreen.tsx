@@ -12,15 +12,17 @@ import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {authReset} from '../../redux/slices/authSlice';
-import {wp} from '../../styles/responsiveScreen';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import {useDispatch} from 'react-redux';
+import Popup from '../../components/Popup';
+import {mediumFont} from '../../styles';
 
 const CompanyDetailScreen = ({navigation, route}: any) => {
   const from = route.params.from;
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-
+  const [isOpen, setIsOpen] = useState(false);
 
   React.useLayoutEffect(() => {
     if (from !== 'Profile') {
@@ -32,7 +34,9 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
           fontSize: 18,
         },
         headerRight: () => (
-          <TouchableOpacity onPress={logoutPress} style={{marginRight: wp(2)}}>
+          <TouchableOpacity
+            onPress={() => setIsOpen(true)}
+            style={{marginRight: wp(2)}}>
             <SvgIcons.PowerOff
               width={wp(7)}
               height={wp(7)}
@@ -45,18 +49,37 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
   }, [navigation, from]);
 
   const logoutPress = async () => {
-    setTimeout(async () => {
-      setLoading(true);
-      await AsyncStorage.clear();
-      await AsyncStorage.removeItem('token');
-      dispatch(authReset());
-      setLoading(false);
-      resetNavigateTo(navigation, RootScreens.Login);
-    }, 500);
+    setIsOpen(false);
+    setLoading(true);
+    await AsyncStorage.clear();
+    await AsyncStorage.removeItem('token');
+    dispatch(authReset());
+    setLoading(false);
+    resetNavigateTo(navigation, RootScreens.Login);
   };
 
   return (
-    <CompanyDetail from={from} navigation={navigation} loading={loading} />
+    <>
+      <CompanyDetail from={from} navigation={navigation} loading={loading} />
+      <Popup
+        visible={isOpen}
+        title={'Log out'}
+        description={`Are you sure you want to logout?`}
+        leftBtnText={'No'}
+        rightBtnText={'Yes'}
+        leftBtnPress={() => setIsOpen(false)}
+        rightBtnPress={() => logoutPress()}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        leftBtnTextStyle={{
+          color: colors.blue,
+          fontSize: mediumFont,
+        }}
+        rightBtnTextStyle={{fontSize: mediumFont}}
+        // style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+      />
+    </>
   );
 };
 

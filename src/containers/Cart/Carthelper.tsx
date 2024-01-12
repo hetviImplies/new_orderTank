@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CART_KEY = 'MyCart';
+const ADDRESS_KEY = 'MyAddressList';
 
 // Function to retrieve cart items from AsyncStorage
 const getCartItems = async () => {
@@ -26,14 +27,11 @@ const updateCartItems = async (cartItems: any) => {
 const addToCart = async (item: any) => {
   try {
     let updatedCartItems = await getCartItems();
-    console.log('updatedCartItems', updatedCartItems);
 
     // Check if the item already exists in the cart
     const existingItemIndex = updatedCartItems.findIndex(
       (cartItem: any) => cartItem._id === item._id,
     );
-
-    console.log('existingItemIndex', existingItemIndex);
 
     if (existingItemIndex !== -1) {
       // If the item exists, increment its quantity
@@ -70,7 +68,7 @@ const incrementCartItem = async (itemId: any) => {
 };
 
 // Function to decrement quantity of an item in the cart
-const decrementCartItem = async (itemId: any, from:string) => {
+const decrementCartItem = async (itemId: any, from: string) => {
   try {
     let updatedCartItems = await getCartItems();
 
@@ -83,9 +81,10 @@ const decrementCartItem = async (itemId: any, from:string) => {
       await updateCartItems(updatedCartItems);
       return updatedCartItems;
     } else if (itemToDecrement && itemToDecrement.quantity === 1) {
-      updatedCartItems = from === 'Product' ? updatedCartItems.filter(
-        (cartItem: any) => cartItem._id !== itemId,
-      ) : updatedCartItems;
+      updatedCartItems =
+        from === 'Product'
+          ? updatedCartItems.filter((cartItem: any) => cartItem._id !== itemId)
+          : updatedCartItems;
       await updateCartItems(updatedCartItems);
       return updatedCartItems;
     }
@@ -123,6 +122,25 @@ const calculateTotalPrice = async () => {
   }
 };
 
+const getAddressList = async () => {
+  try {
+    const addressList = await AsyncStorage.getItem(ADDRESS_KEY);
+    return addressList ? JSON.parse(addressList) : [];
+  } catch (error) {
+    console.log('Error getting address items:', error);
+    return [];
+  }
+};
+
+// Function to update address items in AsyncStorage
+const updateAddressList = async (addressList: any) => {
+  try {
+    await AsyncStorage.setItem(ADDRESS_KEY, JSON.stringify(addressList));
+  } catch (error) {
+    console.log('Error updating cart items:', error);
+  }
+};
+
 export {
   addToCart,
   incrementCartItem,
@@ -131,4 +149,6 @@ export {
   removeCartItem,
   updateCartItems,
   calculateTotalPrice,
+  getAddressList,
+  updateAddressList
 };
