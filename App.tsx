@@ -13,6 +13,7 @@ import messaging from '@react-native-firebase/messaging';
 import { requestPermission } from './src/helper/PushNotification';
 import { InAppNotificationProvider } from './src/components/Common/InAppNotification';
 import('./src/helper/ReactotronConfig');
+import Config from "react-native-config";
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCox_mnUgKk88Xr-0iKqR5bR8QNUIkiFg0',
@@ -27,6 +28,7 @@ const firebaseConfig = {
 export default () => {
 
   React.useEffect(() => {
+    console.log('Config.API_URL', Config.API_URL);
     if (!firebase.apps.length) {
       console.log(firebase.initializeApp(firebaseConfig));
       firebase.initializeApp(firebaseConfig);

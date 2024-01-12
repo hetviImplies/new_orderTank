@@ -6166,6 +6166,11 @@ react-native-compressor@^1.8.23:
   resolved "https://registry.yarnpkg.com/react-native-compressor/-/react-native-compressor-1.8.23.tgz#87fef6759d776e05753cee5e723696119c2f6b32"
   integrity sha512-llqV+BRgRL8xdUDFpYfaP/HSo9sUcqewlzXa6obgoXCTJT8ZmT0zUFYgGTtb0Urz2o2T15PqTij5f2Sg8phPjw==
 
+react-native-config@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.5.1.tgz#73c94f511493e9b7ff9350cdf351d203a1b05acc"
+  integrity sha512-g1xNgt1tV95FCX+iWz6YJonxXkQX0GdD3fB8xQtR1GUBEqweB9zMROW77gi2TygmYmUkBI7LU4pES+zcTyK4HA==
+
 react-native-flash-message@^0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/react-native-flash-message/-/react-native-flash-message-0.4.2.tgz#ed8ffe60c532bc1274c3b49a60dd0bd2fca59c50"

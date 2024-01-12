@@ -16,7 +16,11 @@ import {
 import utils from '../../helper/utils';
 import {useSelector} from 'react-redux';
 import BottomSheet from '../../components/BottomSheet';
-import {getAddressList, updateAddressList} from '../Cart/Carthelper';
+import {
+  getAddressList,
+  mergeArrays,
+  updateAddressList,
+} from '../Cart/Carthelper';
 import {useFocusEffect} from '@react-navigation/native';
 
 const AddAddressScreen = (props: any) => {
@@ -26,7 +30,7 @@ const AddAddressScreen = (props: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
     refetchOnMountOrArgChange: true,
-    skip : item ? false : true
+    skip: item ? false : true,
   });
   const [addAddress, {isLoading}] = useCreateAddressMutation();
   const [updateAddress, {isLoading: isProcess}] = useUpdateAddressMutation();
@@ -76,30 +80,74 @@ const AddAddressScreen = (props: any) => {
     }, []),
   );
 
-  function mergeArrays(array1: any, array2: any) {
-    const resultArray: any = [];
+  // function mergeArrays(apiAddress: any) {
+  //   let resultArray: any = [];
 
-    array1.forEach((obj1: any) => {
-      const matchingObj2 = array2.find((obj2: any) => obj2._id === obj1._id);
+  //   if (apiAddress && addressData.length < 1) {
+  //     resultArray = apiAddress.map((address: any, index: any) => {
+  //       if (index === 0) {
+  //         return {
+  //           ...address,
+  //           deliveryAdd: true,
+  //           billingAdd: true,
+  //         };
+  //       } else {
+  //         return {
+  //           ...address,
+  //           deliveryAdd: false,
+  //           billingAdd: false,
+  //         };
+  //       }
+  //     });
+  //   } else {
+  //     resultArray = apiAddress.map((address: any) => {
+  //       let find: any = addressData.find(
+  //         (addressItem: any) =>
+  //           addressItem?._id.toString() === address?._id.toString(),
+  //       );
+  //       if (!find) {
+  //         return {
+  //           ...address,
+  //           delievedAdd: false,
+  //           billingAdd: false,
+  //         };
+  //       } else {
+  //         return {
+  //           ...address,
+  //           delievedAdd: find.deliveredAdd || false,
+  //           billingAdd: find.billingAdd || false,
+  //         };
+  //       }
+  //     });
 
-      if (matchingObj2) {
-        const mergedObject = {
-          ...obj1,
-          billingAdd: matchingObj2.billingAdd,
-          deliveryAdd: matchingObj2.deliveryAdd,
-        };
-        resultArray.push(mergedObject);
-      } else {
-        resultArray.push({
-          ...obj1,
-          billingAdd: false,
-          deliveryAdd: false,
-        });
-      }
-    });
+  //     return resultArray;
+  //   }
 
-    return resultArray;
-  }
+  //   // apiAddress.forEach((obj1: any) => {
+  //   //   const matchingObj2:any = addressData.find(
+  //   //     (obj2: any) => obj2._id === obj1._id,
+  //   //   );
+
+  //   //   if (matchingObj2) {
+  //   //     console.log('if.........');
+  //   //     const mergedObject = {
+  //   //       ...obj1,
+  //   //       billingAdd: matchingObj2.billingAdd,
+  //   //       deliveryAdd: matchingObj2.deliveryAdd,
+  //   //     };
+  //   //     resultArray.push(mergedObject);
+  //   //   } else {
+  //   //     console.log('else.........');
+  //   //     resultArray.push({
+  //   //       ...obj1,
+  //   //       billingAdd: false,
+  //   //       deliveryAdd: false,
+  //   //     });
+  //   //   }
+  //   // });
+
+  //   // return resultArray;
+  // }
 
   const submitPress = async () => {
     setCheckValid(true);
@@ -136,11 +184,15 @@ const AddAddressScreen = (props: any) => {
       item === undefined && delete body.addressId;
       if (item) {
         const {data, error}: any = await updateAddress(body);
-        console.log('data?.result?.address', data?.result?.address);
+        console.log(
+          'ADDD ADDRESS data?.result?.address',
+          data?.result?.address,
+        );
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
-          const mergedArray = mergeArrays(data?.result?.address, addressData);
-          console.log(mergedArray);
+          console.log('ASYNC ADDRESS', addressData);
+          const mergedArray = await mergeArrays(data?.result?.address);
+          console.log('AFTER MRGE', mergedArray);
           await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();
@@ -154,24 +206,30 @@ const AddAddressScreen = (props: any) => {
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
-          let updateData = data?.result?.address.map((address: any) => {
-            console.log('address', address);
-            let find = addressData.find(
-              (item: any) => item._id === address._id,
-            );
-            console.log('FOUND', find);
-            if (!find) {
-              console.log('Hello....');
-              return {
-                ...address,
-                deliveryAdd: false,
-                billingAdd: false,
-              };
-            }
-            return find;
-          });
-          console.log('updateData......//////////', updateData);
-          await updateAddressList(updateData);
+          const mergedArray = await mergeArrays(data?.result?.address);
+
+          // let updateData = data?.result?.address.map((address: any) => {
+          //   console.log('address', address);
+          //   let find: any = addressData.find(
+          //     (item: any) => item._id === address._id,
+          //   );
+          //   console.log('FOUND', find);
+          //   if (!find) {
+          //     console.log('Hello....');
+          //     return {
+          //       ...address,
+          //       deliveryAdd: false,
+          //       billingAdd: false,
+          //     };
+          //   }
+          //   return {
+          //     ...address,
+          //     deliveryAdd: find?.deliveryAdd || false,
+          //     billingAdd: find?.billingAdd || false,
+          //   };
+          // });
+          // console.log('updateData......//////////', updateData);
+          await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();
         } else {

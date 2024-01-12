@@ -141,6 +141,104 @@ const updateAddressList = async (addressList: any) => {
   }
 };
 
+const mergeArrays = async (apiAddress: any) => {
+  let addressData = await getAddressList();
+  console.log('ADDRESS', addressData);
+  let resultArray: any = [];
+
+  if (apiAddress && addressData.length < 1) {
+    console.log('IF......', apiAddress);
+    resultArray = apiAddress.map((address: any, index: any) => {
+      if (index === 0) {
+        return {
+          ...address,
+          deliveryAdd: true,
+          billingAdd: true,
+        };
+      } else {
+        return {
+          ...address,
+          deliveryAdd: false,
+          billingAdd: false,
+        };
+      }
+    });
+  } else {
+    console.log('ELSE......', apiAddress);
+    resultArray = apiAddress.map((address: any) => {
+      let find: any = addressData.find(
+        (addressItem: any) =>
+          addressItem?._id.toString() === address?._id.toString(),
+      );
+      console.log('FIND......', find);
+      if (!find) {
+        return {
+          ...address,
+          deliveryAdd: false,
+          billingAdd: false,
+        };
+      } else {
+        return {
+          ...address,
+          deliveryAdd: find.deliveryAdd || false,
+          billingAdd: find.billingAdd || false,
+        };
+      }
+    });
+    console.log('RESULT', resultArray);
+  }
+
+  // let isDelivery = resultArray.find((item: any) => item.deliveryAdd);
+  // let isBilling = resultArray.find((item: any) => item.billingAdd);
+
+  // if (!isDelivery) {
+  //   resultArray = await resultArray.map((item: any) => {
+  //     if (item.isPriority === true) {
+  //       item.deliveryAdd = true;
+  //       return item;
+  //     }
+  //     return item;
+  //   });
+  // }
+
+  // if (!isBilling) {
+  //   resultArray = await resultArray.map((item: any) => {
+  //     if (item.isPriority === true) {
+  //       item.billingAdd = true;
+  //       return item;
+  //     }
+  //     return item;
+  //   });
+  // }
+
+  return resultArray;
+
+  // apiAddress.forEach((obj1: any) => {
+  //   const matchingObj2:any = addressData.find(
+  //     (obj2: any) => obj2._id === obj1._id,
+  //   );
+
+  //   if (matchingObj2) {
+  //     console.log('if.........');
+  //     const mergedObject = {
+  //       ...obj1,
+  //       billingAdd: matchingObj2.billingAdd,
+  //       deliveryAdd: matchingObj2.deliveryAdd,
+  //     };
+  //     resultArray.push(mergedObject);
+  //   } else {
+  //     console.log('else.........');
+  //     resultArray.push({
+  //       ...obj1,
+  //       billingAdd: false,
+  //       deliveryAdd: false,
+  //     });
+  //   }
+  // });
+
+  // return resultArray;
+};
+
 export {
   addToCart,
   incrementCartItem,
@@ -150,5 +248,6 @@ export {
   updateCartItems,
   calculateTotalPrice,
   getAddressList,
-  updateAddressList
+  updateAddressList,
+  mergeArrays,
 };

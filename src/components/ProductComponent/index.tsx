@@ -112,6 +112,9 @@ const ProductComponent = (props: any) => {
       {isHorizontal ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+          }
           contentContainerStyle={[
             commonStyle.rowJB,
             {flexWrap: 'wrap', paddingHorizontal: wp(0.2)},

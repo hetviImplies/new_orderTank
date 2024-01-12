@@ -1,4 +1,10 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import commonStyle, {fontSize, mediumFont, tabIcon} from '../../styles';
 import {
@@ -18,7 +24,11 @@ import AddressComponent from '../../components/AddressComponent';
 import utils from '../../helper/utils';
 import Popup from '../../components/Popup';
 import {setAddressList} from '../../redux/slices/addressSlice';
-import {getAddressList, updateAddressList} from '../Cart/Carthelper';
+import {
+  getAddressList,
+  mergeArrays,
+  updateAddressList,
+} from '../Cart/Carthelper';
 import {useFocusEffect} from '@react-navigation/native';
 
 const AddressScreen = ({navigation, route, props}: any) => {
@@ -42,6 +52,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [updateAdd, setUpdateAdd] = useState([]);
+  const [isUpdated, setIsUpdated] = useState(false);
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
@@ -50,7 +61,8 @@ const AddressScreen = ({navigation, route, props}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       fetchAddressItems();
-    }, [isLoading]),
+      // setIsUpdated(false);
+    }, []),
   );
 
   const fetchAddressItems = async () => {
@@ -58,25 +70,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
     console.log('Obtain address items', items);
     setAddressData(items);
   };
-
-  // useEffect(() => {
-  //   const fetchAddressItems = async () => {
-  //     const items = await getAddressList();
-  //     setAddressData(items);
-  //   };
-  //   fetchAddressItems();
-  // }, [addressData]);
-
-  // useEffect(() => {
-  //   let list = data?.result?.address.map((item: any) => ({
-  //     ...item,
-  //     deliveryAdd: item.isPriority,
-  //     billingAdd: item.isPriority,
-  //   }));
-  //   console.log('list', list);
-  //   setAddressData(list);
-  //   dispatch(setAddressList(list));
-  // }, [data, isFetching]);
 
   const handleCheck = (item: any, checkboxIndex: any) => {
     let updateAddress: any =
@@ -87,7 +80,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
                 ...address,
                 deliveryAdd: type === 'Delivery address' ? true : false,
               };
-              // console.log('Delivery RESULT: ', result);
               setCheckedData(result);
               return result;
             }
@@ -99,89 +91,41 @@ const AddressScreen = ({navigation, route, props}: any) => {
                 ...address,
                 billingAdd: type !== 'Delivery address' ? true : false,
               };
-              // console.log('Billing RESULT: ', result);
               setCheckedData(result);
               return result;
             }
             return {...address, billingAdd: false};
           });
-    console.log('updateAddress', updateAddress);
     setUpdateAdd(updateAddress);
-    // let data = addressData.map((address: any, index: any) => {
-    //   console.log('handleCheck',item?._id === address?._id,)
-    //   if (item?._id === address?._id) {
-    //     address.deliveryAdd = type === 'Delivery address' ? true : false;
-    //     address.billingAdd = type !== 'Delivery address' ? true : false;
-    //   } else {
-    //     address.deliveryAdd = false;
-    //     address.billingAdd = false;
-    //   }
-    //   return item;
-    // });
-    // let data = {
-    //   ...item,
-    //   deliveryAdd: type === 'Delivery address' ? true : false,
-    //   billingAdd: type !== 'Delivery address' ? true : false,
-    // };
-    // let Add = addressData.map((address: any, index: any) => {
-    //   if (item?._id === address?._id) {
-
-    //     return {
-    //       ...address,
-    //       // deliveryAdd: type === 'Delivery address' ? true : false,
-    //       // billingAdd: type !== 'Delivery address' ? true : false,
-    //     };
-    //   } else {
-    //     return {...address, deliveryAdd: false, billingAdd: false};
-    //   }
-    // });
-    // console.log('item', addressData);
-    // setCheckedData(data);
   };
 
   const continuePress = async () => {
-    console.log('updateAdd', updateAdd);
-    await updateAddressList(updateAdd);
-    // dispatch(setAddressList(updateAdd));
-    let params = {
-      deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
-      billingAdd: type === 'Billing address' ? checkedData : billingAdd,
-      data: cartData,
-      // companyId: companyId,
-      from: RootScreens.Address,
-      name: 'Place Order',
-      notes: notes,
-      expectedDate: date,
-    };
-    // navigation.navigate(RootScreens.SecureCheckout);
-    navigation.goBack();
-    route.params.onGoBack(params);
+    console.log('continuePress', checkedData, deliveryAdd, billingAdd);
+    if (
+      JSON.stringify(checkedData) === JSON.stringify(deliveryAdd) ||
+      JSON.stringify(checkedData) === JSON.stringify(billingAdd)
+    ) {
+      console.log('IF......');
+      navigation.goBack();
+    } else {
+      await updateAddressList(updateAdd);
+      // dispatch(setAddressList(updateAdd));
+      let params = {
+        deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
+        billingAdd: type === 'Billing address' ? checkedData : billingAdd,
+        data: cartData,
+        // companyId: companyId,
+        from: RootScreens.Address,
+        name: 'Place Order',
+        notes: notes,
+        expectedDate: date,
+      };
+      console.log('Params', params);
+      // navigation.navigate(RootScreens.SecureCheckout);
+      navigation.goBack();
+      route.params.onGoBack(params);
+    }
   };
-
-  function mergeArrays(array1: any, array2: any) {
-    const resultArray: any = [];
-
-    array1.forEach((obj1: any) => {
-      const matchingObj2 = array2.find((obj2: any) => obj2._id === obj1._id);
-
-      if (matchingObj2) {
-        const mergedObject = {
-          ...obj1,
-          billingAdd: matchingObj2.billingAdd,
-          deliveryAdd: matchingObj2.deliveryAdd,
-        };
-        resultArray.push(mergedObject);
-      } else {
-        resultArray.push({
-          ...obj1,
-          billingAdd: false,
-          deliveryAdd: false,
-        });
-      }
-    });
-
-    return resultArray;
-  }
 
   const onAddressDelete = async (item: any) => {
     setIsOpen(false);
@@ -192,16 +136,24 @@ const AddressScreen = ({navigation, route, props}: any) => {
     const {data, error}: any = await deleteAddress(params);
     console.log('DELETED', data, error);
     if (!error && data?.statusCode === 200) {
-      const mergedArray = mergeArrays(data?.result?.address, addressData);
-      console.log(mergedArray);
+      // const mergedArray = mergeArrays(data?.result?.address, addressData);
+      const mergedArray = await mergeArrays(data?.result?.address);
+      console.log('DELETED', mergedArray);
       await updateAddressList(mergedArray);
       utils.showSuccessToast(data.message);
+      const items = await getAddressList();
+      console.log('Obtain address items', items);
+      setAddressData(mergedArray);
     } else {
       utils.showErrorToast(data?.message ? data?.message : error?.message);
     }
   };
 
   const _renderItem = ({item, index}: any) => {
+    let delivery = addressData?.find((d: any) => d?.deliveryAdd);
+    console.log('DELEVERY', delivery);
+    let billing = addressData?.find((d: any) => d?.billingAdd);
+    console.log('BILL', billing);
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}

@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   Platform,
@@ -93,10 +94,10 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    setDeliAdd(deliveryAdd);
-    setBillAdd(billingAdd);
-  }, [route.params]);
+  // useEffect(() => {
+  //   setDeliAdd(addressData?.find((d: any) => d?.deliveryAdd === true));
+  //   setBillAdd(addressData?.find((d: any) => d?.billingAdd === true));
+  // }, [addressData]);
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -113,10 +114,12 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       const fetchAddressItems = async () => {
         const items = await getAddressList();
         console.log('Place Order address items', items);
+        setDeliAdd(items?.find((d: any) => d?.deliveryAdd === true));
+        setBillAdd(items?.find((d: any) => d?.billingAdd === true));
         setAddressData(items);
       };
       fetchAddressItems();
-    }, []),
+    }, [navigation]),
   );
   const onChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
@@ -182,10 +185,10 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const addressRenderItem = ({item, index}: any) => {
-    let delivery = addressData?.find((d: any) => d.deliveryAdd);
+    let delivery = addressData?.find((d: any) => d?.deliveryAdd);
     console.log('DELEVERY', delivery);
-    let billing = addressData?.find((d: any) => d.billingAdd);
-    console.log('BILL', billing);
+    let billing = addressData?.find((d: any) => d?.billingAdd);
+    console.log('BILL', billing, billing === undefined);
     console.log('ADDDRESSSS..........///', index, addressData);
     return (
       <View>
@@ -220,16 +223,45 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         />
         {isOrder ? (
           <AddressComponent
-            item={index === 0 ? orderDetails?.deliveryAddress :  orderDetails?.billingAddress}
+            item={
+              index === 0
+                ? orderDetails?.deliveryAddress
+                : orderDetails?.billingAddress
+            }
             from={RootScreens.SecureCheckout}
             isEditDelete={false}
           />
         ) : (
-          <AddressComponent
-            item={index === 0 ? delivery : billing}
-            from={RootScreens.SecureCheckout}
-            isEditDelete={false}
-          />
+          <>
+            {index === 0 ? (
+              <>
+                {delivery !== undefined ? (
+                  <AddressComponent
+                    item={delivery}
+                    from={RootScreens.SecureCheckout}
+                    isEditDelete={false}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <>
+                {billing !== undefined ? (
+                  <AddressComponent
+                    item={billing}
+                    from={RootScreens.SecureCheckout}
+                    isEditDelete={false}
+                  />
+                ) : null}
+              </>
+            )}
+            {/* {delivery !== undefined || billing !== undefined ? (
+              <AddressComponent
+                item={index === 0 ? delivery : billing}
+                from={RootScreens.SecureCheckout}
+                isEditDelete={false}
+              />
+            ) : <View/>} */}
+          </>
         )}
         {index === 0 && <View style={styles.line} />}
       </View>
@@ -237,34 +269,39 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const placeOrderPress = async () => {
-    let body: any = {};
-    let ids;
-    body = cartData?.map((item: any, index: any) => {
-      return {
-        product: item?._id,
-        quantity: item?.quantity,
-      };
-    });
-    ids = cartData?.find((item: any, index: any) => item?.companyId);
-
-    let params = {
-      orderDetails: body,
-      notes: notes,
-      approxDeliveryDate: date,
-      deliveryAddress: deliveryAdd,
-      billingAddress: billingAdd,
-      companyId: ids.companyId,
-      isBuyer: true,
-    };
-    const {data: order, error}: any = await createOrder(params);
-    if (!error && order?.statusCode === 201) {
-      await updateCartItems([]);
-      let updatedCartItems = await getCartItems();
-      if (updatedCartItems?.length == 0) {
-        navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
-      }
+    if (deliAdd === undefined) {
+      Alert.alert('Delivery Address is required.');
     } else {
-      utils.showErrorToast(order?.message ? order?.message : error?.message);
+      let body: any = {};
+      let ids;
+      body = cartData?.map((item: any, index: any) => {
+        return {
+          product: item?._id,
+          quantity: item?.quantity,
+        };
+      });
+      ids = cartData?.find((item: any, index: any) => item?.companyId);
+
+      let params = {
+        orderDetails: body,
+        notes: notes,
+        approxDeliveryDate: date,
+        deliveryAddress: deliAdd,
+        billingAddress: billAdd,
+        companyId: ids.companyId,
+        isBuyer: true,
+      };
+      console.log('PARAMS: ', params);
+      const {data: order, error}: any = await createOrder(params);
+      if (!error && order?.statusCode === 201) {
+        await updateCartItems([]);
+        let updatedCartItems = await getCartItems();
+        if (updatedCartItems?.length == 0) {
+          navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
+        }
+      } else {
+        utils.showErrorToast(order?.message ? order?.message : error?.message);
+      }
     }
   };
 
@@ -435,8 +472,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 name={'lexend-medium'}
                 size={smallFont}
                 color={'black2'}>
-                {moment(date).format('DD')} - {moment(date).format('MM')} -{' '}
-                {moment(date).format('YYYY')}
+                {moment(orderDetails?.approxDeliveryDate).format('DD')} - {moment(orderDetails?.approxDeliveryDate).format('MM')} -{' '}
+                {moment(orderDetails?.approxDeliveryDate).format('YYYY')}
               </FontText>
             </View>
           ) : (

@@ -30,7 +30,11 @@ import {useFocusEffect} from '@react-navigation/native';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {setAddressList} from '../../redux/slices/addressSlice';
-import {getAddressList, updateAddressList} from '../Cart/Carthelper';
+import {
+  getAddressList,
+  mergeArrays,
+  updateAddressList,
+} from '../Cart/Carthelper';
 
 const actions = [
   {
@@ -114,56 +118,68 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     getAddressData();
   }, [data, isFetching]);
 
-  const getAddressData = async () => {
-    const addressData = await getAddressList();
-    console.log(
-      'data.....//////',
-      addressData.length,
-      addressData,
-    );
-    if (data?.result && addressData.length === 0) {
-      console.log('address', data?.result?.address[0]);
+  console.log('API DATA HOME', data?.result?.address);
 
-      let upadetdData: any = [];
-      upadetdData.push({
-        ...data?.result?.address[0],
-        deliveryAdd: true,
-        billingAdd: true,
-      });
-      // let list: any = data?.result?.address.map((item: any) => ({
-      //   ...item,
-      //   deliveryAdd: item.isPriority,
-      //   billingAdd: item.isPriority,
-      // }));
-      console.log('list', upadetdData);
-      await updateAddressList(upadetdData);
-    } else {
-      // console.log('address', addressData);
-      let updateData = data?.result?.address.map((address: any) => {
-        let find = addressData.find((item: any) => item._id === address._id);
-        // let find = addressData.includes(address._id);
-        console.log('FOUND', find);
-        if (!find) {
-          return {
-            ...address,
-            deliveryAdd: false,
-            billingAdd: false,
-          };
-        }
-        return find;
-      });
-      // console.log('updateData', updateData);
-      await updateAddressList(updateData);
-    }
+  const getAddressData = async () => {
+    const mergedArray = await mergeArrays(data?.result?.address);
+    console.log('data.....//////',mergedArray);
+    await updateAddressList(mergedArray);
+    // const addressData = await getAddressList();
+    // console.log('data.....//////', addressData.length, addressData);
   };
+
+  // const getAddressData = async () => {
+  //   const addressData = await getAddressList();
+  //   console.log(
+  //     'data.....//////',
+  //     addressData.length,
+  //     addressData,
+  //   );
+  //   if (data?.result && addressData.length === 0) {
+  //     console.log('HOME address', data?.result?.address[0]);
+
+  //     let upadetdData: any = [];
+  //     upadetdData.push({
+  //       ...data?.result?.address[0],
+  //       deliveryAdd: true,
+  //       billingAdd: true,
+  //     });
+  //     // let list: any = data?.result?.address.map((item: any) => ({
+  //     //   ...item,
+  //     //   deliveryAdd: item.isPriority,
+  //     //   billingAdd: item.isPriority,
+  //     // }));
+  //     console.log('list', upadetdData);
+  //     await updateAddressList(upadetdData);
+  //   } else {
+  //     console.log('address..........//', addressData);
+  //     let updateData = data?.result?.address.map((address: any) => {
+  //       let find = addressData.find((item: any) => item._id === address._id);
+  //       // let find = addressData.includes(address._id);
+  //       console.log('FOUND', find);
+  //       if (!find) {
+  //         return {
+  //           ...address,
+  //           deliveryAdd: false,
+  //           billingAdd: false,
+  //         };
+  //       }
+  //       return {
+  //         ...address,
+  //         deliveryAdd: find?.deliveryAdd || false,
+  //         billingAdd: find?.billingAdd || false,
+  //       };
+  //     });
+  //     // console.log('updateData', updateData);
+  //     await updateAddressList(updateData);
+  //   }
+  // };
 
   useFocusEffect(
     React.useCallback(() => {
       refetch();
     }, []),
   );
-
-  console.log('Data', userInfo?.companyId?.logo || data?.result)
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
