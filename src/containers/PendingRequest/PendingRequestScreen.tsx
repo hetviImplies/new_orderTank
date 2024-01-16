@@ -33,7 +33,7 @@ const PendingRequestScreen = ({navigation}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
-          {item?.logo !== 'null' ? (
+          {item?.logo ? (
             <Image source={{uri: item?.logo}} style={styles.logo} />
           ) : (
             <Image source={Images.supplierImg} style={styles.logo} />

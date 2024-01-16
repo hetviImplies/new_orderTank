@@ -4,8 +4,10 @@ import {
   Image,
   TouchableOpacity,
   View,
+  Platform,
+  BackHandler,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import {NavigationBar, FontText, Loader} from '../../components';
 import {
@@ -21,7 +23,7 @@ import colors from '../../assets/colors';
 import {BASE_URL} from '../../types/data';
 import {
   useGetNotificationQuery,
-  useReadNotificationQuery,
+  useReadNotificationMutation,
 } from '../../api/notification';
 import moment from 'moment';
 
@@ -30,22 +32,99 @@ const NotificationScreen = ({navigation}: any) => {
     useGetNotificationQuery(null, {
       refetchOnMountOrArgChange: true,
     });
+  const [readNotification, {isLoading: isReadFetch}] =
+    useReadNotificationMutation();
+
   const [notifiedData, setNotifiedData] = useState([]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          style={[
+            // commonStyle.iconView,
+            {marginLeft: wp(1)},
+          ]}
+          onPress={() => {
+            console.log('notifiedData', noitification?.result);
+            if (noitification?.result?.length !== 0) {
+              const data = noitification?.result?.map((item: any) => item?._id);
+              console.log('data', data);
+              seenNotification(data);
+              navigation.goBack();
+            } else {
+              navigation.goBack();
+            }
+          }}>
+          {Platform.OS === 'android' ? (
+            <SvgIcons.AndroidBack
+              width={wp(6)}
+              height={wp(6)}
+              style={{marginLeft: wp(2)}}
+            />
+          ) : (
+            <SvgIcons.BackArrow
+              width={wp(5)}
+              height={wp(5)}
+              fill={colors.blue2}
+              stroke={colors.blue2}
+            />
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, []);
+
+  const backAction = () => {
+    if (noitification?.result?.length !== 0) {
+      const data = noitification?.result?.map((item: any) => item?._id);
+      console.log('data', data);
+      seenNotification(data);
+      navigation.goBack();
+    } else {
+      navigation.goBack();
+    }
+    return true;
+  };
 
   useEffect(() => {
     setNotifiedData(noitification?.result);
-  }, [isProcessing, noitification]);
+  }, [isProcessing]);
+
+  // useEffect(() => {
+  //   console.log('notifiedData', notifiedData);
+
+  //   if (notifiedData?.length !== 0) {
+  //     const data = notifiedData?.map((item: any) => item?._id);
+  //     console.log('data', data);
+  //     seenNotification(data);
+  //   }
+  // }, [notifiedData, noitification]);
+
+  const seenNotification = async (idData: any) => {
+    let params: any = {
+      ids: idData,
+    };
+    const {data, error}: any = await readNotification(params);
+    console.log('data', data, error);
+  };
 
   const _renderItem = ({item, index}: any) => {
     const originalTimestamp = item?.createdAt;
     const convertedTimestamp = moment(originalTimestamp)
       .utc()
       .format('DD/MM/YYYY, hh:mm A');
-    const notiRead = item?.notifications?.isRead
-      ? colors.white
-      : colors.brownOpacity;
+    const notiRead = item?.seen ? colors.white : colors.orangeOpacity;
+    const shadow = item?.seen && commonStyle.shadowContainer;
     return (
-      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
+      <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>
         <View style={{width: '100%'}}>
           <FontText
             color="gray3"
@@ -97,7 +176,7 @@ const NotificationScreen = ({navigation}: any) => {
       {notifiedData && notifiedData.length !== 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={notifiedData.slice().reverse()}
+          data={notifiedData}
           renderItem={_renderItem}
           contentContainerStyle={{paddingTop: wp(3)}}
           // refreshControl={

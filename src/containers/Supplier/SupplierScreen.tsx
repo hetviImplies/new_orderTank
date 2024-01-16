@@ -52,7 +52,7 @@ const SupplierScreen = ({navigation}: any) => {
     React.useCallback(() => {
       refetch();
     }, [refetch]),
-  );  
+  );
 
   const onRefreshing = () => {
     setRefreshing(true);
@@ -104,7 +104,7 @@ const SupplierScreen = ({navigation}: any) => {
             company: item?.companyName,
           })
         }>
-        {item?.logo !== 'null' ? (
+        {item?.logo ? (
           <Image source={{uri: item?.logo}} style={styles.logo} />
         ) : (
           <Image source={Images.supplierImg} style={styles.logo} />
@@ -137,7 +137,6 @@ const SupplierScreen = ({navigation}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    console.log('DATA', data, error);
     if (!error && data.statusCode === 200) {
       setCode('');
       utils.showSuccessToast(data.message);

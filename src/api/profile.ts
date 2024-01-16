@@ -1,11 +1,12 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
 import { BASE_URL } from '../types/data';
+import Config from 'react-native-config';
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/user`,
+    baseUrl: `${Config.API_URL}/user`,
     prepareHeaders,
   }),
   tagTypes: ['profiles'],

@@ -8,7 +8,7 @@ import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import imageCompress,{getImageMetaData} from 'react-native-compressor';
+import imageCompress, {getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
 // import BottomSheet from '../BottomSheet';
 import {NUMBER_TYPE, STATES_DATA} from '../../types/data';
@@ -67,6 +67,7 @@ const CompanyDetail = (props: any) => {
   const nameRef: any = useRef();
   const phoneRef: any = useRef();
   const companyRef: any = useRef();
+  const addressNameRef: any = useRef();
   const addressRef: any = useRef();
   const localityRef: any = useRef();
   const pinCodeRef: any = useRef();
@@ -81,6 +82,7 @@ const CompanyDetail = (props: any) => {
   const [gstNo, setGstNo] = useState('');
   const [panNo, setPanNo] = useState('');
   const [company, setCompany] = useState('');
+  const [addressName, setAddressName] = useState('');
   const [name, setName] = useState('');
   const [nameTemp, setNameTemp] = useState('');
   const [phone, setPhone] = useState('');
@@ -110,6 +112,7 @@ const CompanyDetail = (props: any) => {
     checkValid &&
     (phone?.length === 0 || phone?.length < 10 || !validationNumber(phone));
   const isValidAddress = checkValid && address?.length === 0;
+  const isValidAddressName = checkValid && addressName?.length === 0;
   const isValidPinCode = checkValid && pinCode?.length === 0;
   const isValidLocality = checkValid && locality?.length === 0;
   const isValidCity = checkValid && city?.length === 0;
@@ -131,6 +134,7 @@ const CompanyDetail = (props: any) => {
     );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
+    setAddressName(data?.result ? data?.result.address[0]?.addressName : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
     setPinCode(data?.result ? data?.result.address[0]?.pincode : '');
     setCity(data?.result ? data?.result.address[0]?.city : '');
@@ -152,7 +156,6 @@ const CompanyDetail = (props: any) => {
     url: any,
     file: any,
   ) => {
-    console.log('res', res)
     const newUrl = isAndroid ? `file://${url}` : url;
     if (file >= 5000000) {
       utils.showWarningToast('Image size must be less than 5MB.');
@@ -165,7 +168,6 @@ const CompanyDetail = (props: any) => {
         },
       );
       const metadata = await getImageMetaData(result);
-      console.log('result', metadata)
       setImageUrl(result);
       setImageRes(res);
     }
@@ -205,6 +207,7 @@ const CompanyDetail = (props: any) => {
       (numberType === 1
         ? gstNo.length !== 0 && validationGstNo(gstNo)
         : panNo.length !== 0 && validationPanNo(panNo)) &&
+      addressName.length !== 0 &&
       address.length !== 0 &&
       locality.length !== 0 &&
       city.length !== 0 &&
@@ -694,7 +697,7 @@ const CompanyDetail = (props: any) => {
                 color={'black'}
                 returnKeyType={'next'}
                 onSubmit={() => {
-                  addressRef?.current.focus();
+                  addressNameRef?.current.focus();
                 }}
                 children={
                   <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -710,6 +713,56 @@ const CompanyDetail = (props: any) => {
                   textAlign="right"
                   name="regular">
                   {'Company Name is required.'}
+                </FontText>
+              )}
+            </View>
+            <View style={styles.marginTopView}>
+              <View
+                style={[
+                  commonStyle.rowAC,
+                  {
+                    marginBottom: hp(1),
+                  },
+                ]}>
+                <FontText
+                  name={'lexend-regular'}
+                  size={mediumFont}
+                  color={'gray3'}
+                  pLeft={wp(1)}
+                  textAlign={'left'}>
+                  {'Address Name:'}
+                </FontText>
+              </View>
+              <Input
+                editable={from === 'Profile' ? editInformation : true}
+                ref={addressNameRef}
+                value={addressName}
+                onChangeText={(text: string) => setAddressName(text.trimStart())}
+                placeholder={'Enter Address Name'}
+                autoCapitalize="none"
+                placeholderTextColor={'placeholder'}
+                fontSize={fontSize}
+                inputStyle={styles.inputText}
+                style={styles.input}
+                color={'black'}
+                returnKeyType={'next'}
+                onSubmit={() => {
+                  addressRef?.current.focus();
+                }}
+                children={
+                  <View style={[commonStyle.abs, {left: wp(4)}]}>
+                    <SvgIcons.Location width={iconSize} height={iconSize} />
+                  </View>
+                }
+              />
+              {isValidAddress && (
+                <FontText
+                  size={normalize(12)}
+                  color={'red'}
+                  pTop={wp(1)}
+                  textAlign="right"
+                  name="regular">
+                  {'Address Name is required.'}
                 </FontText>
               )}
             </View>

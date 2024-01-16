@@ -1,11 +1,12 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
-import { BASE_URL } from '../types/data';
+import {BASE_URL} from '../types/data';
+import Config from 'react-native-config';
 
 export const notificationApi = createApi({
   reducerPath: 'notificationApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/notification`,
+    baseUrl: `${Config.API_URL}/notification`,
     prepareHeaders,
   }),
   tagTypes: ['notification'],
@@ -20,16 +21,17 @@ export const notificationApi = createApi({
       },
       providesTags: ['notification'],
     }),
-    readNotification: builder.query({
-      query: () => {
+    readNotification: builder.mutation({
+      query: body => {
         return {
-          url: 'read-notification',
-          method: 'GET',
+          url: 'seen',
+          method: 'POST',
+          body,
         };
       },
-      providesTags: ['notification'],
+      invalidatesTags: ['notification'],
     }),
   }),
 });
 
-export const {useGetNotificationQuery, useReadNotificationQuery} = notificationApi;
+export const {useGetNotificationQuery, useReadNotificationMutation} = notificationApi;

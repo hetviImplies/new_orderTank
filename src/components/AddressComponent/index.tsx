@@ -18,7 +18,7 @@ const AddressComponent = (props: any) => {
       ]}>
       <View style={[commonStyle.rowJB, {marginBottom: wp(1), width: '100%'}]}>
         <View style={commonStyle.rowAC}>
-          {item?.addressName === 'Company' ? (
+          {/* {item?.addressName === 'Company' ? (
             <SvgIcons.Employee
               width={iconSize}
               height={iconSize}
@@ -38,12 +38,13 @@ const AddressComponent = (props: any) => {
                   : colors.black2
               }
             />
-          )}
+          )} */}
           <FontText
             name={'lexend-regular'}
             size={smallFont}
             color={from !== RootScreens.SecureCheckout ? 'orange' : 'black2'}
-            pLeft={wp(2)}>
+            // pLeft={wp(2)}
+          >
             {item?.addressName}
           </FontText>
         </View>
@@ -66,7 +67,6 @@ const AddressComponent = (props: any) => {
         <FontText
           name={'lexend-regular'}
           size={smallFont}
-          pLeft={wp(1)}
           pBottom={wp(2)}
           color={'black2'}>
           {item?.addressLine}

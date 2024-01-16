@@ -53,7 +53,7 @@ const OrderScreen = ({navigation}: any) => {
 
   useFocusEffect(
     useCallback(() => {
-      flatListRef.current.scrollToIndex({ animated: true, index: 0 });
+      flatListRef.current.scrollToIndex({animated: true, index: 0});
       setSelectOrder({
         label: 'All Order',
         value: 'all',
@@ -64,7 +64,6 @@ const OrderScreen = ({navigation}: any) => {
   useEffect(() => {
     setOrderData(orderList?.result);
   }, [isProcess, selectOrder]);
-
 
   const onRefreshing = () => {
     setRefreshing(true);
@@ -104,21 +103,30 @@ const OrderScreen = ({navigation}: any) => {
               {item?.orderId}
             </FontText>
             <FontText
+              color={'black2'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {item?.companyId?.companyName}
+            </FontText>
+          </View>
+          <View>
+            <FontText
               color={'gray'}
               size={smallFont}
               textAlign={'left'}
               name={'lexend-regular'}>
               {moment(item?.orderDate).format('DD-MM-YYYY')}
             </FontText>
+            <FontText
+              color={'orange'}
+              size={smallFont}
+              textAlign={'right'}
+              name={'lexend-medium'}>
+              {'₹'}
+              {item?.totalAmount.toFixed(2)}
+            </FontText>
           </View>
-          <FontText
-            color={'orange'}
-            size={smallFont}
-            textAlign={'right'}
-            name={'lexend-medium'}>
-            {'₹'}
-            {item?.totalAmount}
-          </FontText>
         </View>
         <View style={[styles.dashedLine]} />
         <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>

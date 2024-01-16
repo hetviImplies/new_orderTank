@@ -57,14 +57,13 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [billAdd, setBillAdd] = useState<any>(billingAdd ? billingAdd : {});
   const isOrder = from === RootScreens.Order;
   const [addressData, setAddressData] = useState([]);
+  const [companyName, setCompanyName] = useState('');
   // const addressData = useSelector((state: any) => state.address.addressData);
 
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const product = isOrder ? orderDetails?.orderDetails : cartData;
-
-  console.log('orderDetails', orderDetails);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -102,6 +101,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   useEffect(() => {
     const fetchCartItems = async () => {
       const items = await getCartItems();
+      // const companyNames = items.map(
+      //   (item: any) => item.companyData[0].companyName,
+      // );
+      const firstCompanyName = items[0]?.companyData[0]?.companyName;
+      setCompanyName(firstCompanyName);
       setCartData(items);
       const price = await calculateTotalPrice();
       setTotalPrice(price);
@@ -113,7 +117,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     React.useCallback(() => {
       const fetchAddressItems = async () => {
         const items = await getAddressList();
-        console.log('Place Order address items', items);
         setDeliAdd(items?.find((d: any) => d?.deliveryAdd === true));
         setBillAdd(items?.find((d: any) => d?.billingAdd === true));
         setAddressData(items);
@@ -186,10 +189,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
 
   const addressRenderItem = ({item, index}: any) => {
     let delivery = addressData?.find((d: any) => d?.deliveryAdd);
-    console.log('DELEVERY', delivery);
     let billing = addressData?.find((d: any) => d?.billingAdd);
-    console.log('BILL', billing, billing === undefined);
-    console.log('ADDDRESSSS..........///', index, addressData);
     return (
       <View>
         <IconHeader
@@ -222,15 +222,46 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           }}
         />
         {isOrder ? (
-          <AddressComponent
-            item={
-              index === 0
-                ? orderDetails?.deliveryAddress
-                : orderDetails?.billingAddress
-            }
-            from={RootScreens.SecureCheckout}
-            isEditDelete={false}
-          />
+          // <AddressComponent
+          //   item={
+          //     index === 0
+          //       ? orderDetails?.deliveryAddress
+          //       : orderDetails?.billingAddress
+          //   }
+          //   from={RootScreens.SecureCheckout}
+          //   isEditDelete={false}
+          // />
+          <>
+            {index === 0 ? (
+              <>
+                {orderDetails?.deliveryAddress?.addressLine ? (
+                  <AddressComponent
+                    item={orderDetails?.deliveryAddress}
+                    from={RootScreens.SecureCheckout}
+                    isEditDelete={false}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <>
+                {orderDetails?.billingAddress?.addressLine ? (
+                  <AddressComponent
+                    item={orderDetails?.billingAddress}
+                    from={RootScreens.SecureCheckout}
+                    isEditDelete={false}
+                  />
+                ) : (
+                  <FontText
+                    name={'lexend-regular'}
+                    size={smallFont}
+                    pLeft={wp(2)}
+                    color={'black2'}>
+                    {'Not available'}
+                  </FontText>
+                )}
+              </>
+            )}
+          </>
         ) : (
           <>
             {index === 0 ? (
@@ -291,7 +322,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         companyId: ids.companyId,
         isBuyer: true,
       };
-      console.log('PARAMS: ', params);
+      billAdd === undefined && delete params.billingAddress;
       const {data: order, error}: any = await createOrder(params);
       if (!error && order?.statusCode === 201) {
         await updateCartItems([]);
@@ -321,7 +352,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     }
   };
 
-  const newDate = new Date();
   return (
     <View style={commonStyle.container}>
       {/* <NavigationBar
@@ -357,6 +387,22 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         }}
         nestedScrollEnabled
         style={[commonStyle.paddingH4]}>
+        <FontText
+          name={'lexend-regular'}
+          size={mediumFont}
+          color={'orange'}
+          pTop={wp(1)}
+          textAlign={'left'}>
+          {'Company Name:'}
+          <FontText
+            name={'lexend-regular'}
+            size={mediumFont}
+            color={'black2'}
+            textAlign={'left'}>
+            {' '}
+            {orderDetails?.companyId?.companyName ? orderDetails?.companyId?.companyName : companyName}
+          </FontText>
+        </FontText>
         {isOrder ? (
           <View>
             <FontText
@@ -472,7 +518,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 name={'lexend-medium'}
                 size={smallFont}
                 color={'black2'}>
-                {moment(orderDetails?.approxDeliveryDate).format('DD')} - {moment(orderDetails?.approxDeliveryDate).format('MM')} -{' '}
+                {moment(orderDetails?.approxDeliveryDate).format('DD')} -{' '}
+                {moment(orderDetails?.approxDeliveryDate).format('MM')} -{' '}
                 {moment(orderDetails?.approxDeliveryDate).format('YYYY')}
               </FontText>
             </View>
@@ -508,7 +555,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         onPress={() => {
           isOrder ? setIsOpen(true) : placeOrderPress();
         }}
-        total={isOrder ? orderDetails?.totalAmount : totalPrice.toFixed(2)}
+        total={isOrder ? orderDetails?.totalAmount.toFixed(2) : totalPrice.toFixed(2)}
         showText={
           <View>
             {

@@ -2,11 +2,12 @@ import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
 import queryString from 'query-string';
 import {BASE_URL} from '../types/data';
+import Config from 'react-native-config';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/auth`,
+    baseUrl: `${Config.API_URL}/auth`,
     prepareHeaders,
     // paramsSerializer: function (params: any) {
     //   return queryString.stringify(params, {arrayFormat: 'bracket'});

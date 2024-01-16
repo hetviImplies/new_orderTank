@@ -16,7 +16,7 @@ import SvgIcons from '../../assets/SvgIcons';
 import commonStyle from '../../styles';
 
 const FilterModal = (props: any) => {
-  const {filterItems, onApplyPress, id, onApply, category} = props;
+  const {filterItems, onApplyPress, setSearch, onApply, category} = props;
   // const {data: category, isFetching} = useGetCategoryQuery(
   //   {companyId: id},
   //   {
@@ -32,6 +32,7 @@ const FilterModal = (props: any) => {
 
   const onReset = () => {
     setSelectedItems([]);
+    setSearch('');
   };
 
   // const onApply = (item: any) => {

@@ -5,7 +5,7 @@ const colors: any = {
   black: '#000000',
   black2 : '#272D2F',
   orange: '#FC8019',
-  brownOpacity:'#9643151A',
+  orangeOpacity:'#FC801930',
   gray:'#B8B7B7',
   gray2:'#F5F5F580',
   gray3:'#272D2F80',

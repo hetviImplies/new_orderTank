@@ -1,11 +1,12 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
 import { BASE_URL } from '../types/data';
+import Config from 'react-native-config';
 
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/categories`,
+    baseUrl: `${Config.API_URL}/categories`,
     prepareHeaders,
   }),
   tagTypes: ['categories'],

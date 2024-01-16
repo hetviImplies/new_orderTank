@@ -6,7 +6,12 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import commonStyle, {fontSize, mediumFont, tabIcon} from '../../styles';
+import commonStyle, {
+  fontSize,
+  iconSize,
+  mediumFont,
+  tabIcon,
+} from '../../styles';
 import {
   Button,
   CheckPreferenceItem,
@@ -33,6 +38,7 @@ import {useFocusEffect} from '@react-navigation/native';
 
 const AddressScreen = ({navigation, route, props}: any) => {
   const from = route?.params?.data?.from;
+  const companyName = route?.params?.companyName;
   const dispatch = useDispatch();
   // const companyId = route?.params?.data?.companyId;
   const cartData = route?.params?.data?.cartData;
@@ -67,7 +73,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
 
   const fetchAddressItems = async () => {
     const items = await getAddressList();
-    console.log('Obtain address items', items);
     setAddressData(items);
   };
 
@@ -100,12 +105,10 @@ const AddressScreen = ({navigation, route, props}: any) => {
   };
 
   const continuePress = async () => {
-    console.log('continuePress', checkedData, deliveryAdd, billingAdd);
     if (
       JSON.stringify(checkedData) === JSON.stringify(deliveryAdd) ||
       JSON.stringify(checkedData) === JSON.stringify(billingAdd)
     ) {
-      console.log('IF......');
       navigation.goBack();
     } else {
       await updateAddressList(updateAdd);
@@ -114,13 +117,12 @@ const AddressScreen = ({navigation, route, props}: any) => {
         deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
         billingAdd: type === 'Billing address' ? checkedData : billingAdd,
         data: cartData,
-        // companyId: companyId,
+        companyName: companyName,
         from: RootScreens.Address,
         name: 'Place Order',
         notes: notes,
         expectedDate: date,
       };
-      console.log('Params', params);
       // navigation.navigate(RootScreens.SecureCheckout);
       navigation.goBack();
       route.params.onGoBack(params);
@@ -134,15 +136,12 @@ const AddressScreen = ({navigation, route, props}: any) => {
       addressId: item._id,
     };
     const {data, error}: any = await deleteAddress(params);
-    console.log('DELETED', data, error);
     if (!error && data?.statusCode === 200) {
       // const mergedArray = mergeArrays(data?.result?.address, addressData);
       const mergedArray = await mergeArrays(data?.result?.address);
-      console.log('DELETED', mergedArray);
       await updateAddressList(mergedArray);
       utils.showSuccessToast(data.message);
       const items = await getAddressList();
-      console.log('Obtain address items', items);
       setAddressData(mergedArray);
     } else {
       utils.showErrorToast(data?.message ? data?.message : error?.message);
@@ -151,9 +150,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
 
   const _renderItem = ({item, index}: any) => {
     let delivery = addressData?.find((d: any) => d?.deliveryAdd);
-    console.log('DELEVERY', delivery);
     let billing = addressData?.find((d: any) => d?.billingAdd);
-    console.log('BILL', billing);
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}
@@ -219,8 +216,43 @@ const AddressScreen = ({navigation, route, props}: any) => {
         borderBottomWidth={0}
       /> */}
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
-        <FlatList data={addressData} renderItem={_renderItem} />
-        <TouchableOpacity
+        <FlatList
+          data={addressData}
+          renderItem={_renderItem}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={
+            <Button
+              onPress={() => {
+                navigation.navigate(RootScreens.AddAddress, {
+                  address: data?.result?.address,
+                  name: 'Add Address',
+                });
+              }}
+              bgColor={'orange'}
+              flex={null}
+              style={[
+                styles.buttonStyle,
+                {marginBottom: hp(3), marginTop: wp(2), width: '60%'},
+              ]}>
+              {/* <View style={styles.addBtn}>
+              <SvgIcons.Plus
+                width={wp(3)}
+                height={wp(3)}
+                fill={colors.white}
+                stroke={colors.white}
+              />
+            </View> */}
+              <FontText
+                name={'lexend-semibold'}
+                size={fontSize}
+                color={'white'}>
+                {'Add New Address'}
+              </FontText>
+            </Button>
+          }
+        />
+
+        {/* <TouchableOpacity
           onPress={() => {
             navigation.navigate(RootScreens.AddAddress, {
               address: data?.result?.address,
@@ -229,18 +261,18 @@ const AddressScreen = ({navigation, route, props}: any) => {
           }}
           style={styles.floatingButton}>
           <SvgIcons.Plus width={tabIcon} height={tabIcon} fill={colors.white} />
-        </TouchableOpacity>
-        {from === RootScreens.SecureCheckout ? (
-          <Button
-            onPress={continuePress}
-            bgColor={'orange'}
-            style={[styles.buttonStyle]}>
-            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-              {'Continue'}
-            </FontText>
-          </Button>
-        ) : null}
+        </TouchableOpacity> */}
       </View>
+      {from === RootScreens.SecureCheckout ? (
+        <Button
+          onPress={continuePress}
+          bgColor={'orange'}
+          style={[styles.buttonStyle]}>
+          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            {'Continue'}
+          </FontText>
+        </Button>
+      ) : null}
       <Popup
         visible={isOpen}
         // onBackPress={() => setIsOpen(false)}
@@ -269,7 +301,7 @@ export default AddressScreen;
 const styles = StyleSheet.create({
   buttonStyle: {
     borderRadius: 12,
-    width: '100%',
+    width: '90%',
     alignSelf: 'center',
     marginBottom: hp(3),
     // position: 'absolute',
@@ -288,5 +320,12 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // bottom: wp(25),
     // right: wp(5),
+  },
+  addBtn: {
+    borderRadius: 25,
+    borderWidth: 2,
+    padding: wp(1),
+    alignSelf: 'center',
+    borderColor: 'white',
   },
 });

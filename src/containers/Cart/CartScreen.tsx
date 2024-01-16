@@ -29,8 +29,6 @@ import {
 import Images from '../../assets/images';
 
 const CartScreen = ({navigation, route}: any) => {
-  // const companyId = route.params.companyId;
-
   // const {
   //   data: carts,
   //   isFetching,
@@ -49,16 +47,16 @@ const CartScreen = ({navigation, route}: any) => {
 
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date());
-  const [deliAdd, setDeliAdd] = useState<any>(
-    userInfo
-      ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
-      : {},
-  );
-  const [billAdd, setBillAdd] = useState<any>(
-    userInfo
-      ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
-      : {},
-  );
+  // const [deliAdd, setDeliAdd] = useState<any>(
+  //   userInfo
+  //     ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
+  //     : {},
+  // );
+  // const [billAdd, setBillAdd] = useState<any>(
+  //   userInfo
+  //     ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
+  //     : {},
+  // );
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -68,7 +66,7 @@ const CartScreen = ({navigation, route}: any) => {
       setTotalPrice(price);
     };
     fetchCartItems();
-  }, []);
+  }, [cartData]);
 
   // useEffect(() => {
   //   setCartData(carts?.result);
@@ -86,8 +84,8 @@ const CartScreen = ({navigation, route}: any) => {
       expectedDate: date,
       notes: notes,
       onGoBackCart: (paramCart: any) => {
-        setDeliAdd(paramCart?.deliveryAdd);
-        setBillAdd(paramCart?.billingAdd);
+        // setDeliAdd(paramCart?.deliveryAdd);
+        // setBillAdd(paramCart?.billingAdd);
         setNotes(paramCart?.notes);
         setDate(paramCart?.expectedDate);
       },

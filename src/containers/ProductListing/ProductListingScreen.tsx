@@ -25,11 +25,10 @@ import {
 } from '../Cart/Carthelper';
 import {useFocusEffect} from '@react-navigation/native';
 import Popup from '../../components/Popup';
-import { useGetCategoryQuery } from '../../api/category';
+import {useGetCategoryQuery} from '../../api/category';
 
 const ProductListingScreen = ({navigation, route}: any) => {
-  const id = route.params.id;
-
+  const id = route?.params?.id;
   const filterRef: any = useRef(null);
   const [selectedItems, setSelectedItems] = useState<[]>([]);
   const [search, setSearch] = useState('');
@@ -48,7 +47,6 @@ const ProductListingScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
-  
 
   const {
     data: productList,
@@ -70,7 +68,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
     React.useCallback(() => {
       refetch();
     }, [refetch]),
-  );  
+  );
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -173,6 +171,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
 
   const onSearch = (selectedItems: any) => {
     setSelectedItems(selectedItems);
+    setSearch('');
     filterRef.current.close();
   };
 
@@ -338,10 +337,14 @@ const ProductListingScreen = ({navigation, route}: any) => {
           container: styles.btSheetContainer,
         }}>
         <FilterModal
-          onApplyPress={() => filterRef.current.close()}
+          onApplyPress={() => {
+            filterRef.current.close();
+            setSearch('');
+          }}
           navigation={navigation}
           id={id}
           onApply={onSearch}
+          setSearch={setSearch}
           filterItems={selectedItems}
           category={category?.result}
         />

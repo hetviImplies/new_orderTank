@@ -129,7 +129,6 @@ const AddAddressScreen = (props: any) => {
   //   //   );
 
   //   //   if (matchingObj2) {
-  //   //     console.log('if.........');
   //   //     const mergedObject = {
   //   //       ...obj1,
   //   //       billingAdd: matchingObj2.billingAdd,
@@ -137,7 +136,6 @@ const AddAddressScreen = (props: any) => {
   //   //     };
   //   //     resultArray.push(mergedObject);
   //   //   } else {
-  //   //     console.log('else.........');
   //   //     resultArray.push({
   //   //       ...obj1,
   //   //       billingAdd: false,
@@ -180,19 +178,12 @@ const AddAddressScreen = (props: any) => {
         companyId: userInfo?.companyId?._id,
         addressId: item?._id,
       };
-      console.log('body', body);
       item === undefined && delete body.addressId;
       if (item) {
         const {data, error}: any = await updateAddress(body);
-        console.log(
-          'ADDD ADDRESS data?.result?.address',
-          data?.result?.address,
-        );
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
-          console.log('ASYNC ADDRESS', addressData);
           const mergedArray = await mergeArrays(data?.result?.address);
-          console.log('AFTER MRGE', mergedArray);
           await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();
@@ -202,7 +193,6 @@ const AddAddressScreen = (props: any) => {
         }
       } else {
         const {data, error}: any = await addAddress(body);
-        console.log('addAddress DATA: ' + JSON.stringify(data));
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
@@ -276,10 +266,31 @@ const AddAddressScreen = (props: any) => {
                 color={'gray3'}
                 pLeft={wp(1)}
                 textAlign={'left'}>
-                {'Address name:'}
+                {'Address Name:'}
               </FontText>
             </View>
-            <TouchableOpacity
+            <Input
+              ref={addressNameRef}
+              value={addressName}
+              onChangeText={(text: string) => setAddressName(text.trimStart())}
+              placeholder={'Enter Address Name'}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              onSubmit={() => {
+                addressRef?.current.focus();
+              }}
+              children={
+                <View style={[commonStyle.abs, {left: wp(4)}]}>
+                  <SvgIcons.Location width={iconSize} height={iconSize} />
+                </View>
+              }
+            />
+            {/* <TouchableOpacity
               onPress={() => addressNameRef?.current?.open()}
               style={styles.dropdownView}>
               <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -294,7 +305,7 @@ const AddAddressScreen = (props: any) => {
                 {addressName ? addressName : 'Select Address Name'}
               </FontText>
               <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {isValidAddressName && (
               <FontText
                 size={normalize(12)}
@@ -569,10 +580,10 @@ const AddAddressScreen = (props: any) => {
           bgColor={'orange'}
           style={styles.buttonContainer}>
           <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-            {item ? 'Update' : 'Add address'}
+            {item ? 'Update' : 'Add Address'}
           </FontText>
         </Button>
-        <BottomSheet
+        {/* <BottomSheet
           onPressCloseModal={() => addressNameRef?.current?.close()}
           refName={addressNameRef}
           modalHeight={hp(20)}
@@ -583,7 +594,7 @@ const AddAddressScreen = (props: any) => {
             setAddressName(item?.value);
             addressNameRef?.current?.close();
           }}
-        />
+        /> */}
         <BottomSheet
           onPressCloseModal={() => stateRef?.current?.close()}
           refName={stateRef}

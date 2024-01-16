@@ -35,6 +35,10 @@ import {
   mergeArrays,
   updateAddressList,
 } from '../Cart/Carthelper';
+import {
+  useGetNotificationQuery,
+  useReadNotificationMutation,
+} from '../../api/notification';
 
 const actions = [
   {
@@ -71,6 +75,10 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
+  const {data: notificationData, isFetching: isNotiFetch, refetch: notiRefetch,} =
+    useGetNotificationQuery(null, {
+      refetchOnMountOrArgChange: true,
+    });
   const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
@@ -97,7 +105,20 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       refetch();
+      notiRefetch();
     }, [refetch]),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (notificationData?.result?.length !== 0) {
+        const data = notificationData?.result?.find(
+          (item: any) => item.seen === false,
+        );
+        console.log('item....//////', data);
+        setNotification(data === undefined ? {} : data);
+      }
+    }, [notificationData, isNotiFetch]),
   );
 
   useEffect(() => {
@@ -110,34 +131,31 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   //     deliveryAdd: item.isPriority,
   //     billingAdd: item.isPriority,
   //   }));
-  //   console.log('list', list);
   //   dispatch(setAddressList(list));
+  //   console.log('list', list);
   // }, [data, isFetching]);
 
   useEffect(() => {
     getAddressData();
   }, [data, isFetching]);
 
-  console.log('API DATA HOME', data?.result?.address);
-
   const getAddressData = async () => {
     const mergedArray = await mergeArrays(data?.result?.address);
-    console.log('data.....//////',mergedArray);
     await updateAddressList(mergedArray);
     // const addressData = await getAddressList();
-    // console.log('data.....//////', addressData.length, addressData);
   };
+  // console.log('data.....//////', addressData.length, addressData);
 
   // const getAddressData = async () => {
   //   const addressData = await getAddressList();
-  //   console.log(
   //     'data.....//////',
+  //   console.log(
   //     addressData.length,
   //     addressData,
   //   );
   //   if (data?.result && addressData.length === 0) {
-  //     console.log('HOME address', data?.result?.address[0]);
 
+  //     console.log('HOME address', data?.result?.address[0]);
   //     let upadetdData: any = [];
   //     upadetdData.push({
   //       ...data?.result?.address[0],
@@ -149,15 +167,15 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   //     //   deliveryAdd: item.isPriority,
   //     //   billingAdd: item.isPriority,
   //     // }));
-  //     console.log('list', upadetdData);
   //     await updateAddressList(upadetdData);
+  //     console.log('list', upadetdData);
   //   } else {
-  //     console.log('address..........//', addressData);
   //     let updateData = data?.result?.address.map((address: any) => {
+  //     console.log('address..........//', addressData);
   //       let find = addressData.find((item: any) => item._id === address._id);
   //       // let find = addressData.includes(address._id);
-  //       console.log('FOUND', find);
   //       if (!find) {
+  //       console.log('FOUND', find);
   //         return {
   //           ...address,
   //           deliveryAdd: false,
@@ -170,8 +188,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   //         billingAdd: find?.billingAdd || false,
   //       };
   //     });
-  //     // console.log('updateData', updateData);
   //     await updateAddressList(updateData);
+  //     // console.log('updateData', updateData);
   //   }
   // };
 
@@ -180,6 +198,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       refetch();
     }, []),
   );
+
+  console.log('notification?.seen', notification?.seen);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -206,13 +226,15 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             // style={commonStyle.iconView}
             onPress={() => navigation.navigate(RootScreens.Notification)}>
             <SvgIcons.Bell width={tabIcon} height={tabIcon} />
-            {Object.keys(notification).length !== 0 &&
-              !notification?.isRead && <View style={styles.countView} />}
+            {/* {noitification?.result?.length > noitification?.result?.length && <View style={styles.countView} />} */}
+            {Object.keys(notification)?.length !== 0 && notification?.seen === false && (
+              <View style={styles.countView} />
+            )}
           </TouchableOpacity>
         </View>
       ),
     });
-  }, [navigation, userInfo, isFetching]);
+  }, [navigation, userInfo, isFetching, isNotiFetch, notificationData, notification]);
 
   useEffect(() => {
     setOrderData(orderList?.result);
@@ -224,8 +246,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
 
   const getNotification = async () => {
     const notificationToken = await AsyncStorage.getItem('NotiToken');
-    console.log('home notitoken.......', notificationToken);
     const onMessageListener = messaging().onMessage(async remoteMessage => {
+      console.log('home notitoken.......', notificationToken);
       showNotification({
         title: remoteMessage?.notification?.title,
         message: remoteMessage?.notification?.body,
@@ -292,21 +314,30 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               {item?.orderId}
             </FontText>
             <FontText
+              color={'black2'}
+              size={smallFont}
+              textAlign={'left'}
+              name={'lexend-regular'}>
+              {item?.companyId?.companyName}
+            </FontText>
+          </View>
+          <View>
+            <FontText
               color={'gray'}
               size={smallFont}
               textAlign={'left'}
               name={'lexend-regular'}>
               {moment(item?.orderDate).format('DD-MM-YYYY')}
             </FontText>
+            <FontText
+              color={'orange'}
+              size={smallFont}
+              textAlign={'right'}
+              name={'lexend-medium'}>
+              {'₹'}
+              {item?.totalAmount?.toFixed(2)}
+            </FontText>
           </View>
-          <FontText
-            color={'orange'}
-            size={smallFont}
-            textAlign={'right'}
-            name={'lexend-medium'}>
-            {'₹'}
-            {item?.totalAmount}
-          </FontText>
         </View>
         <View style={[styles.dashedLine]} />
         <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>
@@ -415,7 +446,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         //   </View>
         // }
       /> */}
-      <Loader loading={isProcessing || isProcess} />
+      <Loader loading={isProcessing || isProcess || isFetch || isNotiFetch} />
       {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal> */}
@@ -565,13 +596,13 @@ const styles = StyleSheet.create({
     marginRight: hp(1),
   },
   countView: {
-    width: wp(2.5),
-    height: wp(2.5),
+    width: wp(2.6),
+    height: wp(2.6),
     backgroundColor: colors.orange,
     borderRadius: wp(10),
     position: 'absolute',
-    right: wp(3.2),
-    top: wp(2.5),
+    left: wp(3.5),
+    top: wp(0.2),
     justifyContent: 'center',
     alignItems: 'center',
   },

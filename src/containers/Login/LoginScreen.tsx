@@ -300,6 +300,7 @@ const LoginScreen = ({navigation}: any) => {
             </View>
             <Button
               onPress={onLoginPress}
+              disabled={isLoading}
               bgColor={'orange'}
               style={styles.buttonContainer}>
               <FontText

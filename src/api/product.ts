@@ -2,11 +2,12 @@ import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
 import queryString from 'query-string';
 import { BASE_URL } from '../types/data';
+import Config from 'react-native-config';
 
 export const productApi = createApi({
   reducerPath: 'productApi',
   baseQuery: baseQueryWithAuthInterceptor({
-    baseUrl: `${BASE_URL}/product`,
+    baseUrl: `${Config.API_URL}/product`,
     prepareHeaders,
     paramsSerializer: function (params: any) {
       return queryString.stringify(params, {arrayFormat: 'index'});
