@@ -2,7 +2,6 @@ import {
   ImageBackground,
   Keyboard,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useState} from 'react';
@@ -14,7 +13,6 @@ import {
   iconSize,
   mediumFont,
   mediumLarge2Font,
-  tabIcon,
 } from '../../styles';
 import colors from '../../assets/colors';
 import SvgIcons from '../../assets/SvgIcons';

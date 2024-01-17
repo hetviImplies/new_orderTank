@@ -29,10 +29,7 @@ import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import utils from '../../helper/utils';
 import commonStyle from '../../styles';
-// import {setCurrentUser, setToken} from '../../redux/slices/authSlice';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-// import {requestPermission} from '../../helper/PushNotification';
 import colors from '../../assets/colors';
 import Popup from '../../components/Popup';
 import {requestPermission} from '../../helper/PushNotification';
@@ -92,7 +89,6 @@ const LoginScreen = ({navigation}: any) => {
         isMobile: true,
         notificationToken,
       });
-      console.log('Data', data, error);
       if (!error && data?.statusCode === 200) {
         clearData();
         dispatch(setCurrentUser(data?.result));
@@ -106,9 +102,26 @@ const LoginScreen = ({navigation}: any) => {
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
+            data: data?.result,
           });
         } else {
-          resetNavigateTo(navigation, RootScreens.DashBoard);
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: RootScreens.DashBoard,
+                state: {
+                  index: 0,
+                  routes: [
+                    {
+                      name: RootScreens.Home,
+                      params: {data: data?.result},
+                    },
+                  ],
+                },
+              },
+            ],
+          });
         }
       } else {
         dispatch(setIsAuthenticated(false));

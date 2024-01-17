@@ -1,6 +1,5 @@
 import {showMessage} from 'react-native-flash-message';
 import {wp, normalize} from '../styles/responsiveScreen';
-import colors from '../assets/colors';
 
 const showToast = (title = 'Error!', message: any, type: any = 'error') => {
   showMessage({

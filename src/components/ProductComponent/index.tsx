@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {iconSize, mediumFont, smallFont} from '../../styles';
+import {mediumFont, smallFont} from '../../styles';
 import {Button, FontText} from '..';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import commonStyle from '../../styles';

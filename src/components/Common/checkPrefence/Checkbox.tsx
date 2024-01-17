@@ -1,7 +1,7 @@
 import React from 'react';
 import {Pressable, View, Text} from 'react-native';
 import SvgIcons from '../../../assets/SvgIcons';
-import { isiPAD, normalize, wp } from '../../../styles/responsiveScreen';
+import { normalize, wp } from '../../../styles/responsiveScreen';
 import commonStyle from '../../../styles'
 
 const Checkbox = (props:any) => {

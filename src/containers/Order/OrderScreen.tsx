@@ -7,15 +7,10 @@ import {
 } from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {NavigationBar, FontText, Loader} from '../../components';
-import commonStyle, {
-  mediumFont,
-  mediumLargeFont,
-  smallFont,
-} from '../../styles';
+import commonStyle, {mediumFont, smallFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {ORDERTYPE} from '../../types/data';
 import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
 import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import moment from 'moment';
@@ -77,6 +72,7 @@ const OrderScreen = ({navigation}: any) => {
       deliveryAdd: item?.deliveryAddress,
       billingAdd: item?.billingAddress,
       orderDetails: item,
+      notes: item?.notes,
       name: 'Order Details',
     });
   };
@@ -140,7 +136,9 @@ const OrderScreen = ({navigation}: any) => {
           style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
           <FontText
             color={
-              item?.status === 'pending' || item?.status === 'cancelled'
+              item?.status === 'pending'
+                ? 'gray3'
+                : item?.status === 'cancelled'
                 ? 'red'
                 : item?.status === 'delivered'
                 ? 'green'

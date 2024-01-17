@@ -10,7 +10,6 @@ import React, {useEffect, useState} from 'react';
 import commonStyle, {
   fontSize,
   mediumFont,
-  mediumLargeFont,
   smallFont,
   tabIcon,
 } from '../../styles';

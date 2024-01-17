@@ -29,16 +29,8 @@ import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {useFocusEffect} from '@react-navigation/native';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
-import {setAddressList} from '../../redux/slices/addressSlice';
-import {
-  getAddressList,
-  mergeArrays,
-  updateAddressList,
-} from '../Cart/Carthelper';
-import {
-  useGetNotificationQuery,
-  useReadNotificationMutation,
-} from '../../api/notification';
+import {mergeArrays, updateAddressList} from '../Cart/Carthelper';
+import {useGetNotificationQuery} from '../../api/notification';
 
 const actions = [
   {
@@ -67,18 +59,23 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const companyId = useSelector((state: any) => state.auth.companyId);
-  // const userData = route?.params?.data;
+  const loginData = route?.params?.data;
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
   const {data, isFetching} = useGetCompanyQuery(
-    userInfo?.companyId?._id || userInfo?.companyId || companyId,
+    userInfo?.companyId?._id ||
+      userInfo?.companyId ||
+      loginData?.companyId?._id,
     {
       refetchOnMountOrArgChange: true,
     },
   );
-  const {data: notificationData, isFetching: isNotiFetch, refetch: notiRefetch,} =
-    useGetNotificationQuery(null, {
-      refetchOnMountOrArgChange: true,
-    });
+  const {
+    data: notificationData,
+    isFetching: isNotiFetch,
+    refetch: notiRefetch,
+  } = useGetNotificationQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
   const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
@@ -115,7 +112,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         const data = notificationData?.result?.find(
           (item: any) => item.seen === false,
         );
-        console.log('item....//////', data);
         setNotification(data === undefined ? {} : data);
       }
     }, [notificationData, isNotiFetch]),
@@ -125,81 +121,21 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     dispatch(setCurrentUser(userData?.result));
   }, [isFetch]);
 
-  // useEffect(() => {
-  //   let list = data?.result?.address.map((item: any) => ({
-  //     ...item,
-  //     deliveryAdd: item.isPriority,
-  //     billingAdd: item.isPriority,
-  //   }));
-  //   dispatch(setAddressList(list));
-  //   console.log('list', list);
-  // }, [data, isFetching]);
-
   useEffect(() => {
     getAddressData();
-  }, [data, isFetching]);
+  }, [data, isFetching, loginData]);
 
   const getAddressData = async () => {
     const mergedArray = await mergeArrays(data?.result?.address);
+    console.log('mergedArray', mergedArray);
     await updateAddressList(mergedArray);
-    // const addressData = await getAddressList();
   };
-  // console.log('data.....//////', addressData.length, addressData);
-
-  // const getAddressData = async () => {
-  //   const addressData = await getAddressList();
-  //     'data.....//////',
-  //   console.log(
-  //     addressData.length,
-  //     addressData,
-  //   );
-  //   if (data?.result && addressData.length === 0) {
-
-  //     console.log('HOME address', data?.result?.address[0]);
-  //     let upadetdData: any = [];
-  //     upadetdData.push({
-  //       ...data?.result?.address[0],
-  //       deliveryAdd: true,
-  //       billingAdd: true,
-  //     });
-  //     // let list: any = data?.result?.address.map((item: any) => ({
-  //     //   ...item,
-  //     //   deliveryAdd: item.isPriority,
-  //     //   billingAdd: item.isPriority,
-  //     // }));
-  //     await updateAddressList(upadetdData);
-  //     console.log('list', upadetdData);
-  //   } else {
-  //     let updateData = data?.result?.address.map((address: any) => {
-  //     console.log('address..........//', addressData);
-  //       let find = addressData.find((item: any) => item._id === address._id);
-  //       // let find = addressData.includes(address._id);
-  //       if (!find) {
-  //       console.log('FOUND', find);
-  //         return {
-  //           ...address,
-  //           deliveryAdd: false,
-  //           billingAdd: false,
-  //         };
-  //       }
-  //       return {
-  //         ...address,
-  //         deliveryAdd: find?.deliveryAdd || false,
-  //         billingAdd: find?.billingAdd || false,
-  //       };
-  //     });
-  //     await updateAddressList(updateData);
-  //     // console.log('updateData', updateData);
-  //   }
-  // };
 
   useFocusEffect(
     React.useCallback(() => {
       refetch();
     }, []),
   );
-
-  console.log('notification?.seen', notification?.seen);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -226,15 +162,20 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             // style={commonStyle.iconView}
             onPress={() => navigation.navigate(RootScreens.Notification)}>
             <SvgIcons.Bell width={tabIcon} height={tabIcon} />
-            {/* {noitification?.result?.length > noitification?.result?.length && <View style={styles.countView} />} */}
-            {Object.keys(notification)?.length !== 0 && notification?.seen === false && (
-              <View style={styles.countView} />
-            )}
+            {Object.keys(notification)?.length !== 0 &&
+              notification?.seen === false && <View style={styles.countView} />}
           </TouchableOpacity>
         </View>
       ),
     });
-  }, [navigation, userInfo, isFetching, isNotiFetch, notificationData, notification]);
+  }, [
+    navigation,
+    userInfo,
+    isFetching,
+    isNotiFetch,
+    notificationData,
+    notification,
+  ]);
 
   useEffect(() => {
     setOrderData(orderList?.result);
@@ -252,7 +193,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         title: remoteMessage?.notification?.title,
         message: remoteMessage?.notification?.body,
         icon: Images.notificationImg,
-        // leftIcon: `${URLS.BASE_URL}/notifications/${remoteMessage?.data?.notificationId}/attachments`,
       });
     });
 
@@ -288,6 +228,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       deliveryAdd: item?.deliveryAddress,
       billingAdd: item?.billingAddress,
       orderDetails: item,
+      notes: item?.notes,
       name: 'Order Details',
     });
   };
@@ -351,7 +292,9 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
           <FontText
             color={
-              item?.status === 'pending' || item?.status === 'cancelled'
+              item?.status === 'pending'
+                ? 'gray3'
+                : item?.status === 'cancelled'
                 ? 'red'
                 : item?.status === 'delivered'
                 ? 'green'

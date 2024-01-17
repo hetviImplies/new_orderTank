@@ -8,24 +8,14 @@ import {PROFILE_LIST} from '../../types/data';
 import {RootScreens} from '../../types/type';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authReset} from '../../redux/slices/authSlice';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import Popup from '../../components/Popup';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
-  // const userInfo = useSelector((state: any) => state.auth.userInfo);
-  // const {data, isFetching: isLoading} = useGetCurrentUserQuery(null, {
-  //   refetchOnMountOrArgChange: true,
-  // });
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  // React.useEffect(() => {
-  //   dispatch(setCurrentUser(data?.result));
-  // }, [data, isLoading]);
-
-  // const isGuest =
-  //   (userInfo && Object.keys(userInfo).length === 0) || userInfo === undefined;
 
   const onItemPress = (index: any) => {
     switch (index) {

@@ -1,7 +1,6 @@
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, View} from 'react-native';
 import React, {useState} from 'react';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
-import { hp } from '../../styles/responsiveScreen';
 
 const ImageCarousel = (props: any) => {
   const {
@@ -31,6 +30,7 @@ const ImageCarousel = (props: any) => {
         autoplay={autoplay}
         loop={loop}
         style={style}
+        vertical={false}
       />
       <Pagination
         dotsLength={dotsLength}

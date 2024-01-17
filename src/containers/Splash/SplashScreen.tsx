@@ -1,6 +1,5 @@
 import {ImageBackground} from 'react-native';
 import React, {useEffect, useLayoutEffect} from 'react';
-// import {requestPermission} from '../../helper/PushNotification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {RootScreens} from '../../types/type';
@@ -31,10 +30,6 @@ const SplashScreen = ({navigation}: any) => {
           data?.result?.companyCode === undefined ||
           data?.result?.companyCode === ''
         ) {
-          // navigation.navigate(RootScreens.CompanyDetail, {
-          //   from: 'Login',
-          //   name: 'Enter your company detail',
-          // });
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',

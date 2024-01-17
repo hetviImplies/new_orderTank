@@ -9,12 +9,10 @@ import {
   TextInput,
   StyleSheet,
   findNodeHandle,
-  TouchableOpacity,
 } from 'react-native';
 import colors from '../../../assets/colors';
 import fonts from '../../../assets/fonts';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
-import SvgIcons from '../../../assets/SvgIcons';
 
 const Input = forwardRef(
   (

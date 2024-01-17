@@ -7,7 +7,7 @@ import {iconSize, fontSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import commonStyle from '../../styles';
-import {ADDRESS_TYPE, COUNTRY_LIST, STATES_DATA} from '../../types/data';
+import {STATES_DATA} from '../../types/data';
 import {
   useCreateAddressMutation,
   useGetCompanyQuery,
@@ -80,73 +80,6 @@ const AddAddressScreen = (props: any) => {
     }, []),
   );
 
-  // function mergeArrays(apiAddress: any) {
-  //   let resultArray: any = [];
-
-  //   if (apiAddress && addressData.length < 1) {
-  //     resultArray = apiAddress.map((address: any, index: any) => {
-  //       if (index === 0) {
-  //         return {
-  //           ...address,
-  //           deliveryAdd: true,
-  //           billingAdd: true,
-  //         };
-  //       } else {
-  //         return {
-  //           ...address,
-  //           deliveryAdd: false,
-  //           billingAdd: false,
-  //         };
-  //       }
-  //     });
-  //   } else {
-  //     resultArray = apiAddress.map((address: any) => {
-  //       let find: any = addressData.find(
-  //         (addressItem: any) =>
-  //           addressItem?._id.toString() === address?._id.toString(),
-  //       );
-  //       if (!find) {
-  //         return {
-  //           ...address,
-  //           delievedAdd: false,
-  //           billingAdd: false,
-  //         };
-  //       } else {
-  //         return {
-  //           ...address,
-  //           delievedAdd: find.deliveredAdd || false,
-  //           billingAdd: find.billingAdd || false,
-  //         };
-  //       }
-  //     });
-
-  //     return resultArray;
-  //   }
-
-  //   // apiAddress.forEach((obj1: any) => {
-  //   //   const matchingObj2:any = addressData.find(
-  //   //     (obj2: any) => obj2._id === obj1._id,
-  //   //   );
-
-  //   //   if (matchingObj2) {
-  //   //     const mergedObject = {
-  //   //       ...obj1,
-  //   //       billingAdd: matchingObj2.billingAdd,
-  //   //       deliveryAdd: matchingObj2.deliveryAdd,
-  //   //     };
-  //   //     resultArray.push(mergedObject);
-  //   //   } else {
-  //   //     resultArray.push({
-  //   //       ...obj1,
-  //   //       billingAdd: false,
-  //   //       deliveryAdd: false,
-  //   //     });
-  //   //   }
-  //   // });
-
-  //   // return resultArray;
-  // }
-
   const submitPress = async () => {
     setCheckValid(true);
     if (
@@ -197,28 +130,6 @@ const AddAddressScreen = (props: any) => {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
           const mergedArray = await mergeArrays(data?.result?.address);
-
-          // let updateData = data?.result?.address.map((address: any) => {
-          //   console.log('address', address);
-          //   let find: any = addressData.find(
-          //     (item: any) => item._id === address._id,
-          //   );
-          //   console.log('FOUND', find);
-          //   if (!find) {
-          //     console.log('Hello....');
-          //     return {
-          //       ...address,
-          //       deliveryAdd: false,
-          //       billingAdd: false,
-          //     };
-          //   }
-          //   return {
-          //     ...address,
-          //     deliveryAdd: find?.deliveryAdd || false,
-          //     billingAdd: find?.billingAdd || false,
-          //   };
-          // });
-          // console.log('updateData......//////////', updateData);
           await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();

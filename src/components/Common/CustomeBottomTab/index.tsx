@@ -4,7 +4,7 @@ import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import colors from '../../../assets/colors';
 import SvgIcons from '../../../assets/SvgIcons';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
-import {smallFont, tabIcon} from '../../../styles';
+import {tabIcon} from '../../../styles';
 import FontText from '../FontText';
 
 // create a component
@@ -48,7 +48,9 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && <View style={[styles.border, styles.bottomBorder]} />}
+              {isFocused && (
+                <View style={[styles.border, styles.bottomBorder]} />
+              )}
             </View>
           );
         } else if (route.name === 'Order') {
@@ -64,7 +66,9 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && <View style={[styles.border, styles.bottomBorder]} />}
+              {isFocused && (
+                <View style={[styles.border, styles.bottomBorder]} />
+              )}
             </View>
           );
         } else if (route.name === 'Profile') {
@@ -80,7 +84,9 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && <View style={[styles.border, styles.bottomBorder]} />}
+              {isFocused && (
+                <View style={[styles.border, styles.bottomBorder]} />
+              )}
             </View>
           );
         }
@@ -136,17 +142,17 @@ const styles = StyleSheet.create({
     width: wp(16),
     borderWidth: 2,
     backgroundColor: colors.orange,
-    marginVertical:hp(0.8)
+    marginVertical: hp(0.8),
   },
   bottomBorder: {
     borderTopLeftRadius: normalize(20),
     borderTopRightRadius: normalize(20),
-    bottom:hp(-0.4)
+    bottom: hp(-0.4),
   },
   topBorder: {
     borderBottomLeftRadius: normalize(20),
     borderBottomRightRadius: normalize(20),
-    top:hp(-0.4)
+    top: hp(-0.4),
   },
   icon: {alignSelf: 'center', alignItems: 'center'},
 });

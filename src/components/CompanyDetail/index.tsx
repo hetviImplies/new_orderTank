@@ -10,7 +10,6 @@ import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress, {getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-// import BottomSheet from '../BottomSheet';
 import {NUMBER_TYPE, STATES_DATA} from '../../types/data';
 import {
   useAddCompanyMutation,
@@ -21,13 +20,12 @@ import utils from '../../helper/utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {setCompanyId} from '../../redux/slices/authSlice';
 import RadioButton from '../Common/RadioButton';
-import {useUpdateProfileMutation} from '../../api/profile';
 import BottomSheet from '../BottomSheet';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {RootScreens} from '../../types/type';
 
 const CompanyDetail = (props: any) => {
-  const {loading, from, navigation} = props;
+  const {loading, from, navigation, loginData} = props;
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const companyId = useSelector((state: any) => state.auth.companyId);
@@ -41,12 +39,10 @@ const CompanyDetail = (props: any) => {
   const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-  // const [updateProfile, {isLoading: isProcessing}] = useUpdateProfileMutation();
   const [addCompany, {isLoading}] = useAddCompanyMutation();
   const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
-  // const [loading, setLoading] = useState(false);
   const gstNoRegx = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   // const gstNoRegx =
   //   /^[0-9]{2}[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -119,18 +115,15 @@ const CompanyDetail = (props: any) => {
   const isValidState = checkValid && state?.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
 
-  // useEffect(() => {
-  //   dispatch(setCurrentUser(userData?.result));
-  // }, [isProcessing]);
-
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(data?.result?.name ? data?.result?.name : userData?.result?.name);
+    setName(data?.result?.name ? data?.result?.name : userData?.result?.name ? userData?.result?.name : loginData?.name);
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
     setPhone(
-      data?.result?.phone ? data?.result?.phone : userData?.result?.phone,
+      data?.result?.phone ? data?.result?.phone : userData?.result?.phone 
+      ? userData?.result?.phone : loginData?.phone,
     );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
@@ -145,7 +138,7 @@ const CompanyDetail = (props: any) => {
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
-  }, [data, userData]);
+  }, [data, userData, userInfo]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -222,7 +215,7 @@ const CompanyDetail = (props: any) => {
       const addressObj = [
         {
           isPriority: true,
-          addressName: 'Home',
+          addressName: addressName,
           addressLine: address,
           locality: locality,
           pincode: pinCode,
@@ -239,8 +232,6 @@ const CompanyDetail = (props: any) => {
         : formData.append('panNo', panNo);
       formData.append('isGst', numberType === 1 ? true : false);
       formData.append('isPan', numberType === 2 ? true : false);
-      // userInfo?.companyId?._id === undefined &&
-      // formData.append('registerNo', registerNo);
       imageUrl !== '' &&
         Object.keys(imageRes).length !== 0 &&
         formData.append('logo', {
@@ -263,24 +254,6 @@ const CompanyDetail = (props: any) => {
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
-          // if (
-          //   userData?.result?.name !== name ||
-          //   userData?.result?.phone !== phone
-          // ) {
-          //   let params = {
-          //     name: name,
-          //     phone: phone,
-          //   };
-          //   const {data, error: err}: any = await updateProfile(params);
-          //   if (!err) {
-          //     // setOpenPopup && setOpenPopup(false);
-          //     utils.showSuccessToast(data.message);
-          //   } else {
-          //     utils.showErrorToast(err.message);
-          //   }
-          // } else {
-          //   utils.showErrorToast(error.message);
-          // }
         } else {
           utils.showErrorToast(data?.message ? data?.message : error?.message);
         }
@@ -308,62 +281,6 @@ const CompanyDetail = (props: any) => {
               },
             ],
           });
-          // if (
-          //   userData?.result?.name !== name ||
-          //   userData?.result?.phone !== phone
-          // ) {
-          //   let params = {
-          //     name: name,
-          //     phone: phone,
-          //   };
-          //   const {data: profileData, error: err}: any = await updateProfile(
-          //     params,
-          //   );
-          //   if (!err) {
-          //     // setOpenPopup && setOpenPopup(false);
-          //     dispatch(setCompanyId(data?.result?._id));
-          //     navigation.reset({
-          //       index: 0,
-          //       routes: [
-          //         {
-          //           name: RootScreens.DashBoard,
-          //           state: {
-          //             index: 0,
-          //             routes: [
-          //               {
-          //                 name: RootScreens.Home,
-          //                 params: {data: data?.result},
-          //               },
-          //             ],
-          //           },
-          //         },
-          //       ],
-          //     });
-          //     utils.showSuccessToast(data.message);
-          //   } else {
-          //     utils.showErrorToast(err.message);
-          //   }
-          // } else {
-          //   dispatch(setCompanyId(data?.result?._id));
-          //   navigation.reset({
-          //     index: 0,
-          //     routes: [
-          //       {
-          //         name: RootScreens.DashBoard,
-          //         state: {
-          //           index: 0,
-          //           routes: [
-          //             {
-          //               name: RootScreens.Home,
-          //               params: {data: data?.result},
-          //             },
-          //           ],
-          //         },
-          //       },
-          //     ],
-          //   });
-          // }
-          // utils.showSuccessToast(data.message);
         } else {
           utils.showErrorToast(data?.message ? data?.message : error?.message);
         }
@@ -383,19 +300,6 @@ const CompanyDetail = (props: any) => {
       editInformation && ref?.current?.open();
     }
   };
-
-  // const logoutPress = async () => {
-  //   setOpenPopup(false);
-  //   setTimeout(async () => {
-  //     // setLoading(true);
-  //     // await AsyncStorage.clear();
-  //     // await AsyncStorage.removeItem('token');
-  //     // dispatch(authReset());
-  //     // setLoading(false);
-  //     resetNavigateTo(navigation, RootScreens.Login);
-  //   }, 500);
-  //   // dispatch(setIsAuthenticated(false));
-  // };
 
   return (
     <View style={commonStyle.container}>
@@ -737,7 +641,9 @@ const CompanyDetail = (props: any) => {
                 editable={from === 'Profile' ? editInformation : true}
                 ref={addressNameRef}
                 value={addressName}
-                onChangeText={(text: string) => setAddressName(text.trimStart())}
+                onChangeText={(text: string) =>
+                  setAddressName(text.trimStart())
+                }
                 placeholder={'Enter Address Name'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -976,7 +882,6 @@ const CompanyDetail = (props: any) => {
                   pLeft={wp(9)}
                   textAlign={'left'}>
                   {state ? state : 'Select State'}
-                  {/* {cmpName?.value ? cmpName?.value : 'Select Company name'} */}
                 </FontText>
                 <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
               </TouchableOpacity>
@@ -1067,47 +972,6 @@ const CompanyDetail = (props: any) => {
             stateRef?.current?.close();
           }}
         />
-        {/* <BottomSheet
-          withReactModal
-          onPressCloseModal={() => stateRef?.current?.close()}
-          refName={stateRef}
-          modalHeight={hp(50)}
-          modalStyle={{height: hp(50)}}
-          title={'Select State'}
-          searcheble
-          data={STATES_LIST}
-          onOpen={() => {}}
-          // searchValue={searchUser}
-          // selectedIndex={userId}
-          onChangeText={(text:any) => setSearch(text)}
-          onPress={(item:any, index:any) => {
-            setState(item);
-            // setUserIndex(index);
-            // setAssinedToValue(item?.label);
-            // setuserId(item?.value);
-            // userNameRef?.current?.close();
-          }}
-        /> */}
-        {/* <BottomSheet
-          height={hp(50)}
-          sheetRef={stateRef}
-          itemPress={(val: any) => {
-            setState(val);
-            stateRef.current.close();
-          }}
-          selectedItem={state}
-          data={STATES_LIST}
-        />
-        <BottomSheet
-          height={hp(50)}
-          sheetRef={countryRef}
-          itemPress={(val: any) => {
-            setCountry(val);
-            countryRef.current.close();
-          }}
-          selectedItem={country}
-          data={COUNTRY_LIST}
-        /> */}
         <RBSheet
           ref={imageRef}
           height={hp(20)}
@@ -1136,37 +1000,6 @@ const CompanyDetail = (props: any) => {
                 {'Gallery'}
               </FontText>
             </TouchableOpacity>
-            {/* <Button
-              onPress={openCamera}
-              bgColor={'orange'}
-              style={[
-                styles.buttonContainer,
-                {
-                  marginTop: hp(1),
-                  width: '80%',
-                },
-              ]}>
-              <FontText
-                name={'opensans-semibold'}
-                size={fontSize}
-                color={'white'}>
-                {'Take photo with camera'}
-              </FontText>
-            </Button>
-            <Button
-              onPress={openPhotoBrowser}
-              bgColor={'orange'}
-              style={[
-                styles.buttonContainer,
-                {width: '80%', marginTop: hp(2)},
-              ]}>
-              <FontText
-                name={'opensans-semibold'}
-                size={fontSize}
-                color={'white'}>
-                {'Upload photo from gallery'}
-              </FontText>
-            </Button> */}
           </View>
         </RBSheet>
       </View>

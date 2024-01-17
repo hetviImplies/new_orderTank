@@ -1,26 +1,18 @@
 import {
   FlatList,
   StyleSheet,
-  Image,
   TouchableOpacity,
   View,
   Platform,
   BackHandler,
 } from 'react-native';
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import {NavigationBar, FontText, Loader} from '../../components';
-import {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLargeFont,
-  smallFont,
-} from '../../styles';
+import {mediumFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import commonStyle from '../../styles';
 import colors from '../../assets/colors';
-import {BASE_URL} from '../../types/data';
 import {
   useGetNotificationQuery,
   useReadNotificationMutation,
@@ -46,10 +38,8 @@ const NotificationScreen = ({navigation}: any) => {
             {marginLeft: wp(1)},
           ]}
           onPress={() => {
-            console.log('notifiedData', noitification?.result);
             if (noitification?.result?.length !== 0) {
               const data = noitification?.result?.map((item: any) => item?._id);
-              console.log('data', data);
               seenNotification(data);
               navigation.goBack();
             } else {
@@ -85,7 +75,6 @@ const NotificationScreen = ({navigation}: any) => {
   const backAction = () => {
     if (noitification?.result?.length !== 0) {
       const data = noitification?.result?.map((item: any) => item?._id);
-      console.log('data', data);
       seenNotification(data);
       navigation.goBack();
     } else {
@@ -98,22 +87,11 @@ const NotificationScreen = ({navigation}: any) => {
     setNotifiedData(noitification?.result);
   }, [isProcessing]);
 
-  // useEffect(() => {
-  //   console.log('notifiedData', notifiedData);
-
-  //   if (notifiedData?.length !== 0) {
-  //     const data = notifiedData?.map((item: any) => item?._id);
-  //     console.log('data', data);
-  //     seenNotification(data);
-  //   }
-  // }, [notifiedData, noitification]);
-
   const seenNotification = async (idData: any) => {
     let params: any = {
       ids: idData,
     };
     const {data, error}: any = await readNotification(params);
-    console.log('data', data, error);
   };
 
   const _renderItem = ({item, index}: any) => {
@@ -218,7 +196,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   itemContainer: {
-    // backgroundColor: colors.brownOpacity,
     backgroundColor: colors.white,
     flexDirection: 'row',
     paddingVertical: wp(3),

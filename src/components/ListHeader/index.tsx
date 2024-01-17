@@ -1,6 +1,6 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import commonStyle, {fontSize, mediumFont, smallFont} from '../../styles';
+import commonStyle, {fontSize, mediumFont} from '../../styles';
 import {FontText} from '..';
 
 const ListHeader = (props: any) => {

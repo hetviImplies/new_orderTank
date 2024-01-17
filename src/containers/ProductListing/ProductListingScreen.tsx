@@ -3,13 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
 import {NavigationBar, FontText, Input, Loader} from '../../components';
-import commonStyle, {
-  mediumLargeFont,
-  tabIcon,
-  fontSize,
-  mediumFont,
-  iconSize,
-} from '../../styles';
+import commonStyle, {tabIcon, fontSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import RBSheet from 'react-native-raw-bottom-sheet';

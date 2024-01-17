@@ -68,74 +68,18 @@ const CartScreen = ({navigation, route}: any) => {
     fetchCartItems();
   }, [cartData]);
 
-  // useEffect(() => {
-  //   setCartData(carts?.result);
-  // }, [isFetching, carts, companyId]);
-
   const placeOrderPress = () => {
-    const address = userInfo?.companyId?.address.find(
-      (item: any) => item?.isPriority,
-    );
     navigation.navigate(RootScreens.SecureCheckout, {
-      // deliveryAdd: deliAdd,
-      // billingAdd: billAdd,
       from: RootScreens.Cart,
       name: 'Place Order',
       expectedDate: date,
       notes: notes,
       onGoBackCart: (paramCart: any) => {
-        // setDeliAdd(paramCart?.deliveryAdd);
-        // setBillAdd(paramCart?.billingAdd);
         setNotes(paramCart?.notes);
         setDate(paramCart?.expectedDate);
       },
     });
   };
-
-  // const quantityIncrement = async (itm: any) => {
-  //   let qua = {
-  //     ...itm,
-  //     quantity: itm.quantity >= 0 ? itm.quantity + 1 : 0,
-  //   };
-  //   setSelectedItem(qua);
-  // };
-
-  // const quantityDecrement = async (itm: any) => {
-  //   let data = {
-  //     ...itm,
-  //     quantity: itm.quantity > 1 ? itm.quantity - 1 : 1,
-  //   };
-  //   setSelectedItem(data);
-  // };
-
-  // const quantityDoneHandler = async () => {
-  //   let body: any = {
-  //     quantity: selectedItem.quantity,
-  //   };
-  //   let params = {
-  //     body: body,
-  //     _id: selectedItem?._id,
-  //   };
-  //   const {data, error}: any = await updateCart(params);
-
-  //   if (!error && data?.statusCode === 200) {
-  //     quantityRef.current.close();
-  //     utils.showSuccessToast(data.message);
-  //   } else {
-  //     utils.showErrorToast(data.message || error);
-  //   }
-  // };
-
-  // const removeCartItem = async () => {
-  //   setIsOpen(false);
-  //   const {data, error}: any = await removeCart({ids: [selectedItem?._id]});
-  //   if (!error) {
-  //     // refetch();
-  //     utils.showSuccessToast(data.message);
-  //   } else {
-  //     utils.showErrorToast(error.message);
-  //   }
-  // };
 
   const handleIncrement = async (cartId: any) => {
     const data = await incrementCartItem(cartId);
@@ -162,7 +106,6 @@ const CartScreen = ({navigation, route}: any) => {
           ) : (
             <Image source={Images.productImg} style={styles.logo} />
           )}
-          {/* <Image source={{uri: item?.image}} style={styles.logo} /> */}
           <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
               name={'lexend-regular'}
@@ -223,37 +166,6 @@ const CartScreen = ({navigation, route}: any) => {
           }}>
           <SvgIcons.Trash width={wp(4)} height={wp(4)} />
         </TouchableOpacity>
-        {/* <View style={{justifyContent: 'space-between'}}>
-          <TouchableOpacity
-            style={styles.trash}
-            onPress={() => {
-              setSelectedItem(item);
-              setIsOpen(true);
-            }}>
-            <SvgIcons.Trash width={wp(4)} height={wp(4)} />
-          </TouchableOpacity>
-          <Button
-            onPress={() => {
-              setSelectedItem(item);
-              quantityRef.current.open();
-            }}
-            bgColor={'orange'}
-            style={styles.quantityBtn}>
-            <FontText
-              name={'lexend-medium'}
-              size={smallFont}
-              pLeft={wp(0.5)}
-              pRight={wp(2)}
-              color={'white'}>
-              {`Qty ${item.quantity}`}
-            </FontText>
-            <SvgIcons.DownArrow
-              height={wp(3)}
-              width={wp(3)}
-              fill={colors.white}
-            />
-          </Button>
-        </View> */}
       </View>
     );
   };
@@ -284,7 +196,6 @@ const CartScreen = ({navigation, route}: any) => {
           </View>
         }
       /> */}
-      {/* <Loader loading={isLoad || isFetch} /> */}
       <View style={commonStyle.flex}>
         {cartData && cartData?.length !== 0 ? (
           <FlatList
@@ -311,19 +222,6 @@ const CartScreen = ({navigation, route}: any) => {
               textAlign={'center'}>
               {`Looks like you haven’t added\n anything to your cart yet`}
             </FontText>
-            {/* <TouchableOpacity
-              onPress={() => navigation.navigate(RootScreens.DashBoard)}>
-              <FontText
-                color="orange"
-                name="lexend-medium"
-                size={mediumLargeFont}
-                pTop={wp(20)}
-                pBottom={wp(2.5)}
-                style={{textDecorationLine: 'underline'}}
-                textAlign={'center'}>
-                {'Continue Shopping'}
-              </FontText>
-            </TouchableOpacity> */}
           </View>
         )}
         <CartCountModule
@@ -354,62 +252,6 @@ const CartScreen = ({navigation, route}: any) => {
         rightBtnTextStyle={{fontSize: mediumFont}}
         style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
       />
-      {/* <RBSheet
-        ref={quantityRef}
-        height={hp(25)}
-        closeOnPressMask
-        closeOnPressBack
-        closeOnDragDown
-        dragFromTopOnly
-        customStyles={{
-          container: styles.btSheetContainer,
-        }}>
-        <View style={styles.quantitySheet}>
-          <FontText
-            color="black2"
-            name="lexend-medium"
-            size={mediumLargeFont}
-            textAlign={'left'}>
-            {'Add Quantity'}
-          </FontText>
-          <View style={[commonStyle.rowAC, styles.countContainer]}>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                quantityDecrement(selectedItem);
-              }}>
-              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
-            </TouchableOpacity>
-            <FontText
-              name={'lexend-regular'}
-              size={mediumLargeFont}
-              color={'orange'}
-              // pTop={wp(2)}
-              textAlign={'left'}>
-              {selectedItem.quantity}
-            </FontText>
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                quantityIncrement(selectedItem);
-              }}>
-              <SvgIcons.Plus
-                width={wp(4)}
-                height={wp(4)}
-                fill={colors.orange}
-              />
-            </TouchableOpacity>
-          </View>
-          <Button
-            onPress={quantityDoneHandler}
-            bgColor={'orange'}
-            style={[styles.buttonContainer]}>
-            <FontText name={'lexend-medium'} size={fontSize} color={'white'}>
-              {'Done'}
-            </FontText>
-          </Button>
-        </View>
-      </RBSheet> */}
     </View>
   );
 };

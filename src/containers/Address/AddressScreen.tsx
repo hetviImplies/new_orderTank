@@ -1,16 +1,12 @@
 import {
-  Alert,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import commonStyle, {
   fontSize,
-  iconSize,
   mediumFont,
-  tabIcon,
 } from '../../styles';
 import {
   Button,
@@ -19,7 +15,6 @@ import {
   Loader,
   NavigationBar,
 } from '../../components';
-import SvgIcons from '../../assets/SvgIcons';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {RootScreens} from '../../types/type';
@@ -28,7 +23,6 @@ import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import AddressComponent from '../../components/AddressComponent';
 import utils from '../../helper/utils';
 import Popup from '../../components/Popup';
-import {setAddressList} from '../../redux/slices/addressSlice';
 import {
   getAddressList,
   mergeArrays,
@@ -38,9 +32,6 @@ import {useFocusEffect} from '@react-navigation/native';
 
 const AddressScreen = ({navigation, route, props}: any) => {
   const from = route?.params?.data?.from;
-  const companyName = route?.params?.companyName;
-  const dispatch = useDispatch();
-  // const companyId = route?.params?.data?.companyId;
   const cartData = route?.params?.data?.cartData;
   const deliveryAdd = route?.params?.data.deliveryAdd;
   const billingAdd = route?.params?.data.billingAdd;
@@ -58,7 +49,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [updateAdd, setUpdateAdd] = useState([]);
-  const [isUpdated, setIsUpdated] = useState(false);
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
@@ -67,7 +57,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       fetchAddressItems();
-      // setIsUpdated(false);
     }, []),
   );
 
@@ -76,7 +65,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
     setAddressData(items);
   };
 
-  const handleCheck = (item: any, checkboxIndex: any) => {
+  const handleCheck = (item: any) => {
     let updateAddress: any =
       type === 'Delivery address'
         ? addressData.map((address: any) => {
@@ -112,18 +101,15 @@ const AddressScreen = ({navigation, route, props}: any) => {
       navigation.goBack();
     } else {
       await updateAddressList(updateAdd);
-      // dispatch(setAddressList(updateAdd));
       let params = {
         deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
         billingAdd: type === 'Billing address' ? checkedData : billingAdd,
         data: cartData,
-        companyName: companyName,
         from: RootScreens.Address,
         name: 'Place Order',
         notes: notes,
         expectedDate: date,
       };
-      // navigation.navigate(RootScreens.SecureCheckout);
       navigation.goBack();
       route.params.onGoBack(params);
     }
@@ -137,7 +123,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
     };
     const {data, error}: any = await deleteAddress(params);
     if (!error && data?.statusCode === 200) {
-      // const mergedArray = mergeArrays(data?.result?.address, addressData);
       const mergedArray = await mergeArrays(data?.result?.address);
       await updateAddressList(mergedArray);
       utils.showSuccessToast(data.message);
@@ -149,8 +134,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
   };
 
   const _renderItem = ({item, index}: any) => {
-    let delivery = addressData?.find((d: any) => d?.deliveryAdd);
-    let billing = addressData?.find((d: any) => d?.billingAdd);
     return (
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}
@@ -182,7 +165,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
           />
         }
         disabled={from === RootScreens.SecureCheckout ? false : true}
-        handleCheck={() => handleCheck(item, index)}
+        handleCheck={() => handleCheck(item)}
         checked={item?._id === checkedData?._id}
       />
     );
@@ -234,14 +217,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
                 styles.buttonStyle,
                 {marginBottom: hp(3), marginTop: wp(2), width: '60%'},
               ]}>
-              {/* <View style={styles.addBtn}>
-              <SvgIcons.Plus
-                width={wp(3)}
-                height={wp(3)}
-                fill={colors.white}
-                stroke={colors.white}
-              />
-            </View> */}
               <FontText
                 name={'lexend-semibold'}
                 size={fontSize}

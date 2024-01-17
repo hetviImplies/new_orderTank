@@ -19,15 +19,8 @@ export const baseQueryWithAuthInterceptor = (args: any) => {
   };
 };
 export const prepareHeaders = async (headers: any, {getState}: any) => {
-  // getState().auth.token ||
-  const token = await AsyncStorage.getItem('token');
+  // const token = getState().auth.token || await AsyncStorage.getItem('token');
   // if (token) headers.set('token', `${token}`);
-  console.log(
-    'TOKEN',
-    getState().auth.token,
-    '.........',
-    await AsyncStorage.getItem('token'),
-  );
   if (getState().auth.token || (await AsyncStorage.getItem('token'))) {
     headers.set(
       'Authorization',

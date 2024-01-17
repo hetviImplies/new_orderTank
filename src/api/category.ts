@@ -1,6 +1,5 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
-import { BASE_URL } from '../types/data';
 import Config from 'react-native-config';
 
 export const categoryApi = createApi({

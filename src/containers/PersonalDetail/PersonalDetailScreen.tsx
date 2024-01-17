@@ -1,20 +1,9 @@
-import {
-  BackHandler,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {BackHandler, StyleSheet, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
 import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
-import commonStyle, {
-  mediumLargeFont,
-  tabIcon,
-  fontSize,
-  iconSize,
-  mediumFont,
-} from '../../styles';
+import commonStyle, {fontSize, iconSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useGetCurrentUserQuery} from '../../api/auth';
@@ -49,7 +38,8 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const isValidUserName = checkValid && userName?.length === 0;
   const isValidEmail =
     checkValid && (email?.length === 0 || !validationEmail(email));
-  const isValidPhoneNo = checkValid && (phoneNo?.length === 0 || phoneNo?.length < 10);
+  const isValidPhoneNo =
+    checkValid && (phoneNo?.length === 0 || phoneNo?.length < 10);
 
   useEffect(() => {
     setUserName(data?.result?.name);

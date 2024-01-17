@@ -1,9 +1,6 @@
 import SvgIcons from '../assets/SvgIcons';
 import {iconSize, tabIcon} from '../styles';
 
-export const BASE_URL = `http://192.168.29.168:12344`;
-// export const BASE_URL = `http://146.190.140.18:3000`;
-
 export const PROFILE_LIST = [
   {
     name: 'Personal Detail',
@@ -38,7 +35,6 @@ export const PROFILE_LIST = [
     icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,
   },
 ];
-// export const ORDERTYPE = ['All Order', 'Pending', 'On going', 'Completed', 'Cancel'];
 
 export const ORDERTYPE = [
   {label: 'All Order', value: 'all'},
@@ -48,28 +44,6 @@ export const ORDERTYPE = [
   {label: 'Delivered', value: 'delivered'},
   {label: 'Cancelled', value: 'cancelled'},
 ];
-// export const ORDERTYPE = [
-//   {
-//     label: 'All Order',
-//     value: 'all',
-//   },
-//   {
-//     label: 'Pending',
-//     value: 'pending',
-//   },
-//   {
-//     label: 'On going',
-//     value: 'all',
-//   },
-//   {
-//     label: 'Completed',
-//     value: 'all',
-//   },
-//   {
-//     label: 'All Order',
-//     value: 'all',
-//   },
-// ];
 
 export const HISTORY_LIST = [
   {

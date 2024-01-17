@@ -58,8 +58,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const isOrder = from === RootScreens.Order;
   const [addressData, setAddressData] = useState([]);
   const [companyName, setCompanyName] = useState('');
-  // const addressData = useSelector((state: any) => state.address.addressData);
-
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -140,10 +138,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       <>
         <View style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
-            {/* <Image
-              source={{uri: isOrder ? item?.productData?.image : item?.image}}
-              style={styles.logo}
-            /> */}
             {item?.image || item?.productData?.image ? (
               <Image
                 source={{uri: isOrder ? item?.productData?.image : item?.image}}
@@ -337,6 +331,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   const cancelOrder = async () => {
+    setIsOpen(false);
     let params = {
       data: {
         status: 'cancelled',
@@ -400,7 +395,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             color={'black2'}
             textAlign={'left'}>
             {' '}
-            {orderDetails?.companyId?.companyName ? orderDetails?.companyId?.companyName : companyName}
+            {orderDetails?.companyId?.companyName
+              ? orderDetails?.companyId?.companyName
+              : companyName}
           </FontText>
         </FontText>
         {isOrder ? (
@@ -453,7 +450,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           </View>
         ) : null}
         <View style={[styles.addressContainer, commonStyle.marginT2]}>
-          <FlatList data={[1, 2]} renderItem={addressRenderItem} />
+          <FlatList
+            data={[1, 2]}
+            renderItem={addressRenderItem}
+            keyExtractor={(item, index) => index?.toString()}
+          />
         </View>
         <View style={styles.addressContainer}>
           {isOrder ? null : (
@@ -482,24 +483,36 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               nestedScrollEnabled
               scrollEnabled
               showsVerticalScrollIndicator
+              keyExtractor={item => item?._id?.toString()}
             />
           </View>
         </View>
         {isOrder && notes === '' ? null : (
           <View style={styles.addressContainer}>
             <IconHeader label={'Note'} icon={<SvgIcons.Note />} />
-            <Input
-              value={notes}
-              onChangeText={(text: string) => setNotes(text)}
-              placeholder={'Type here...'}
-              autoCapitalize="none"
-              placeholderTextColor={'gray3'}
-              inputStyle={styles.inputText}
-              color={'black'}
-              returnKeyType={'done'}
-              blurOnSubmit
-              multiline
-            />
+            {isOrder ? (
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'black2'}
+                textAlign={'left'}>
+                {' '}
+                {notes}
+              </FontText>
+            ) : (
+              <Input
+                value={notes}
+                onChangeText={(text: string) => setNotes(text)}
+                placeholder={'Type here...'}
+                autoCapitalize="none"
+                placeholderTextColor={'gray3'}
+                inputStyle={styles.inputText}
+                color={'black'}
+                returnKeyType={'done'}
+                blurOnSubmit
+                multiline
+              />
+            )}
           </View>
         )}
         <View style={styles.addressContainer}>
@@ -555,7 +568,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         onPress={() => {
           isOrder ? setIsOpen(true) : placeOrderPress();
         }}
-        total={isOrder ? orderDetails?.totalAmount.toFixed(2) : totalPrice.toFixed(2)}
+        total={
+          isOrder ? orderDetails?.totalAmount.toFixed(2) : totalPrice.toFixed(2)
+        }
         showText={
           <View>
             {

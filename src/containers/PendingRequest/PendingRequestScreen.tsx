@@ -2,17 +2,12 @@ import {
   FlatList,
   Image,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import React from 'react';
-import SvgIcons from '../../assets/SvgIcons';
 import colors from '../../assets/colors';
 import {NavigationBar, FontText, Button, Loader} from '../../components';
 import commonStyle, {
-  mediumLargeFont,
-  tabIcon,
   fontSize,
   smallFont,
   mediumFont,

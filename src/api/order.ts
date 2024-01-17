@@ -1,6 +1,5 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {baseQueryWithAuthInterceptor, prepareHeaders} from './util';
-import {BASE_URL} from '../types/data';
 import Config from 'react-native-config';
 
 export const orderApi = createApi({
@@ -14,7 +13,6 @@ export const orderApi = createApi({
   endpoints: builder => ({
     getOrders: builder.query({
       query: params => {
-        console.log('Order', Config.API_URL);
         return {
           url: '',
           method: 'GET',
