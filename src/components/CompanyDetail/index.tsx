@@ -115,22 +115,10 @@ const CompanyDetail = (props: any) => {
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(
-      data?.result?.name
-        ? data?.result?.name
-        : userData?.result?.name
-        ? userData?.result?.name
-        : loginData?.name,
-    );
+    setName(data?.result?.name ? data?.result?.name : loginData?.name);
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
-    setPhone(
-      data?.result?.phone
-        ? data?.result?.phone
-        : userData?.result?.phone
-        ? userData?.result?.phone
-        : loginData?.phone,
-    );
+    setPhone(data?.result?.phone ? data?.result?.phone : loginData?.phone);
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
     setAddressName(data?.result ? data?.result.address[0]?.addressName : '');
@@ -144,7 +132,7 @@ const CompanyDetail = (props: any) => {
       }
     });
     // setCountry(data?.result ? data?.result.address[0]?.country : '');
-  }, [data, userData, userInfo]);
+  }, [data, userData, userInfo, loginData]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -238,13 +226,20 @@ const CompanyDetail = (props: any) => {
         : formData.append('panNo', panNo);
       formData.append('isGst', numberType === 1 ? true : false);
       formData.append('isPan', numberType === 2 ? true : false);
-      imageUrl !== '' &&
-        Object.keys(imageRes).length !== 0 &&
-        formData.append('logo', {
-          uri: imageUrl,
-          type: `image/${imageUrl.split('.').pop()}`,
-          name: 'image',
-        });
+      imageRes
+        ? formData.append('logo', {
+            uri: imageUrl,
+            type: `image/${imageUrl.split('.').pop()}`,
+            name: 'image',
+          })
+        : formData.append('logo', imageUrl);
+      // imageUrl !== '' &&
+      //   Object.keys(imageRes).length !== 0 &&
+      //   formData.append('logo', {
+      //     uri: imageUrl,
+      //     type: `image/${imageUrl.split('.').pop()}`,
+      //     name: 'image',
+      //   });
       addressObj.forEach((value: any, index: any) => {
         for (var key in value) {
           formData.append(`address[${[index]}][${key}]`, value[key]);
