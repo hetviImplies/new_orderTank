@@ -8,13 +8,10 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import {mediumFont, smallFont} from '../../styles';
+import commonStyle, {mediumFont, smallFont} from '../../styles';
 import {Button, FontText} from '..';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import commonStyle from '../../styles';
-import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
-import Images from '../../assets/images';
+import {colors, SvgIcons, Images} from '../../assets';
 
 const ProductComponent = (props: any) => {
   const {

@@ -1,22 +1,22 @@
 import React from 'react';
+import {StyleSheet} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../containers/Home/HomeScreen';
-import {RootScreens, RootStackParamList} from '../types/type';
 import LoginScreen from '../containers/Login/LoginScreen';
 import SignUpScreen from '../containers/SignUp/SignUpScreen';
 import CartListScreen from '../containers/CartList/CartListScreen';
 import CartScreen from '../containers/Cart/CartScreen';
 import ProfileScreen from '../containers/Profile/ProfileScreen';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import CustomeBottomTab from '../components/Common/CustomeBottomTab';
-import {useDispatch, useSelector} from 'react-redux';
-import {useGetCurrentUserQuery} from '../api/auth';
 import ProductDetailScreen from '../containers/ProductDetail/ProductDetailScreen';
 import NotificationScreen from '../containers/Notification/NotificationScreen';
 import AddressScreen from '../containers/Address/AddressScreen';
 import AddAddressScreen from '../containers/AddAddress/AddAddressScreen';
 import OrderPlacedScreen from '../containers/OrderPlaced/OrderPlacedScreen';
 import SplashScreen from '../containers/Splash/SplashScreen';
-import {setCurrentUser} from '../redux/slices/authSlice';
 import SupplierScreen from '../containers/Supplier/SupplierScreen';
 import OrderScreen from '../containers/Order/OrderScreen';
 import PendingRequestScreen from '../containers/PendingRequest/PendingRequestScreen';
@@ -25,10 +25,10 @@ import PersonalDetailScreen from '../containers/PersonalDetail/PersonalDetailScr
 import CompanyDetailScreen from '../containers/CompanyDetail/CompanyDetailScreen';
 import SecureCheckoutScreen from '../containers/SecureCheckout/SecureCheckoutScreen';
 import ForgotPasswordScreen from '../containers/ForgotPassword/ForgotPasswordScreen';
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {createStackNavigator} from '@react-navigation/stack';
+import {RootScreens, RootStackParamList} from '../types/type';
+import {useGetCurrentUserQuery} from '../api/auth';
+import {setCurrentUser} from '../redux/slices/authSlice';
 import {hp, isIOS, normalize} from '../styles/responsiveScreen';
-import {StyleSheet} from 'react-native';
 import colors from '../assets/colors';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
@@ -162,7 +162,7 @@ const RootNavigator = () => {
           title: route.params.name,
           gestureEnabled: route.params.name === 'Profile' ? true : false,
           headerTitleStyle: styles.title,
-          headerTitleAlign:'center',
+          headerTitleAlign: 'center',
         })}
       />
       <RootStack.Screen

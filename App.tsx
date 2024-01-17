@@ -1,19 +1,18 @@
 import * as React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {Provider} from 'react-redux';
-import {store} from './src/redux/store/store';
-import RootNavigator from './src/navigation/RootNavigator';
-import colors from './src/assets/colors';
 import {LogBox, StatusBar, View} from 'react-native';
-// import {CustomToast} from './src/components';
+import {Provider} from 'react-redux';
+import('./src/helper/ReactotronConfig');
+import Config from 'react-native-config';
+import {NavigationContainer} from '@react-navigation/native';
 import FlashMessage from 'react-native-flash-message';
 import SplashScreen from 'react-native-splash-screen';
 import firebase from '@react-native-firebase/app';
 import messaging from '@react-native-firebase/messaging';
-import { requestPermission } from './src/helper/PushNotification';
-import { InAppNotificationProvider } from './src/components/Common/InAppNotification';
-import('./src/helper/ReactotronConfig');
-import Config from "react-native-config";
+import {store} from './src/redux/store/store';
+import RootNavigator from './src/navigation/RootNavigator';
+import colors from './src/assets/colors';
+import {requestPermission} from './src/helper/PushNotification';
+import {InAppNotificationProvider} from './src/components/Common/InAppNotification';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCox_mnUgKk88Xr-0iKqR5bR8QNUIkiFg0',
@@ -26,7 +25,6 @@ const firebaseConfig = {
 };
 
 export default () => {
-
   React.useEffect(() => {
     console.log('Config.API_URL', Config.API_URL);
     if (!firebase.apps.length) {
@@ -61,7 +59,10 @@ export default () => {
     <Provider store={store}>
       <InAppNotificationProvider>
         <View style={{flex: 1}}>
-          <StatusBar backgroundColor={colors.black} barStyle={'light-content'} />
+          <StatusBar
+            backgroundColor={colors.black}
+            barStyle={'light-content'}
+          />
           <NavigationContainer>
             <RootNavigator />
             <FlashMessage position="top" />

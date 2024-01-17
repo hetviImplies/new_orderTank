@@ -1,34 +1,27 @@
-import {
-  FlatList,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import commonStyle, {
-  fontSize,
-  mediumFont,
-} from '../../styles';
+import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
 import {
   Button,
   CheckPreferenceItem,
   FontText,
   Loader,
+  Popup,
+  AddressComponent,
   NavigationBar,
 } from '../../components';
+import commonStyle, {fontSize, mediumFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
+import {colors} from '../../assets';
 import {RootScreens} from '../../types/type';
-import {useDispatch, useSelector} from 'react-redux';
 import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
-import AddressComponent from '../../components/AddressComponent';
 import utils from '../../helper/utils';
-import Popup from '../../components/Popup';
 import {
   getAddressList,
   mergeArrays,
   updateAddressList,
 } from '../Cart/Carthelper';
-import {useFocusEffect} from '@react-navigation/native';
 
 const AddressScreen = ({navigation, route, props}: any) => {
   const from = route?.params?.data?.from;
@@ -226,7 +219,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
             </Button>
           }
         />
-
         {/* <TouchableOpacity
           onPress={() => {
             navigation.navigate(RootScreens.AddAddress, {
@@ -279,8 +271,6 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     marginBottom: hp(3),
-    // position: 'absolute',
-    // bottom: hp(15),
   },
   floatingButton: {
     width: hp(6),
@@ -291,16 +281,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'flex-end',
     marginBottom: hp(3),
-    // marginTop:hp(3),
-    // position: 'absolute',
-    // bottom: wp(25),
-    // right: wp(5),
-  },
-  addBtn: {
-    borderRadius: 25,
-    borderWidth: 2,
-    padding: wp(1),
-    alignSelf: 'center',
-    borderColor: 'white',
   },
 });

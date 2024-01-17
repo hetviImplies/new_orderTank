@@ -11,14 +11,15 @@ import commonStyle, {
   mediumFont,
   mediumLarge1Font,
 } from '../../styles';
-import {FontText, Loader, NavigationBar} from '../../components';
+import {
+  FontText,
+  Popup,
+  CartCountModule,
+  NavigationBar,
+} from '../../components';
+import {colors, SvgIcons, Images} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
 import {RootScreens} from '../../types/type';
-import Popup from '../../components/Popup';
-import CartCountModule from '../../components/CartCountModule';
-import {useSelector} from 'react-redux';
 import {
   calculateTotalPrice,
   decrementCartItem,
@@ -26,37 +27,14 @@ import {
   incrementCartItem,
   removeCartItem,
 } from './Carthelper';
-import Images from '../../assets/images';
 
 const CartScreen = ({navigation, route}: any) => {
-  // const {
-  //   data: carts,
-  //   isFetching,
-  //   refetch,
-  // } = useGetCartsQuery(
-  //   {companyId: companyId},
-  //   {
-  //     refetchOnMountOrArgChange: true,
-  //   },
-  // );
-  const userInfo = useSelector((state: any) => state.auth.userInfo);
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [selectedItem, setSelectedItem] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
-
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date());
-  // const [deliAdd, setDeliAdd] = useState<any>(
-  //   userInfo
-  //     ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
-  //     : {},
-  // );
-  // const [billAdd, setBillAdd] = useState<any>(
-  //   userInfo
-  //     ? userInfo?.companyId?.address.find((item: any) => item?.isPriority)
-  //     : {},
-  // );
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -263,24 +241,9 @@ const styles = StyleSheet.create({
     paddingTop: hp(0.5),
     paddingHorizontal: wp(4),
   },
-  buttonContainer: {
-    borderRadius: normalize(6),
-    marginTop: hp(1.5),
-    // marginVertical: hp(3),
-    width: '88%',
-  },
   emptyCart: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  btSheetContainer: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  quantitySheet: {
-    marginHorizontal: wp(6),
-    marginVertical: hp(1),
     alignItems: 'center',
   },
   itemContainer: {
@@ -311,15 +274,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: hp(0.6),
     marginTop: hp(1),
-  },
-  trash: {
-    padding: wp(1),
-    alignSelf: 'flex-end',
-  },
-  quantityBtn: {
-    height: hp(3),
-    width: 'auto',
-    justifyContent: 'space-between',
-    marginTop: hp(0.5),
   },
 });

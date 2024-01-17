@@ -6,16 +6,16 @@ import {
   View,
 } from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import moment from 'moment';
+import {useFocusEffect} from '@react-navigation/native';
 import {NavigationBar, FontText, Loader} from '../../components';
 import commonStyle, {mediumFont, smallFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {ORDERTYPE} from '../../types/data';
+import {ORDERTYPE} from '../../helper/data';
 import colors from '../../assets/colors';
 import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
-import moment from 'moment';
 import AddressComponent from '../../components/AddressComponent';
-import {useFocusEffect} from '@react-navigation/native';
 
 const OrderScreen = ({navigation}: any) => {
   const flatListRef: any = useRef(null);

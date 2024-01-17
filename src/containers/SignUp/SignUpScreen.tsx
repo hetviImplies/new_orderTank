@@ -6,19 +6,21 @@ import {
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import {useRegisterMutation} from '../../api/auth';
-import Images from '../../assets/images';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader} from '../../components';
-import {fontSize, iconSize, mediumFont, mediumLarge2Font} from '../../styles';
-import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {useRegisterMutation} from '../../api/auth';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {Button, FontText, Input, Loader, Popup} from '../../components';
+import commonStyle, {
+  fontSize,
+  iconSize,
+  mediumFont,
+  mediumLarge2Font,
+} from '../../styles';
+import {colors, SvgIcons, Images} from '../../assets';
 import {RootScreens} from '../../types/type';
 import utils from '../../helper/utils';
-import commonStyle from '../../styles';
-import Popup from '../../components/Popup';
-import { resetNavigateTo } from '../../helper/navigationHelper';
+import {resetNavigateTo} from '../../helper/navigationHelper';
+import {emailRegx, phoneRegx} from '../../helper/regex';
 
 const SignUpScreen = ({navigation}: any) => {
   const [register, {isLoading}] = useRegisterMutation();
@@ -33,10 +35,6 @@ const SignUpScreen = ({navigation}: any) => {
   const [checkValid, setCheckValid] = useState(false);
   // const [isCheck, setIsCheck] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  const emailRegx =
-    /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
-  const phoneRegx = /^[6-9]\d{9}$/;
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -57,15 +55,8 @@ const SignUpScreen = ({navigation}: any) => {
   const isValidPassword =
     checkValid && (password.length === 0 || password.length < 8);
 
-  const clearData = async () => {
-    setUserName('');
-    setEmail('');
-    setPhoneNo('');
-    setPassword('');
-  };
-
   const signInPress = () => {
-    resetNavigateTo(navigation, RootScreens.Login);;
+    resetNavigateTo(navigation, RootScreens.Login);
   };
 
   const onSignUpPress = async () => {
@@ -88,7 +79,6 @@ const SignUpScreen = ({navigation}: any) => {
       };
       const {data, error}: any = await register(params);
       if (!error && data?.statusCode === 200) {
-        // clearData();
         setCheckValid(false);
         setIsOpen(true);
         // utils.showSuccessToast(data.message);
@@ -418,7 +408,7 @@ const SignUpScreen = ({navigation}: any) => {
           description={`Please verify your email address by clicking the link sent to ${email}.`}
           rightBtnText={'OK'}
           rightBtnPress={() => {
-            resetNavigateTo(navigation, RootScreens.Login);;
+            resetNavigateTo(navigation, RootScreens.Login);
             setIsOpen(false);
           }}
           // btnConatiner={{width:'100%'}}

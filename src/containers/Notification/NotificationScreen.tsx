@@ -7,17 +7,15 @@ import {
   BackHandler,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import SvgIcons from '../../assets/SvgIcons';
+import moment from 'moment';
+import {colors, SvgIcons} from '../../assets';
 import {NavigationBar, FontText, Loader} from '../../components';
-import {mediumFont} from '../../styles';
+import commonStyle, {mediumFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import commonStyle from '../../styles';
-import colors from '../../assets/colors';
 import {
   useGetNotificationQuery,
   useReadNotificationMutation,
 } from '../../api/notification';
-import moment from 'moment';
 
 const NotificationScreen = ({navigation}: any) => {
   const {data: noitification, isFetching: isProcessing} =
@@ -179,14 +177,6 @@ const NotificationScreen = ({navigation}: any) => {
 export default NotificationScreen;
 
 const styles = StyleSheet.create({
-  countView: {
-    backgroundColor: colors.brownOpacity,
-    borderRadius: 8,
-    width: hp(3),
-    height: hp(3),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   iconView: {
     backgroundColor: colors.brownOpacity,
     borderRadius: 8,
@@ -203,11 +193,5 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(4),
     marginBottom: hp(2.5),
     borderRadius: normalize(10),
-  },
-  avatar: {
-    width: hp(8),
-    height: hp(8),
-    backgroundColor: colors.gray,
-    borderRadius: 10,
   },
 });

@@ -1,28 +1,30 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import colors from '../../assets/colors';
-import {Button, FontText, Input, Loader} from '..';
-import SvgIcons from '../../assets/SvgIcons';
-import {iconSize, fontSize, mediumFont, tabIcon} from '../../styles';
-import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
+import {useDispatch, useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import commonStyle from '../../styles';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress, {getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {NUMBER_TYPE, STATES_DATA} from '../../types/data';
+import {colors, SvgIcons} from '../../assets';
+import {Button, FontText, Input, Loader, RadioButton, BottomSheet} from '..';
+import commonStyle, {
+  iconSize,
+  fontSize,
+  mediumFont,
+  tabIcon,
+} from '../../styles';
+import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
+import {NUMBER_TYPE, STATES_DATA} from '../../helper/data';
 import {
   useAddCompanyMutation,
   useGetCompanyQuery,
   useUpdateCompanyMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {useDispatch, useSelector} from 'react-redux';
 import {setCompanyId} from '../../redux/slices/authSlice';
-import RadioButton from '../Common/RadioButton';
-import BottomSheet from '../BottomSheet';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {RootScreens} from '../../types/type';
+import {gstNoRegx, panNoRegx, phoneRegx} from '../../helper/regex';
 
 const CompanyDetail = (props: any) => {
   const {loading, from, navigation, loginData} = props;
@@ -43,11 +45,6 @@ const CompanyDetail = (props: any) => {
   const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
-  const gstNoRegx = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-  // const gstNoRegx =
-  //   /^[0-9]{2}[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-  const panNoRegx = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-  const phoneRegx = /^[6-9]\d{9}$/;
 
   const validationGstNo = (val: any) => {
     const result = gstNoRegx.test(val.trim());
@@ -118,12 +115,21 @@ const CompanyDetail = (props: any) => {
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(data?.result?.name ? data?.result?.name : userData?.result?.name ? userData?.result?.name : loginData?.name);
+    setName(
+      data?.result?.name
+        ? data?.result?.name
+        : userData?.result?.name
+        ? userData?.result?.name
+        : loginData?.name,
+    );
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
     setPhone(
-      data?.result?.phone ? data?.result?.phone : userData?.result?.phone 
-      ? userData?.result?.phone : loginData?.phone,
+      data?.result?.phone
+        ? data?.result?.phone
+        : userData?.result?.phone
+        ? userData?.result?.phone
+        : loginData?.phone,
     );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
@@ -661,7 +667,7 @@ const CompanyDetail = (props: any) => {
                   </View>
                 }
               />
-              {isValidAddress && (
+              {isValidAddressName && (
                 <FontText
                   size={normalize(12)}
                   color={'red'}

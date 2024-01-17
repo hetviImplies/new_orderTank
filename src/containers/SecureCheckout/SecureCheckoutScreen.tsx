@@ -9,8 +9,19 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import SvgIcons from '../../assets/SvgIcons';
-import {FontText, Loader, Input, Button} from '../../components';
+import moment from 'moment';
+import {useFocusEffect} from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {
+  FontText,
+  Loader,
+  Input,
+  Button,
+  AddressComponent,
+  IconHeader,
+  CartCountModule,
+  Popup,
+} from '../../components';
 import commonStyle, {
   iconSize,
   mediumFont,
@@ -18,17 +29,12 @@ import commonStyle, {
   tabIcon,
 } from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
+import {colors, SvgIcons, Images} from '../../assets';
 import {RootScreens} from '../../types/type';
 import {
   useAddOrderMutation,
   useUpdateOrderStatusMutation,
 } from '../../api/order';
-import AddressComponent from '../../components/AddressComponent';
-import IconHeader from '../IconHeader';
-import CartCountModule from '../../components/CartCountModule';
 import utils from '../../helper/utils';
 import {
   calculateTotalPrice,
@@ -36,9 +42,6 @@ import {
   getCartItems,
   updateCartItems,
 } from '../Cart/Carthelper';
-import Popup from '../../components/Popup';
-import Images from '../../assets/images';
-import {useFocusEffect} from '@react-navigation/native';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();

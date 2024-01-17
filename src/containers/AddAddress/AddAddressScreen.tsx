@@ -1,27 +1,31 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import colors from '../../assets/colors';
-import {Button, FontText, Input, Loader, NavigationBar} from '../../components';
-import SvgIcons from '../../assets/SvgIcons';
-import {iconSize, fontSize, mediumFont} from '../../styles';
-import {wp, hp, normalize} from '../../styles/responsiveScreen';
+import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import commonStyle from '../../styles';
-import {STATES_DATA} from '../../types/data';
+import {
+  BottomSheet,
+  Button,
+  FontText,
+  Input,
+  Loader,
+  NavigationBar,
+} from '../../components';
+import commonStyle, {iconSize, fontSize, mediumFont} from '../../styles';
+import {wp, hp, normalize} from '../../styles/responsiveScreen';
+import {colors, SvgIcons} from '../../assets';
+import {STATES_DATA} from '../../helper/data';
 import {
   useCreateAddressMutation,
   useGetCompanyQuery,
   useUpdateAddressMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {useSelector} from 'react-redux';
-import BottomSheet from '../../components/BottomSheet';
 import {
   getAddressList,
   mergeArrays,
   updateAddressList,
 } from '../Cart/Carthelper';
-import {useFocusEffect} from '@react-navigation/native';
 
 const AddAddressScreen = (props: any) => {
   const {navigation, route} = props;

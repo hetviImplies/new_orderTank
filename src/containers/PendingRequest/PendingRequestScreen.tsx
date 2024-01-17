@@ -1,20 +1,10 @@
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {FlatList, Image, StyleSheet, View} from 'react-native';
 import React from 'react';
-import colors from '../../assets/colors';
+import {colors, Images} from '../../assets';
 import {NavigationBar, FontText, Button, Loader} from '../../components';
-import commonStyle, {
-  fontSize,
-  smallFont,
-  mediumFont,
-} from '../../styles';
+import commonStyle, {fontSize, smallFont, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {useGetSupplierQuery} from '../../api/company';
-import Images from '../../assets/images';
 
 const PendingRequestScreen = ({navigation}: any) => {
   const {data: supplierList, isFetching: isProcessing} = useGetSupplierQuery(

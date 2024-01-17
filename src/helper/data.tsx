@@ -1,5 +1,7 @@
 import SvgIcons from '../assets/SvgIcons';
+import colors from '../assets/colors';
 import {iconSize, tabIcon} from '../styles';
+import {hp} from '../styles/responsiveScreen';
 
 export const PROFILE_LIST = [
   {
@@ -450,4 +452,27 @@ export const COUNTRY_LIST = [
   'Yemen',
   'Zambia',
   'Zimbabwe',
+];
+
+export const FLOATING_BTN_ACTION = [
+  {
+    text: 'Add Supplier',
+    icon: <SvgIcons.AddSupplier width={tabIcon} height={tabIcon} />,
+    name: 'bt_supplier',
+    color: '#EEEEEE',
+    position: 2,
+    buttonSize: hp(5.5),
+    textBackground: colors.orange,
+    textColor: 'white',
+  },
+  {
+    text: 'Add Order',
+    icon: <SvgIcons.AddOrder width={tabIcon} height={tabIcon} />,
+    name: 'bt_order',
+    color: '#EEEEEE',
+    position: 1,
+    buttonSize: hp(5.5),
+    textBackground: colors.orange,
+    textColor: 'white',
+  },
 ];

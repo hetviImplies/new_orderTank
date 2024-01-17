@@ -1,15 +1,13 @@
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
-import CompanyDetail from '../../components/CompanyDetail';
+import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SvgIcons from '../../assets/SvgIcons';
-import colors from '../../assets/colors';
+import {CompanyDetail, Popup} from '../../components';
+import {colors,SvgIcons} from '../../assets';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {authReset} from '../../redux/slices/authSlice';
 import {wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
-import {useDispatch} from 'react-redux';
-import Popup from '../../components/Popup';
 import {mediumFont} from '../../styles';
 
 const CompanyDetailScreen = ({navigation, route}: any) => {
@@ -55,7 +53,12 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
 
   return (
     <>
-      <CompanyDetail from={from} navigation={navigation} loading={loading} loginData={data}/>
+      <CompanyDetail
+        from={from}
+        navigation={navigation}
+        loading={loading}
+        loginData={data}
+      />
       <Popup
         visible={isOpen}
         title={'Log out'}

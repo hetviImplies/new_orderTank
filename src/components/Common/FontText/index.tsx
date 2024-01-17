@@ -1,7 +1,6 @@
 import React from 'react';
 import {Text} from 'react-native';
-import colors from '../../../assets/colors';
-import fonts from '../../../assets/fonts';
+import {colors, fonts} from '../../../assets';
 import {normalize} from '../../../styles/responsiveScreen';
 
 const FontText = ({
@@ -21,7 +20,7 @@ const FontText = ({
   textAlign,
   textDecoration,
   onLayout,
-}:any) => {
+}: any) => {
   const fontSize = size;
   const textStyle = {
     fontSize,

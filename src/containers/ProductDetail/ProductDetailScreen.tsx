@@ -6,23 +6,26 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import colors from '../../assets/colors';
+import {colors, SvgIcons} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Loader, NavigationBar} from '../../components';
 import {
+  Button,
+  FontText,
+  Loader,
+  NavigationBar,
+  ProductComponent,
+  ListHeader,
+} from '../../components';
+import commonStyle, {
   fontSize,
   mediumFont,
   mediumLarge2Font,
   mediumLargeFont,
 } from '../../styles';
-import SvgIcons from '../../assets/SvgIcons';
 import {RootScreens} from '../../types/type';
 import {useGetAllProductsQuery, useGetOneProductQuery} from '../../api/product';
-import ListHeader from '../../components/ListHeader';
-import commonStyle from '../../styles';
 import {useAddCartMutation, useGetCartsQuery} from '../../api/cart';
 import utils from '../../helper/utils';
-import ProductComponent from '../../components/ProductComponent';
 
 const ProductDetailScreen = ({navigation, route}: any) => {
   const item = route.params.data.item;
@@ -42,14 +45,9 @@ const ProductDetailScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
-  const {
-    data: carts,
-    isFetching,
-  } = useGetCartsQuery(
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
+  const {data: carts, isFetching} = useGetCartsQuery({
+    refetchOnMountOrArgChange: true,
+  });
   const [addToCart, {isLoading}] = useAddCartMutation();
 
   const productDetail = product?.result;
@@ -171,7 +169,11 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           </FontText>
         </Button>
         <View style={styles.line} />
-        <ListHeader leftName={'Related Product'} rightName={'See All'} rightPress={() =>  navigation.goBack()}/>
+        <ListHeader
+          leftName={'Related Product'}
+          rightName={'See All'}
+          rightPress={() => navigation.goBack()}
+        />
         <ProductComponent
           data={productListData && productListData.slice(0, 2)}
           productPress={onProductPress}

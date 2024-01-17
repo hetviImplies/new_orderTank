@@ -1,5 +1,11 @@
-import {BackHandler, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, { useEffect } from 'react';
+import {
+  BackHandler,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect} from 'react';
 import commonStyle, {
   mediumFont,
   mediumLarge1Font,
@@ -7,10 +13,9 @@ import commonStyle, {
 } from '../../styles';
 import {FontText} from '../../components';
 import {hp, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
+import {SvgIcons} from '../../assets';
 import {RootScreens} from '../../types/type';
-import { resetNavigateTo } from '../../helper/navigationHelper';
+import {resetNavigateTo} from '../../helper/navigationHelper';
 
 const OrderPlacedScreen = ({navigation, route}: any) => {
   const data = route?.params?.data;
@@ -26,7 +31,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
     resetNavigateTo(navigation, RootScreens.DashBoard);
     return true;
   };
-  
+
   return (
     <ScrollView
       contentContainerStyle={[
@@ -61,9 +66,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
         textAlign={'center'}>
         {`Your order ID is : ${data?.orderId}`}
       </FontText>
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={backAction}>
+      <TouchableOpacity style={styles.buttonContainer} onPress={backAction}>
         <FontText
           color="orange"
           name="lexend-bold"
@@ -80,14 +83,6 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
 export default OrderPlacedScreen;
 
 const styles = StyleSheet.create({
-  cardConatiner: {
-    backgroundColor: colors.white,
-    padding: wp(4),
-    borderRadius: 15,
-    width: '100%',
-    marginTop: hp(5),
-    marginBottom: hp(10),
-  },
   buttonContainer: {
     position: 'absolute',
     bottom: hp(15),

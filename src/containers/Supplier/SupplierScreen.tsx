@@ -7,31 +7,24 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
 import commonStyle, {
   fontSize,
   mediumFont,
   smallFont,
   tabIcon,
 } from '../../styles';
-import SvgIcons from '../../assets/SvgIcons';
-import {NavigationBar, FontText, Input, Loader} from '../../components';
+import {NavigationBar, FontText, Input, Loader, Popup} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
-import colors from '../../assets/colors';
-import Popup from '../../components/Popup';
+import {colors, SvgIcons, Images} from '../../assets';
 import {
   useCompanyRequestMutation,
   useGetSupplierQuery,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {useFocusEffect} from '@react-navigation/native';
-import Images from '../../assets/images';
 
 const SupplierScreen = ({navigation}: any) => {
-  const [search, setSearch] = useState('');
-  // const [searchText, setSearchText] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [code, setCode] = useState('');
   const {
     data: supplierList,
     isFetching: isProcessing,
@@ -44,6 +37,11 @@ const SupplierScreen = ({navigation}: any) => {
     },
   );
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
+
+  const [search, setSearch] = useState('');
+  // const [searchText, setSearchText] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [code, setCode] = useState('');
   const [suppplierData, setSupplierData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 

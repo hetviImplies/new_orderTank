@@ -7,59 +7,43 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import SvgIcons from '../../assets/SvgIcons';
-import {FontText, Input, Loader} from '../../components';
-import {fontSize, mediumFont, smallFont, tabIcon} from '../../styles';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import {RootScreens} from '../../types/type';
-import commonStyle from '../../styles';
-import messaging from '@react-native-firebase/messaging';
-import Popup from '../../components/Popup';
-import {useDispatch, useSelector} from 'react-redux';
-import utils from '../../helper/utils';
-import Images from '../../assets/images';
-import {useCompanyRequestMutation, useGetCompanyQuery} from '../../api/company';
-import {FloatingAction} from 'react-native-floating-action';
-import {useGetOrdersQuery} from '../../api/order';
 import moment from 'moment';
-import AddressComponent from '../../components/AddressComponent';
+import {useDispatch, useSelector} from 'react-redux';
+import messaging from '@react-native-firebase/messaging';
+import {FloatingAction} from 'react-native-floating-action';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {useFocusEffect} from '@react-navigation/native';
+import {colors, SvgIcons, Images} from '../../assets';
+import {
+  FontText,
+  Input,
+  Loader,
+  Popup,
+  AddressComponent,
+} from '../../components';
+import commonStyle, {
+  fontSize,
+  mediumFont,
+  smallFont,
+  tabIcon,
+} from '../../styles';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {RootScreens} from '../../types/type';
+import utils from '../../helper/utils';
+import {useCompanyRequestMutation, useGetCompanyQuery} from '../../api/company';
+import {useGetOrdersQuery} from '../../api/order';
+import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {mergeArrays, updateAddressList} from '../Cart/Carthelper';
 import {useGetNotificationQuery} from '../../api/notification';
-
-const actions = [
-  {
-    text: 'Add Supplier',
-    icon: <SvgIcons.AddSupplier width={tabIcon} height={tabIcon} />,
-    name: 'bt_supplier',
-    color: '#EEEEEE',
-    position: 2,
-    buttonSize: hp(5.5),
-    textBackground: colors.orange,
-    textColor: 'white',
-  },
-  {
-    text: 'Add Order',
-    icon: <SvgIcons.AddOrder width={tabIcon} height={tabIcon} />,
-    name: 'bt_order',
-    color: '#EEEEEE',
-    position: 1,
-    buttonSize: hp(5.5),
-    textBackground: colors.orange,
-    textColor: 'white',
-  },
-];
+import {FLOATING_BTN_ACTION} from '../../helper/data';
 
 const HomeScreen = ({navigation, route, showNotification}: any) => {
   const dispatch = useDispatch();
+  const loginData = route?.params?.data;
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const companyId = useSelector((state: any) => state.auth.companyId);
-  const loginData = route?.params?.data;
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
   const {data, isFetching} = useGetCompanyQuery(
     userInfo?.companyId?._id ||
@@ -79,12 +63,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-  const [notification, setNotification] = useState<any>({});
-  const [isOpen, setIsOpen] = useState(false);
-  const [code, setCode] = useState('');
-  const [orderData, setOrderData] = React.useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-
   const {
     data: orderList,
     isFetching: isProcessing,
@@ -98,6 +76,12 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
+
+  const [notification, setNotification] = useState<any>({});
+  const [isOpen, setIsOpen] = useState(false);
+  const [code, setCode] = useState('');
+  const [orderData, setOrderData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -122,14 +106,13 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   }, [isFetch]);
 
   useEffect(() => {
+    async function getAddressData() {
+      const mergedArray = await mergeArrays(data?.result?.address);
+      console.log('mergedArray', mergedArray);
+      await updateAddressList(mergedArray);
+    }
     getAddressData();
   }, [data, isFetching, loginData]);
-
-  const getAddressData = async () => {
-    const mergedArray = await mergeArrays(data?.result?.address);
-    console.log('mergedArray', mergedArray);
-    await updateAddressList(mergedArray);
-  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -204,22 +187,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         utils.showErrorToast(error);
       }
     };
-  };
-
-  const onItemPress = (index: any) => {
-    switch (index) {
-      case 0:
-        navigation.navigate(RootScreens.Order);
-        break;
-      case 1:
-        navigation.navigate(RootScreens.Supplier);
-        break;
-      // case 2:
-      //   navigation.navigate(RootScreens.Order);
-      //   break;
-      default:
-        break;
-    }
   };
 
   const onViewDetail = (item: any) => {
@@ -416,14 +383,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           }
         />
       )}
-      {/* <Button
-          bgColor={'orange'}
-          style={styles.buttonContainer}
-          onPress={onAddCodePress}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-            {'Add your Supplier'}
-          </FontText>
-        </Button> */}
       <Popup
         visible={isOpen}
         onBackPress={() => setIsOpen(false)}
@@ -451,7 +410,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         rightBtnStyle={{width: '100%'}}
       />
       <FloatingAction
-        actions={actions}
+        actions={FLOATING_BTN_ACTION}
         onPressItem={name => {
           if (name === 'bt_supplier') {
             onAddCodePress();
@@ -472,22 +431,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           shadowRadius: 3,
         }}
       />
-      {/* <TouchableOpacity
-        onPress={() => navigation.navigate(RootScreens.Cart)}
-        style={styles.floatingButton}>
-        <SvgIcons.Buy width={wp(8.5)} height={wp(8.5)} fill={colors.white} />
-        {carts && carts?.result && carts?.result?.cart?.length ? (
-          <View style={[styles.cartCount]}>
-            <FontText
-              color="orange"
-              name="lexend-medium"
-              size={smallFont}
-              textAlign={'center'}>
-              {carts?.result?.cart?.length}
-            </FontText>
-          </View>
-        ) : null}
-      </TouchableOpacity> */}
     </View>
   );
 };
@@ -499,9 +442,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: hp(5),
     height: hp(5),
-    // backgroundColor: colors.white2,
     borderRadius: 10,
-    // marginRight: wp(3),
   },
   inputText: {
     borderRadius: 10,
@@ -519,15 +460,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: hp(6),
     marginVertical: hp(1),
-  },
-  itemContainer: {
-    alignItems: 'center',
-    paddingHorizontal: wp(4),
-    paddingVertical: hp(1.5),
-    backgroundColor: colors.white,
-    borderRadius: normalize(6),
-    marginBottom: hp(2),
-    width: '48%',
   },
   iconView: {
     backgroundColor: colors.white2,
@@ -548,33 +480,6 @@ const styles = StyleSheet.create({
     top: wp(0.2),
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cartCount: {
-    width: wp(5),
-    height: wp(5),
-    backgroundColor: colors.white,
-    borderRadius: wp(10),
-    position: 'absolute',
-    right: wp(3),
-    top: wp(3.5),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    borderRadius: normalize(6),
-    marginHorizontal: wp(6),
-    marginTop: hp(3),
-  },
-  floatingButton: {
-    width: hp(8),
-    height: hp(8),
-    borderRadius: hp(4),
-    backgroundColor: colors.orange,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    bottom: wp(7),
-    right: wp(5),
   },
   dashedLine: {
     marginTop: wp(1.5),

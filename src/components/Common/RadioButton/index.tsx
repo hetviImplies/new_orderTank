@@ -1,9 +1,8 @@
 import React from 'react';
 import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import {hp, wp} from '../../../styles/responsiveScreen';
-import {mediumFont} from '../../../styles';
+import commonStyle, {mediumFont} from '../../../styles';
 import FontText from '../FontText';
-import commonStyle from '../../../styles';
 import colors from '../../../assets/colors';
 
 const RadioButton = (props: any) => {

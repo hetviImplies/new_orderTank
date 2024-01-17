@@ -1,8 +1,7 @@
 //import liraries
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
-import colors from '../../../assets/colors';
-import SvgIcons from '../../../assets/SvgIcons';
+import {colors, SvgIcons} from '../../../assets';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
 import {tabIcon} from '../../../styles';
 import FontText from '../FontText';

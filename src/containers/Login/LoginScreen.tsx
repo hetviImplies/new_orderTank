@@ -6,12 +6,14 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
 import {useDispatch} from 'react-redux';
-import Images from '../../assets/images';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
+import {colors, Images} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader} from '../../components';
-import {
+import {Button, FontText, Input, Loader, Popup} from '../../components';
+import commonStyle, {
   fontSize,
   iconSize,
   mediumFont,
@@ -24,28 +26,23 @@ import {
   setIsAuthenticated,
   setToken,
 } from '../../redux/slices/authSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import utils from '../../helper/utils';
-import commonStyle from '../../styles';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import colors from '../../assets/colors';
-import Popup from '../../components/Popup';
 import {requestPermission} from '../../helper/PushNotification';
+import {emailRegx} from '../../helper/regex';
 
 const LoginScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
   const [login, {isLoading}] = useLoginMutation();
   const [resend, {isLoading: isFetching}] = useResendEmailMutation();
+
   const passwordRef: any = useRef();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const emailRegx =
-    /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -352,8 +349,6 @@ const LoginScreen = ({navigation}: any) => {
         description={`Please check your email for the verification link. If you have not received the email, we can resend it.`}
         rightBtnText={'Resend'}
         rightBtnPress={sendEmailPress}
-        // onTouchPress={() => setIsOpen(false)}
-        // btnConatiner={{width:'100%'}}
         rightBtnStyle={{width: '100%', height: hp(6)}}
       />
       {/* )} */}

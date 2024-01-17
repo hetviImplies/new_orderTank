@@ -8,12 +8,11 @@ import {
   ActivityIndicator,
   Pressable,
 } from 'react-native';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
 import {useFocusEffect} from '@react-navigation/native';
-import {FontText, Input, Button} from '..';
-import SvgIcons from '../../assets/SvgIcons';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {colors, SvgIcons} from '../../assets';
+import {FontText, Input, Button} from '..';
 import commonStyle, {fontSize, tabIcon} from '../../styles';
 
 const BottomSheet = (props: any) => {

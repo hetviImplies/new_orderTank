@@ -6,13 +6,15 @@ import {
   View,
 } from 'react-native';
 import React, {useState} from 'react';
-import {FontText} from '..';
-import {fontSize, mediumFont, mediumLargeFont, tabIcon} from '../../styles';
+import {FontText, Button} from '..';
+import commonStyle, {
+  fontSize,
+  mediumFont,
+  mediumLargeFont,
+  tabIcon,
+} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import Button from '../Common/Button';
-import SvgIcons from '../../assets/SvgIcons';
-import commonStyle from '../../styles';
+import {colors, SvgIcons} from '../../assets';
 
 const FilterModal = (props: any) => {
   const {filterItems, onApplyPress, setSearch, onApply, category} = props;

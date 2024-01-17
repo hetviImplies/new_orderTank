@@ -4,14 +4,8 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  findNodeHandle,
-} from 'react-native';
-import colors from '../../../assets/colors';
-import fonts from '../../../assets/fonts';
+import {View, TextInput, StyleSheet, findNodeHandle} from 'react-native';
+import {colors, fonts} from '../../../assets';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
 
 const Input = forwardRef(
@@ -57,7 +51,7 @@ const Input = forwardRef(
       eyePress,
       eye,
       checkEye,
-      search
+      search,
     }: any,
     ref,
   ) => {

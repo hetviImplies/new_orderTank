@@ -1,15 +1,21 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import SvgIcons from '../../assets/SvgIcons';
-import colors from '../../assets/colors';
-import {NavigationBar, FontText, Input, Loader} from '../../components';
+import {useFocusEffect} from '@react-navigation/native';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {colors, SvgIcons} from '../../assets';
+import {
+  NavigationBar,
+  FontText,
+  Input,
+  Loader,
+  Popup,
+  FilterModal,
+  ProductComponent,
+} from '../../components';
 import commonStyle, {tabIcon, fontSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import FilterModal from '../../components/FilterModal';
 import {useGetAllProductsQuery} from '../../api/product';
-import ProductComponent from '../../components/ProductComponent';
 import {
   addToCart,
   decrementCartItem,
@@ -17,8 +23,6 @@ import {
   incrementCartItem,
   updateCartItems,
 } from '../Cart/Carthelper';
-import {useFocusEffect} from '@react-navigation/native';
-import Popup from '../../components/Popup';
 import {useGetCategoryQuery} from '../../api/category';
 
 const ProductListingScreen = ({navigation, route}: any) => {
@@ -41,7 +45,6 @@ const ProductListingScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
-
   const {
     data: productList,
     isFetching: isProcessing,
@@ -120,14 +123,6 @@ const ProductListingScreen = ({navigation, route}: any) => {
       fetchCartItems();
     }, []),
   );
-
-  // useEffect(() => {
-  //   const fetchCartItems = async () => {
-  //     const items = await getCartItems();
-  //     setCartItems(items);
-  //   };
-  //   fetchCartItems();
-  // }, []);
 
   const handleAddToCart = async (item: any) => {
     const data = await addToCart(item);

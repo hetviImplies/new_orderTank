@@ -3,7 +3,7 @@ import React from 'react';
 import {Button, FontText} from '..';
 import commonStyle, {mediumFont, fontSize} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
+import {colors} from '../../assets';
 
 const CartCountModule = (props: any) => {
   const {cartData, onPress, btnText, btnColor, isShow, showText, total} = props;
@@ -26,7 +26,8 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {'₹'}{`${total}`}
+                  {'₹'}
+                  {`${total}`}
                 </FontText>
               </View>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
@@ -43,7 +44,8 @@ const CartCountModule = (props: any) => {
                   name="lexend-regular"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {'₹'}{`0`}
+                  {'₹'}
+                  {`0`}
                 </FontText>
               </View>
             </View>
@@ -60,7 +62,8 @@ const CartCountModule = (props: any) => {
                 name="lexend-regular"
                 size={mediumFont}
                 textAlign={'left'}>
-                {'₹'}{`${total}`}
+                {'₹'}
+                {`${total}`}
               </FontText>
             </View>
             {showText}

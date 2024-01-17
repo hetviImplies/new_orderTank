@@ -2,11 +2,9 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {FontText} from '..';
 import SvgIcons from '../../assets/SvgIcons';
-import colors from '../../assets/colors';
-import {iconSize, smallFont} from '../../styles';
+import commonStyle, {iconSize, smallFont} from '../../styles';
 import {wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
-import commonStyle from '../../styles';
 
 const AddressComponent = (props: any) => {
   const {item, onEditPress, onDeletePress, from, isEditDelete} = props;

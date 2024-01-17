@@ -1,16 +1,16 @@
 import {BackHandler, StyleSheet, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import SvgIcons from '../../assets/SvgIcons';
-import colors from '../../assets/colors';
+import {useDispatch} from 'react-redux';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {colors, SvgIcons} from '../../assets';
 import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
 import commonStyle, {fontSize, iconSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {useUpdateProfileMutation} from '../../api/profile';
 import utils from '../../helper/utils';
-import {useDispatch} from 'react-redux';
 import {setCurrentUser} from '../../redux/slices/authSlice';
+import {emailRegx} from '../../helper/regex';
 
 const PersonalDetailScreen = ({navigation}: any) => {
   const {data, isFetching} = useGetCurrentUserQuery(null, {
@@ -27,8 +27,6 @@ const PersonalDetailScreen = ({navigation}: any) => {
   const [checkValid, setCheckValid] = useState(false);
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Profile');
-  const emailRegx =
-    /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -198,9 +196,6 @@ const PersonalDetailScreen = ({navigation}: any) => {
               maxLength={10}
               keyboardType={'numeric'}
               blurOnSubmit
-              // onSubmit={() => {
-              //   emailRef?.current.focus();
-              // }}
               children={
                 <View style={[commonStyle.abs, {left: wp(4)}]}>
                   <SvgIcons.Phone width={iconSize} height={iconSize} />

@@ -1,10 +1,9 @@
 import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Checkbox from './Checkbox';
-import SvgIcons from '../../../assets/SvgIcons';
 import {hp, wp} from '../../../styles/responsiveScreen';
 
-const CheckPreferenceItem = (props:any) => {
+const CheckPreferenceItem = (props: any) => {
   return (
     <>
       <View style={{...styles.listItem, ...props.listStyle}}>

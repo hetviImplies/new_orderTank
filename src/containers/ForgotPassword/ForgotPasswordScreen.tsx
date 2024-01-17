@@ -1,37 +1,26 @@
-import {
-  ImageBackground,
-  Keyboard,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {ImageBackground, Keyboard, StyleSheet, View} from 'react-native';
 import React, {useState} from 'react';
-import Images from '../../assets/images';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader} from '../../components';
-import {
+import {Button, FontText, Input, Loader, Popup} from '../../components';
+import commonStyle, {
   fontSize,
   iconSize,
   mediumFont,
   mediumLarge2Font,
 } from '../../styles';
-import colors from '../../assets/colors';
-import SvgIcons from '../../assets/SvgIcons';
+import {colors, Images, SvgIcons} from '../../assets';
 import {useForgotPasswordMutation} from '../../api/auth';
 import utils from '../../helper/utils';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import commonStyle from '../../styles';
-import Popup from '../../components/Popup';
 import {RootScreens} from '../../types/type';
-import { resetNavigateTo } from '../../helper/navigationHelper';
+import {resetNavigateTo} from '../../helper/navigationHelper';
+import {emailRegx} from '../../helper/regex';
 
 const ForgotPasswordScreen = ({navigation}: any) => {
   const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
   const [email, setEmail] = useState('');
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  const emailRegx =
-    /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -154,7 +143,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         rightBtnText={'Ok'}
         rightBtnPress={() => {
           setIsOpen(false);
-          resetNavigateTo(navigation, RootScreens.Login);;
+          resetNavigateTo(navigation, RootScreens.Login);
         }}
         // onTouchPress={() => setIsOpen(false)}
         // btnConatiner={{width:'100%'}}

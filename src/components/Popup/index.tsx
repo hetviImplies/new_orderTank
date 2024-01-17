@@ -8,11 +8,14 @@ import {
 } from 'react-native';
 import React from 'react';
 import {Button, FontText} from '..';
-import {fontSize, mediumLarge1Font, smallFont, tabIcon} from '../../styles';
+import commonStyle, {
+  fontSize,
+  mediumLarge1Font,
+  smallFont,
+  tabIcon,
+} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import colors from '../../assets/colors';
-import commonStyle from '../../styles';
-import SvgIcons from '../../assets/SvgIcons';
+import {colors, SvgIcons} from '../../assets';
 
 const Popup = (props: any) => {
   const {

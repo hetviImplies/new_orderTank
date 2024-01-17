@@ -1,16 +1,15 @@
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
+import {useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import commonStyle, {fontSize, mediumFont} from '../../styles';
-import {FontText, Loader} from '../../components';
+import {FontText, Loader, Popup} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
-import {PROFILE_LIST} from '../../types/data';
+import {PROFILE_LIST} from '../../helper/data';
 import {RootScreens} from '../../types/type';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authReset} from '../../redux/slices/authSlice';
-import {useDispatch} from 'react-redux';
 import {resetNavigateTo} from '../../helper/navigationHelper';
-import Popup from '../../components/Popup';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
