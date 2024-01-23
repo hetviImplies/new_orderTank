@@ -159,15 +159,15 @@ const ProductComponent = (props: any) => {
     categoryData,
   } = props;
 
-  const sections = data.reduce((acc: any, product: any) => {
-    const existingSectionIndex = acc.findIndex(
+  const sections = data?.reduce((acc: any, product: any) => {
+    const existingSectionIndex = acc?.findIndex(
       (section: any) => section.categoryId === product.categoryId,
     );
 
     if (existingSectionIndex !== -1) {
       acc[existingSectionIndex].data.push(product);
     } else {
-      const category = categoryData.find(
+      const category = categoryData?.find(
         (category: any) => category._id === product.categoryId,
       );
       acc.push({
@@ -190,18 +190,19 @@ const ProductComponent = (props: any) => {
         commonStyle.rowJB,
         {flexWrap: 'wrap', paddingHorizontal: wp(0.2)},
       ]}>
-      {sections.map((section: any) => (
-        <ProductSection
-          key={section.categoryId}
-          section={section}
-          isHorizontal={isHorizontal}
-          productPress={props.productPress}
-          quantityDecrement={quantityDecrement}
-          quantityIncrement={quantityIncrement}
-          cartItems={cartItems}
-          productAddToCartPress={productAddToCartPress}
-        />
-      ))}
+      {sections &&
+        sections.map((section: any) => (
+          <ProductSection
+            key={section.categoryId}
+            section={section}
+            isHorizontal={isHorizontal}
+            productPress={props.productPress}
+            quantityDecrement={quantityDecrement}
+            quantityIncrement={quantityIncrement}
+            cartItems={cartItems}
+            productAddToCartPress={productAddToCartPress}
+          />
+        ))}
     </ScrollView>
   );
 };

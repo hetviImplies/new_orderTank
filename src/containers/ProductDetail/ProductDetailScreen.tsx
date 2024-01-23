@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {colors, SvgIcons} from '../../assets';
+import {colors, Images, SvgIcons} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {
   Button,
@@ -180,7 +180,15 @@ const ProductDetailScreen = ({navigation, route}: any) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: hp(2)}}
         style={[commonStyle.paddingH4]}>
-        <Image source={{uri: productDetail?.image}} style={styles.productImg} />
+        {/* <Image source={{uri: productDetail?.image}} style={styles.productImg} /> */}
+        {productDetail?.image ? (
+          <Image
+            source={{uri: productDetail.image}}
+            style={styles.productImg}
+          />
+        ) : (
+          <Image source={Images.productImg} style={styles.productImg} />
+        )}
         <View style={commonStyle.marginT2}>
           <FontText
             color="black2"
