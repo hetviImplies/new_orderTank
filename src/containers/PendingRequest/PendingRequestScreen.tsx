@@ -107,11 +107,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: wp(4),
-    paddingVertical: hp(2),
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1.5),
     backgroundColor: colors.white,
     borderRadius: normalize(6),
-    marginBottom: hp(2),
+    marginBottom: hp(1.5),
   },
   logo: {
     width: hp(6.5),
@@ -119,6 +119,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: normalize(5),
     marginRight: wp(3),
+    borderWidth: 0.2,
+    borderColor: colors.black2,
   },
   buttonContainer: {
     borderRadius: normalize(10),

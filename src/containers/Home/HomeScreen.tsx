@@ -2,6 +2,7 @@ import {
   FlatList,
   Image,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -20,6 +21,8 @@ import {
   Loader,
   Popup,
   AddressComponent,
+  ListHeader,
+  Button,
 } from '../../components';
 import commonStyle, {
   fontSize,
@@ -30,7 +33,11 @@ import commonStyle, {
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import utils from '../../helper/utils';
-import {useCompanyRequestMutation, useGetCompanyQuery} from '../../api/company';
+import {
+  useCompanyRequestMutation,
+  useGetCompanyQuery,
+  useGetSupplierQuery,
+} from '../../api/company';
 import {useGetOrdersQuery} from '../../api/order';
 import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {setCurrentUser} from '../../redux/slices/authSlice';
@@ -45,7 +52,11 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const companyId = useSelector((state: any) => state.auth.companyId);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
-  const {data, isFetching} = useGetCompanyQuery(
+  const {
+    data,
+    isFetching,
+    refetch: compRefetch,
+  } = useGetCompanyQuery(
     userInfo?.companyId?._id ||
       userInfo?.companyId ||
       loginData?.companyId?._id,
@@ -76,6 +87,16 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
+  const {
+    data: supplierList,
+    isFetching: isReqProcessing,
+    refetch: reqRefetch,
+  } = useGetSupplierQuery(
+    {status: 'pending'},
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   const [notification, setNotification] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +108,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     React.useCallback(() => {
       refetch();
       notiRefetch();
+      compRefetch();
+      reqRefetch();
     }, [refetch]),
   );
 
@@ -124,12 +147,10 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     navigation.setOptions({
       headerLeft: () => (
         <View style={[commonStyle.rowAC, {marginLeft: wp(4)}]}>
-          {userInfo?.companyId?.logo || data?.result?.logo ? (
+          {data?.result?.logo ? (
             <Image
               source={{
-                uri: data?.result?.logo
-                  ? data?.result?.logo
-                  : userInfo?.companyId?.logo,
+                uri: data?.result?.logo,
               }}
               style={styles.avatar}
             />
@@ -204,12 +225,12 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     return (
       <View
         style={[
-          commonStyle.marginT2,
           commonStyle.shadowContainer,
           {
             backgroundColor: colors.white,
             borderRadius: normalize(10),
             paddingVertical: hp(1.5),
+            marginBottom: hp(1.5),
           },
         ]}>
         <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
@@ -289,6 +310,42 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     );
   };
 
+  const _reqRenderItem = ({item, index}: any) => {
+    return (
+      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
+        <View style={commonStyle.rowAC}>
+          {item?.logo ? (
+            <Image source={{uri: item?.logo}} style={styles.logo} />
+          ) : (
+            <Image source={Images.supplierImg} style={styles.logo} />
+          )}
+          <View>
+            <FontText
+              name={'lexend-regular'}
+              size={fontSize}
+              color={'black'}
+              textAlign={'left'}>
+              {item?.companyName}
+            </FontText>
+            <FontText
+              name={'lexend-regular'}
+              size={smallFont}
+              color={'gray'}
+              pTop={wp(2)}
+              textAlign={'left'}>
+              {item?.companyCode}
+            </FontText>
+          </View>
+        </View>
+        <Button disabled bgColor={'green'} style={styles.buttonContainer}>
+          <FontText name={'lexend-regular'} size={smallFont} color={'white'}>
+            {'Pending'}
+          </FontText>
+        </Button>
+      </View>
+    );
+  };
+
   const onAddCodePress = () => {
     setIsOpen(true);
   };
@@ -314,9 +371,19 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     setRefreshing(false);
   };
 
+  console.log(
+    'supplierList?.result?.length',
+    supplierList?.result?.length,
+    orderData?.length !== 0,
+  );
+
   return (
-    <View style={commonStyle.container}>
-      {/* <NavigationBar
+    <>
+      <ScrollView
+        style={commonStyle.container}
+        contentContainerStyle={{flex: 1}}
+        showsVerticalScrollIndicator={false}>
+        {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -356,11 +423,72 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         //   </View>
         // }
       /> */}
-      <Loader loading={isProcessing || isProcess || isFetch || isNotiFetch} />
-      {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
+        <Loader
+          loading={
+            isProcessing ||
+            isProcess ||
+            isFetch ||
+            isNotiFetch ||
+            isReqProcessing
+          }
+        />
+        {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal> */}
-      {orderData && orderData.length === 0 ? (
+        {supplierList?.result?.length !== 0 || orderData?.length !== 0 ? (
+          <View style={{marginTop: hp(1)}}>
+            {supplierList &&
+            supplierList?.result &&
+            supplierList?.result.length !== 0 ? (
+              <View style={styles.listContainer}>
+                <ListHeader
+                  leftName={'Pending Requests'}
+                  rightName={'See all'}
+                  rightPress={() => {
+                    navigation.navigate(RootScreens.PendingRequest);
+                  }}
+                />
+                <FlatList
+                  data={supplierList?.result}
+                  renderItem={_reqRenderItem}
+                  contentContainerStyle={styles.containerContent}
+                />
+              </View>
+            ) : null}
+            {orderData && orderData.length !== 0 ? (
+              <View style={[styles.listContainer, {paddingVertical: 0}]}>
+                <ListHeader
+                  leftName={'Pending Orders'}
+                  rightName={'See all'}
+                  rightPress={() => {
+                    navigation.navigate(RootScreens.Order, {
+                      type: {
+                        label: 'Pending',
+                        value: 'pending',
+                      },
+                    });
+                  }}
+                />
+                <FlatList
+                  data={orderData && orderData.slice(0, 2)}
+                  renderItem={_renderItem}
+                  contentContainerStyle={styles.product2CC}
+                />
+              </View>
+            ) : null}
+          </View>
+        ) : (
+          <View style={[commonStyle.allCenter, {flex: 1}]}>
+            <FontText
+              color="gray"
+              name="lexend-regular"
+              size={mediumFont}
+              textAlign={'center'}>
+              {'No Data found.'}
+            </FontText>
+          </View>
+        )}
+        {/* {orderData && orderData.length === 0 ? (
         <View style={[commonStyle.allCenter, {flex: 1}]}>
           <FontText
             color="gray"
@@ -382,33 +510,34 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
           }
         />
-      )}
-      <Popup
-        visible={isOpen}
-        onBackPress={() => setIsOpen(false)}
-        title={'Enter Supplier Code'}
-        titleStyle={{textAlign: 'left'}}
-        children={
-          <Input
-            value={code}
-            onChangeText={(text: string) => setCode(text.trimStart())}
-            placeholder={''}
-            autoCapitalize="none"
-            placeholderTextColor={'placeholder'}
-            fontSize={fontSize}
-            inputStyle={styles.inputText}
-            style={styles.input}
-            color={'black'}
-            returnKeyType={'next'}
-            blurOnSubmit
-          />
-        }
-        disabled={code !== '' ? false : true}
-        rightBtnText={'Apply'}
-        rightBtnColor={code !== '' ? 'orange' : 'gray'}
-        rightBtnPress={applyCodePress}
-        rightBtnStyle={{width: '100%'}}
-      />
+      )} */}
+        <Popup
+          visible={isOpen}
+          onBackPress={() => setIsOpen(false)}
+          title={'Enter Supplier Code'}
+          titleStyle={{textAlign: 'left'}}
+          children={
+            <Input
+              value={code}
+              onChangeText={(text: string) => setCode(text.trimStart())}
+              placeholder={''}
+              autoCapitalize="none"
+              placeholderTextColor={'placeholder'}
+              fontSize={fontSize}
+              inputStyle={styles.inputText}
+              style={styles.input}
+              color={'black'}
+              returnKeyType={'next'}
+              blurOnSubmit
+            />
+          }
+          disabled={code !== '' ? false : true}
+          rightBtnText={'Apply'}
+          rightBtnColor={code !== '' ? 'orange' : 'gray'}
+          rightBtnPress={applyCodePress}
+          rightBtnStyle={{width: '100%'}}
+        />
+      </ScrollView>
       <FloatingAction
         actions={FLOATING_BTN_ACTION}
         onPressItem={name => {
@@ -431,7 +560,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           shadowRadius: 3,
         }}
       />
-    </View>
+    </>
   );
 };
 
@@ -482,12 +611,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dashedLine: {
-    marginTop: wp(1.5),
+    marginTop: wp(1),
     borderWidth: 1,
     borderColor: colors.line,
     borderStyle: 'dashed',
   },
   paddingT1: {
+    paddingTop: hp(1),
+  },
+  addressContainer: {
+    padding: wp(3),
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: normalize(8),
+    marginBottom: hp(2),
+  },
+  listContainer: {
+    backgroundColor: colors.white,
+    marginTop: hp(1.5),
+    paddingVertical: wp(2),
+  },
+  product2CC: {
+    paddingHorizontal: wp(4),
     paddingTop: hp(1.5),
+    paddingBottom: hp(0.5),
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1.5),
+    backgroundColor: colors.white,
+    borderRadius: normalize(6),
+    marginBottom: hp(1.5),
+  },
+  logo: {
+    width: hp(6.5),
+    height: hp(6.5),
+    resizeMode: 'cover',
+    borderRadius: normalize(5),
+    marginRight: wp(3),
+    borderWidth: 0.2,
+    borderColor: colors.black2,
+  },
+  buttonContainer: {
+    borderRadius: normalize(10),
+    height: hp(3.5),
+    width: '25%',
+  },
+  containerContent: {
+    paddingTop: hp(0.5),
+    paddingHorizontal: wp(4),
+    marginTop: hp(1),
   },
 });

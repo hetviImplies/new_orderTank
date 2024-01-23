@@ -18,6 +18,7 @@ import {
 } from '../../components';
 import commonStyle, {
   fontSize,
+  largeFont,
   mediumFont,
   mediumLarge2Font,
   mediumLargeFont,
@@ -26,6 +27,14 @@ import {RootScreens} from '../../types/type';
 import {useGetAllProductsQuery, useGetOneProductQuery} from '../../api/product';
 import {useAddCartMutation, useGetCartsQuery} from '../../api/cart';
 import utils from '../../helper/utils';
+import {useFocusEffect} from '@react-navigation/native';
+import {
+  addToCart,
+  decrementCartItem,
+  getCartItems,
+  incrementCartItem,
+  updateCartItems,
+} from '../Cart/Carthelper';
 
 const ProductDetailScreen = ({navigation, route}: any) => {
   const item = route.params.data.item;
@@ -45,37 +54,84 @@ const ProductDetailScreen = ({navigation, route}: any) => {
       refetchOnMountOrArgChange: true,
     },
   );
-  const {data: carts, isFetching} = useGetCartsQuery({
-    refetchOnMountOrArgChange: true,
-  });
-  const [addToCart, {isLoading}] = useAddCartMutation();
+  // const [addToCart, {isLoading}] = useAddCartMutation();
 
   const productDetail = product?.result;
   const [productListData, setProductListData] = useState([]);
+  const [cartItems, setCartItems] = useState<any>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<any>({});
 
   useEffect(() => {
     setProductListData(productList?.result);
   }, [isProcess]);
 
-  const addCart = async (item: any) => {
-    const {data, error}: any = await addToCart({
-      productId: item._id,
-      companyId: companyId,
-    });
-    if (!error) {
-      utils.showSuccessToast('Product added successfully in cart.');
-    }
+  // const addCart = async (item: any) => {
+  //   const {data, error}: any = await addToCart({
+  //     productId: item._id,
+  //     companyId: companyId,
+  //   });
+  //   if (!error) {
+  //     utils.showSuccessToast('Product added successfully in cart.');
+  //   }
+  // };
+
+  // const onProductPress = (item: any) => {
+  //   navigation.navigate(RootScreens.ProductDetail, {
+  //     data: {item: item, companyId: companyId},
+  //   });
+  // };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        setLoading(true);
+        const items = await getCartItems();
+        setCartItems(items);
+        setLoading(false);
+      };
+      fetchCartItems();
+    }, []),
+  );
+
+  const handleAddToCart = async (item: any) => {
+    const data = await addToCart(item);
+    setCartItems(data);
+  };
+
+  const handleIncrement = async (cartId: any) => {
+    const data = await incrementCartItem(cartId);
+    setCartItems(data);
+  };
+
+  const handleDecrement = async (cartId: any) => {
+    const data = await decrementCartItem(cartId, 'Product');
+    setCartItems(data);
   };
 
   const onProductPress = (item: any) => {
-    navigation.navigate(RootScreens.ProductDetail, {
-      data: {item: item, companyId: companyId},
-    });
+    // navigation.navigate(RootScreens.ProductDetail, {
+    //   data: {item: item, companyId: id},
+    // });
+    if (cartItems?.length > 0) {
+      let isSameCompany = cartItems?.some(
+        (itm: any) => itm?.companyId?.toString() === item?.companyId.toString(),
+      );
+      if (isSameCompany) {
+        handleAddToCart(item);
+      } else {
+        setSelected(item);
+        setIsOpen(true);
+      }
+    } else {
+      handleAddToCart(item);
+    }
   };
 
   return (
     <View style={commonStyle.container}>
-      <NavigationBar
+      {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -118,8 +174,8 @@ const ProductDetailScreen = ({navigation, route}: any) => {
             </TouchableOpacity>
           </View>
         }
-      />
-      <Loader loading={isProcessing || isProcess || isLoading || isFetching} />
+      /> */}
+      <Loader loading={isProcessing || isProcess} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: hp(2)}}
@@ -140,6 +196,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
             color={'orange'}>
             {'₹'}
             {productDetail?.price}
+            {productDetail?.unit && `${'/'}${productDetail?.unit}`}
           </FontText>
         </View>
         <FontText
@@ -160,15 +217,53 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           textAlign={'left'}>
           {productDetail?.description}
         </FontText>
-        <Button
-          onPress={() => addCart(productDetail)}
-          bgColor={'orange'}
-          style={[styles.buttonContainer, {width: '95%'}]}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-            {'Add to cart'}
-          </FontText>
-        </Button>
-        <View style={styles.line} />
+        {cartItems?.filter(
+          (itm: any) => itm._id.toString() == productDetail?._id.toString(),
+        ).length > 0 ? (
+          <View style={[commonStyle.rowAC, styles.countContainer]}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                handleDecrement(productDetail?._id);
+              }}>
+              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+            </TouchableOpacity>
+            <FontText
+              color="white"
+              name="lexend-medium"
+              size={largeFont}
+              textAlign={'left'}>
+              {
+                cartItems?.find((itm: any) => {
+                  return itm._id.toString() == productDetail?._id.toString();
+                }).quantity
+              }
+            </FontText>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                handleIncrement(productDetail?._id);
+              }}>
+              <SvgIcons.Plus
+                width={wp(4)}
+                height={wp(4)}
+                fill={colors.orange}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Button
+            // onPress={() => addCart(productDetail)}
+            onPress={() => onProductPress(item)}
+            bgColor={'orange'}
+            style={[styles.buttonContainer]}>
+            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+              {'Add to cart'}
+            </FontText>
+          </Button>
+        )}
+
+        {/* <View style={styles.line} />
         <ListHeader
           leftName={'Related Product'}
           rightName={'See All'}
@@ -178,7 +273,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           data={productListData && productListData.slice(0, 2)}
           productPress={onProductPress}
           navigation={navigation}
-        />
+        /> */}
       </ScrollView>
     </View>
   );
@@ -189,7 +284,7 @@ export default ProductDetailScreen;
 const styles = StyleSheet.create({
   buttonContainer: {
     borderRadius: normalize(6),
-    width: '35%',
+    width: '100%',
     alignSelf: 'center',
   },
   line: {
@@ -209,10 +304,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImg: {
-    width: wp(44),
-    height: wp(44),
+    width: '100%',
+    height: hp(45),
     resizeMode: 'contain',
-    alignSelf: 'center',
     borderRadius: normalize(6),
+  },
+  iconContainer: {
+    width: hp(3.5),
+    height: hp(3.5),
+    borderRadius: normalize(3),
+    backgroundColor: colors.white2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countContainer: {
+    backgroundColor: colors.orange,
+    borderRadius: normalize(4),
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: hp(1),
   },
 });

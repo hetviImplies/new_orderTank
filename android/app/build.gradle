@@ -2,12 +2,18 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services'
-apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
 
 project.ext.envConfigFiles = [
-        development: ".env.development",
-        production:'.env.production'
+  productiondebug: ".env.production",
+  productionrelease: ".env.production",
+  developmentrelease: ".env.development",
+  developmentdebug: ".env.development",
+  stagingrelease: ".env.staging",
+  stagingdebug: ".env.staging"
 ]
+
+apply from: project(':react-native-config').projectDir.getPath() + '/dotenv.gradle'
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -105,25 +111,16 @@ android {
         }
     }
 
-    flavorDimensions 'default'
+    flavorDimensions "default"
     productFlavors {
-        production {
-                resValue "string", "build_config_package", "com.ordertank"
-                applicationId "com.ordertank"
-                minSdkVersion rootProject.ext.minSdkVersion
-                targetSdkVersion rootProject.ext.targetSdkVersion
-            }
-            development {
-                resValue "string", "build_config_package", "com.ordertank"
-                applicationId "com.ordertank"
-                minSdkVersion rootProject.ext.minSdkVersion
-                targetSdkVersion rootProject.ext.targetSdkVersion
-            }
+        production {}
+        staging{}
+        development {}
     }
-
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            matchingFallbacks = ['debug', 'release']
         }
         release {
             // Caution! In production, you need to generate your own keystore file.

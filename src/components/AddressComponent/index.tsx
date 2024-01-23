@@ -3,7 +3,7 @@ import React from 'react';
 import {FontText} from '..';
 import SvgIcons from '../../assets/SvgIcons';
 import commonStyle, {iconSize, smallFont} from '../../styles';
-import {wp} from '../../styles/responsiveScreen';
+import {hp, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 
 const AddressComponent = (props: any) => {
@@ -61,19 +61,14 @@ const AddressComponent = (props: any) => {
           </View>
         )}
       </View>
-      <View>
-        <FontText
-          name={'lexend-regular'}
-          size={smallFont}
-          pBottom={wp(2)}
-          color={'black2'}>
+      <View style={{marginBottom: hp(0.5)}}>
+        <FontText name={'lexend-regular'} size={smallFont} color={'black2'}>
           {item?.addressLine}
           {','}
           <FontText
             name={'lexend-regular'}
             size={smallFont}
             pLeft={wp(1)}
-            pBottom={wp(2)}
             color={'black2'}>
             {' '}
             {item?.locality}
@@ -83,7 +78,6 @@ const AddressComponent = (props: any) => {
             name={'lexend-regular'}
             size={smallFont}
             pLeft={wp(1)}
-            pBottom={wp(2)}
             color={'black2'}>
             {' '}
             {item?.city}
@@ -93,7 +87,6 @@ const AddressComponent = (props: any) => {
             name={'lexend-regular'}
             size={smallFont}
             pLeft={wp(1)}
-            pBottom={wp(2)}
             color={'black2'}>
             {' '}
             {item?.state}
@@ -113,7 +106,6 @@ const AddressComponent = (props: any) => {
             name={'lexend-regular'}
             size={smallFont}
             pLeft={wp(1)}
-            pBottom={wp(2)}
             color={'black2'}>
             {' '}
             {item?.pincode}

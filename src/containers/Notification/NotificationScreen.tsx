@@ -10,7 +10,7 @@ import React, {useEffect, useState} from 'react';
 import moment from 'moment';
 import {colors, SvgIcons} from '../../assets';
 import {NavigationBar, FontText, Loader} from '../../components';
-import commonStyle, {mediumFont} from '../../styles';
+import commonStyle, {mediumFont, smallFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {
   useGetNotificationQuery,
@@ -94,33 +94,83 @@ const NotificationScreen = ({navigation}: any) => {
 
   const _renderItem = ({item, index}: any) => {
     const originalTimestamp = item?.createdAt;
-    const convertedTimestamp = moment(originalTimestamp)
-      .utc()
-      .format('DD/MM/YYYY, hh:mm A');
+    const convertedTimestamp = moment(originalTimestamp).format(
+      'DD/MM/YYYY | hh:mm A',
+    );
     const notiRead = item?.seen ? colors.white : colors.orangeOpacity;
     const shadow = item?.seen && commonStyle.shadowContainer;
     return (
-      <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>
-        <View style={{width: '100%'}}>
-          <FontText
-            color="gray3"
-            name="lexend-regular"
-            size={normalize(10)}
-            textAlign={'right'}>
-            {convertedTimestamp}
-          </FontText>
-          <FontText
-            color="black2"
-            name="lexend-regular"
-            pTop={hp(0.5)}
-            size={normalize(13)}
-            pBottom={hp(0.5)}
-            textAlign={'left'}>
-            {item?.title}
-          </FontText>
+      // <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>
+      //   <View style={{width: '100%'}}>
+      //     <FontText
+      //       color="gray3"
+      //       name="lexend-regular"
+      //       size={normalize(10)}
+      //       textAlign={'right'}>
+      //       {convertedTimestamp}
+      //     </FontText>
+      //     <FontText
+      //       color="black2"
+      //       name="lexend-regular"
+      //       pTop={hp(0.5)}
+      //       size={normalize(13)}
+      //       pBottom={hp(0.5)}
+      //       textAlign={'left'}>
+      //       {item?.title}
+      //     </FontText>
+      //   </View>
+      // </View>
+      <View
+        style={{
+          padding: wp(4),
+          backgroundColor: notiRead,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <View style={{flex: 0.9}}>
+            <FontText
+              name="lexend-medium"
+              color={'black2'}
+              style={{textTransform: 'capitalize'}}
+              size={mediumFont}>
+              {item?.title}
+            </FontText>
+            <FontText
+              name="lexend-regular"
+              color={'black2'}
+              style={{textTransform: 'capitalize'}}
+              pTop={wp(1)}
+              size={smallFont}>
+              {item?.description}
+            </FontText>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: wp(2),
+              }}>
+              <SvgIcons.Calender width={wp(4)} height={wp(4)} />
+              <FontText
+                pTop={wp(0.5)}
+                color={'black2'}
+                name="lexend-regular"
+                size={normalize(12)}
+                pLeft={wp(2)}>
+                {convertedTimestamp}
+              </FontText>
+            </View>
+          </View>
         </View>
       </View>
     );
+  };
+
+  const _sepratorView = () => {
+    return <View style={styles.itemSeprator}></View>;
   };
 
   return (
@@ -154,7 +204,7 @@ const NotificationScreen = ({navigation}: any) => {
           showsVerticalScrollIndicator={false}
           data={notifiedData}
           renderItem={_renderItem}
-          contentContainerStyle={{paddingTop: wp(3)}}
+          ItemSeparatorComponent={_sepratorView}
           // refreshControl={
           //   <RefreshControl refreshing={refresh} onRefresh={_onRefresh} />
           // }
@@ -193,5 +243,11 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(4),
     marginBottom: hp(2.5),
     borderRadius: normalize(10),
+  },
+  itemSeprator: {
+    width: '90%',
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
+    alignSelf: 'center',
   },
 });

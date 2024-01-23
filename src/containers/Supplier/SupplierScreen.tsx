@@ -278,11 +278,11 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    paddingHorizontal: wp(4),
-    paddingVertical: hp(1.8),
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1.5),
     backgroundColor: colors.white,
     borderRadius: normalize(6),
-    marginBottom: hp(2),
+    marginBottom: wp(3),
     alignItems: 'center',
   },
   logo: {
@@ -303,6 +303,6 @@ const styles = StyleSheet.create({
   containerContent: {
     paddingTop: hp(0.5),
     paddingHorizontal: wp(0.5),
-    marginTop: hp(2),
+    marginTop: hp(1),
   },
 });

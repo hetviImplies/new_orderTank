@@ -159,9 +159,11 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const onSearch = (selectedItems: any) => {
-    setSelectedItems(selectedItems);
-    setSearch('');
     filterRef.current.close();
+    setTimeout(() => {
+      setSelectedItems(selectedItems);
+      setSearch('');
+    }, 200);
   };
 
   const onRefreshing = () => {
@@ -275,7 +277,13 @@ const ProductListingScreen = ({navigation, route}: any) => {
         {productListData && productListData.length !== 0 ? (
           <ProductComponent
             data={productListData}
-            productPress={onProductPress}
+            productAddToCartPress={onProductPress}
+            productPress={(item: any) =>
+              navigation.navigate(RootScreens.ProductDetail, {
+                name: item?.name,
+                data: {item: item, companyId: id},
+              })
+            }
             navigation={navigation}
             onRefresh={onRefreshing}
             refresh={refreshing}
@@ -283,6 +291,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
             quantityDecrement={handleDecrement}
             quantityIncrement={handleIncrement}
             cartItems={cartItems}
+            categoryData={category?.result}
           />
         ) : (
           <View style={[commonStyle.allCenter, commonStyle.flex]}>

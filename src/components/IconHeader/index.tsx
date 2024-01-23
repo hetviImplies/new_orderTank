@@ -8,7 +8,7 @@ import {wp} from '../../styles/responsiveScreen';
 const IconHeader = (props: any) => {
   const {label, icon, isEdit, onEditPress} = props;
   return (
-    <View style={[commonStyle.rowJB, {marginBottom: wp(1.5)}]}>
+    <View style={[commonStyle.rowJB, {marginBottom: wp(1)}]}>
       <View style={commonStyle.rowAC}>
         {icon}
         <FontText

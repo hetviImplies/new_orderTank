@@ -186,6 +186,11 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.ProductDetail}
         component={ProductDetailScreen}
+        options={({route}: any) => ({
+          title: route.params.name,
+          headerBackTitleVisible: false,
+          headerTitleStyle: styles.title,
+        })}
       />
       <RootStack.Screen
         name={RootScreens.Notification}

@@ -17,12 +17,10 @@ import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import AddressComponent from '../../components/AddressComponent';
 
-const OrderScreen = ({navigation}: any) => {
+const OrderScreen = ({navigation, route}: any) => {
+  const selectedType = route?.params?.type;
   const flatListRef: any = useRef(null);
-  const [selectOrder, setSelectOrder] = useState<any>({
-    label: 'All Order',
-    value: 'all',
-  });
+  const [selectOrder, setSelectOrder] = useState<any>({});
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -49,11 +47,15 @@ const OrderScreen = ({navigation}: any) => {
   useFocusEffect(
     useCallback(() => {
       flatListRef.current.scrollToIndex({animated: true, index: 0});
-      setSelectOrder({
-        label: 'All Order',
-        value: 'all',
-      });
-    }, []),
+      if (selectedType !== undefined) {
+        setSelectOrder(selectedType);
+      } else {
+        setSelectOrder({
+          label: 'All Order',
+          value: 'all',
+        });
+      }
+    }, [selectedType]),
   );
 
   useEffect(() => {

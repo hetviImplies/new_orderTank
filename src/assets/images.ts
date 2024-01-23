@@ -4,7 +4,7 @@ const Images = {
   bgImg: require('./images/background.png'),
   notificationImg: require('./images/notification.png'),
   supplierImg: require('./images/supplier.png'),
-  companyImg: require('./images/inventory-management.png'),
+  companyImg: require('./images/Company.png'),
   productImg: require('./images/product.png'),
 };
 

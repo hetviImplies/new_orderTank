@@ -25,17 +25,21 @@ const SplashScreen = ({navigation}: any) => {
   useLayoutEffect(() => {
     const checkCompanyCode = async () => {
       const token: any = await AsyncStorage.getItem('token');
-      if (token && token.trim() !== '') {
-        if (
-          data?.result?.companyCode === undefined ||
-          data?.result?.companyCode === ''
-        ) {
-          resetNavigateTo(navigation, RootScreens.CompanyDetail, {
-            from: 'Login',
-            name: 'Enter your company detail',
-          });
+      if (token !== null) {
+        if (data === undefined) {
+          resetNavigateTo(navigation, RootScreens.Login);
         } else {
-          resetNavigateTo(navigation, RootScreens.DashBoard);
+          if (
+            data?.result?.companyCode === undefined ||
+            data?.result?.companyCode === ''
+          ) {
+            resetNavigateTo(navigation, RootScreens.CompanyDetail, {
+              from: 'Login',
+              name: 'Enter your company detail',
+            });
+          } else {
+            resetNavigateTo(navigation, RootScreens.DashBoard);
+          }
         }
       } else {
         resetNavigateTo(navigation, RootScreens.Login);

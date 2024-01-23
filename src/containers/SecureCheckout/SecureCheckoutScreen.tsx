@@ -164,7 +164,12 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 pTop={wp(2)}
                 textAlign={'left'}>
                 {'₹'}
-                {item?.price} ({item?.quantity} qty)
+                {item?.price}
+                {isOrder
+                  ? item?.productData?.unit &&
+                    `${'/'}${item?.productData?.unit}`
+                  : item?.unit && `${'/'}${item?.unit}`}{' '}
+                ({item?.quantity} qty)
               </FontText>
             </View>
             <View style={{width: '20%'}}>
@@ -452,7 +457,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </FontText>
           </View>
         ) : null}
-        <View style={[styles.addressContainer, commonStyle.marginT2]}>
+        <View style={[styles.addressContainer, {marginTop: hp(1)}]}>
           <FlatList
             data={[1, 2]}
             renderItem={addressRenderItem}
@@ -485,7 +490,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               renderItem={_renderItem}
               nestedScrollEnabled
               scrollEnabled
-              showsVerticalScrollIndicator
+              showsVerticalScrollIndicator={false}
               keyExtractor={item => item?._id?.toString()}
             />
           </View>
@@ -702,15 +707,15 @@ const styles = StyleSheet.create({
   line: {
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
-    marginVertical: hp(1.5),
+    marginVertical: hp(1),
   },
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   logo: {
-    width: hp(8.5),
-    height: hp(8.5),
+    width: hp(7),
+    height: hp(7),
     resizeMode: 'cover',
     borderRadius: normalize(6),
   },

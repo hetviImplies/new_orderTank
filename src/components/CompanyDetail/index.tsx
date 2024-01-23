@@ -5,7 +5,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress, {getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {colors, SvgIcons} from '../../assets';
+import {colors, Images, SvgIcons} from '../../assets';
 import {Button, FontText, Input, Loader, RadioButton, BottomSheet} from '..';
 import commonStyle, {
   iconSize,
@@ -105,7 +105,7 @@ const CompanyDetail = (props: any) => {
     checkValid &&
     (phone?.length === 0 || phone?.length < 10 || !validationNumber(phone));
   const isValidAddress = checkValid && address?.length === 0;
-  const isValidAddressName = checkValid && addressName?.length === 0;
+  // const isValidAddressName = checkValid && addressName?.length === 0;
   const isValidPinCode = checkValid && pinCode?.length === 0;
   const isValidLocality = checkValid && locality?.length === 0;
   const isValidCity = checkValid && city?.length === 0;
@@ -115,13 +115,25 @@ const CompanyDetail = (props: any) => {
   useEffect(() => {
     setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
     setImageUrl(data?.result ? data?.result?.logo : '');
-    setName(data?.result?.name ? data?.result?.name : loginData?.name);
+    setName(
+      data?.result?.name
+        ? data?.result?.name
+        : loginData?.name
+        ? loginData?.name
+        : userInfo?.name,
+    );
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
-    setPhone(data?.result?.phone ? data?.result?.phone : loginData?.phone);
+    setPhone(
+      data?.result?.phone
+        ? data?.result?.phone
+        : loginData?.phone
+        ? loginData?.phone
+        : userInfo?.phone,
+    );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
-    setAddressName(data?.result ? data?.result.address[0]?.addressName : '');
+    // setAddressName(data?.result ? data?.result.address[0]?.addressName : '');
     setLocality(data?.result ? data?.result.address[0]?.locality : '');
     setPinCode(data?.result ? data?.result.address[0]?.pincode : '');
     setCity(data?.result ? data?.result.address[0]?.city : '');
@@ -194,7 +206,7 @@ const CompanyDetail = (props: any) => {
       (numberType === 1
         ? gstNo.length !== 0 && validationGstNo(gstNo)
         : panNo.length !== 0 && validationPanNo(panNo)) &&
-      addressName.length !== 0 &&
+      // addressName.length !== 0 &&
       address.length !== 0 &&
       locality.length !== 0 &&
       city.length !== 0 &&
@@ -209,7 +221,7 @@ const CompanyDetail = (props: any) => {
       const addressObj = [
         {
           isPriority: true,
-          addressName: addressName,
+          addressName: 'Company Address',
           addressLine: address,
           locality: locality,
           pincode: pinCode,
@@ -226,13 +238,14 @@ const CompanyDetail = (props: any) => {
         : formData.append('panNo', panNo);
       formData.append('isGst', numberType === 1 ? true : false);
       formData.append('isPan', numberType === 2 ? true : false);
-      imageRes
-        ? formData.append('logo', {
-            uri: imageUrl,
-            type: `image/${imageUrl.split('.').pop()}`,
-            name: 'image',
-          })
-        : formData.append('logo', imageUrl);
+      imageUrl !== '' &&
+        (Object.keys(imageRes).length !== 0
+          ? formData.append('logo', {
+              uri: imageUrl,
+              type: `image/${imageUrl.split('.').pop()}`,
+              name: 'image',
+            })
+          : formData.append('logo', imageUrl));
       // imageUrl !== '' &&
       //   Object.keys(imageRes).length !== 0 &&
       //   formData.append('logo', {
@@ -358,20 +371,40 @@ const CompanyDetail = (props: any) => {
                 </TouchableOpacity>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity
-                disabled={from === 'Profile' ? !editInformation : false}
-                style={styles.uploadImgContainer}
-                onPress={imagePress}>
-                <SvgIcons.Upload width={wp(8)} height={wp(8)} />
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pTop={wp(2)}
-                  textAlign={'left'}>
-                  {'Upload your logo'}
-                </FontText>
-              </TouchableOpacity>
+              <>
+                {from !== 'Profile' ? (
+                  <TouchableOpacity
+                    disabled={from === 'Profile' ? !editInformation : false}
+                    style={styles.uploadImgContainer}
+                    onPress={imagePress}>
+                    <SvgIcons.Upload width={wp(8)} height={wp(8)} />
+                    <FontText
+                      name={'lexend-regular'}
+                      size={mediumFont}
+                      color={'gray3'}
+                      pTop={wp(2)}
+                      textAlign={'left'}>
+                      {'Upload your logo'}
+                    </FontText>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      marginBottom: hp(2),
+                      alignSelf: 'center',
+                    }}
+                    disabled={from === 'Profile' ? !editInformation : false}
+                    onPress={imagePress}>
+                    <Image source={Images.companyImg} style={styles.avatar} />
+                    <TouchableOpacity
+                      onPress={() => setImageUrl('')}
+                      disabled={from === 'Profile' ? !editInformation : false}
+                      style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
+                      <SvgIcons.Close width={tabIcon} height={tabIcon} />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
             {from !== 'Profile' ? (
               <RadioButton
@@ -602,7 +635,7 @@ const CompanyDetail = (props: any) => {
                 color={'black'}
                 returnKeyType={'next'}
                 onSubmit={() => {
-                  addressNameRef?.current.focus();
+                  addressRef?.current.focus();
                 }}
                 children={
                   <View style={[commonStyle.abs, {left: wp(4)}]}>
@@ -621,7 +654,7 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               )}
             </View>
-            <View style={styles.marginTopView}>
+            {/* <View style={styles.marginTopView}>
               <View
                 style={[
                   commonStyle.rowAC,
@@ -672,7 +705,7 @@ const CompanyDetail = (props: any) => {
                   {'Address Name is required.'}
                 </FontText>
               )}
-            </View>
+            </View> */}
             <View style={styles.marginTopView}>
               <View
                 style={[

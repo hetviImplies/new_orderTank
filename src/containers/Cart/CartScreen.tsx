@@ -101,49 +101,49 @@ const CartScreen = ({navigation, route}: any) => {
               textAlign={'left'}>
               {'₹'}
               {item?.price}
+              {item?.unit && `${'/'}${item?.unit}`}
             </FontText>
-            <View
-              style={[
-                commonStyle.rowAC,
-                styles.countContainer,
-                {width: wp(25)},
-              ]}>
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={() => {
-                  handleDecrement(item?._id);
-                }}>
-                <SvgIcons.Remove width={wp(4)} height={wp(4)} />
-              </TouchableOpacity>
-              <FontText
-                color="white"
-                name="lexend-medium"
-                size={mediumFont}
-                textAlign={'left'}>
-                {item.quantity}
-              </FontText>
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={() => {
-                  handleIncrement(item?._id);
-                }}>
-                <SvgIcons.Plus
-                  width={wp(4)}
-                  height={wp(4)}
-                  fill={colors.orange}
-                />
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            setIsOpen(true);
-            setSelectedItem(item._id);
-            // handleRemoveItem(item._id);
-          }}>
-          <SvgIcons.Trash width={wp(4)} height={wp(4)} />
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            style={{alignItems: 'flex-end'}}
+            onPress={() => {
+              setIsOpen(true);
+              setSelectedItem(item._id);
+              // handleRemoveItem(item._id);
+            }}>
+            <SvgIcons.Trash width={wp(4)} height={wp(4)} />
+          </TouchableOpacity>
+          <View
+            style={[commonStyle.rowAC, styles.countContainer, {width: wp(25)}]}>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                handleDecrement(item?._id);
+              }}>
+              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+            </TouchableOpacity>
+            <FontText
+              color="white"
+              name="lexend-medium"
+              size={mediumFont}
+              textAlign={'left'}>
+              {item.quantity}
+            </FontText>
+            <TouchableOpacity
+              style={styles.iconContainer}
+              onPress={() => {
+                handleIncrement(item?._id);
+              }}>
+              <SvgIcons.Plus
+                width={wp(4)}
+                height={wp(4)}
+                fill={colors.orange}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   };
@@ -252,11 +252,11 @@ const styles = StyleSheet.create({
     padding: hp(1.5),
     backgroundColor: colors.white,
     borderRadius: normalize(10),
-    marginBottom: hp(1.5),
+    marginBottom: hp(1),
   },
   logo: {
-    width: hp(11),
-    height: hp(11),
+    width: hp(7),
+    height: hp(7),
     resizeMode: 'cover',
     borderRadius: normalize(6),
   },
