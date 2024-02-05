@@ -41,7 +41,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         // utils.showSuccessToast(data.message);
         setIsOpen(true);
       } else {
-        utils.showErrorToast(data?.message ? data?.message : error?.message);
+        utils.showErrorToast(data?.message ? data?.message : error?.data?.message);
       }
     }
   };
@@ -95,7 +95,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
             </View>
             <Input
               value={email}
-              onChangeText={(text: string) => setEmail(text)}
+              onChangeText={(text: string) => setEmail(text.trim())}
               placeholder={'Enter Email'}
               autoCapitalize="none"
               placeholderTextColor={'placeholder'}

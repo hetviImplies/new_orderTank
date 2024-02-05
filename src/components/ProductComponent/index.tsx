@@ -35,7 +35,7 @@ const ProductSection = ({
       <View style={styles.sectionView}>
         {section.data.map((item: any) => (
           <ProductItem
-            key={item._id}
+            key={item.id}
             item={item}
             isHorizontal={isHorizontal}
             productPress={productPress}
@@ -60,9 +60,8 @@ const ProductItem = ({
   productAddToCartPress,
 }: any) => {
   const isItemInCart =
-    cartItems?.filter((itm: any) => itm._id.toString() === item._id.toString())
+    cartItems?.filter((itm: any) => itm.id.toString() === item.id.toString())
       .length > 0;
-
   return (
     <TouchableOpacity
       onPress={() => productPress(item)}
@@ -80,13 +79,18 @@ const ProductItem = ({
         ) : (
           <Image source={Images.productImg} style={styles.productImg} />
         )}
-        <View style={{marginLeft: isHorizontal ? 0 : wp(4)}}>
+        <View
+          style={{
+            marginLeft: isHorizontal ? 0 : wp(4),
+            marginTop: isHorizontal ? hp(1) : 0,
+            alignItems: isHorizontal ? 'center' : 'flex-start',
+          }}>
           <FontText
             name={'lexend-regular'}
             size={smallFont}
             color={'gray4'}
             textAlign={'left'}>
-            {item?.name}
+            {item?.productName}
           </FontText>
           <FontText
             name={'lexend-regular'}
@@ -109,7 +113,7 @@ const ProductItem = ({
           ]}>
           <TouchableOpacity
             style={styles.iconContainer}
-            onPress={() => quantityDecrement(item._id)}>
+            onPress={() => quantityDecrement(item.id)}>
             <SvgIcons.Remove width={wp(4)} height={wp(4)} />
           </TouchableOpacity>
           <FontText
@@ -119,13 +123,13 @@ const ProductItem = ({
             textAlign={'left'}>
             {
               cartItems?.find(
-                (itm: any) => itm._id.toString() === item._id.toString(),
+                (itm: any) => itm.id.toString() === item.id.toString(),
               )?.quantity
             }
           </FontText>
           <TouchableOpacity
             style={styles.iconContainer}
-            onPress={() => quantityIncrement(item._id)}>
+            onPress={() => quantityIncrement(item.id)}>
             <SvgIcons.Plus width={wp(4)} height={wp(4)} fill={colors.orange} />
           </TouchableOpacity>
         </View>
@@ -159,26 +163,38 @@ const ProductComponent = (props: any) => {
     categoryData,
   } = props;
 
-  const sections = data?.reduce((acc: any, product: any) => {
-    const existingSectionIndex = acc?.findIndex(
-      (section: any) => section.categoryId === product.categoryId,
-    );
+  // const sections = data.reduce((result: any, item: any) => {
+  //   let categoryInArray2 = categoryData.find(
+  //     (category: any) => category.categoryCode === item.category.categoryCode,
+  //   );
 
-    if (existingSectionIndex !== -1) {
-      acc[existingSectionIndex].data.push(product);
-    } else {
-      const category = categoryData?.find(
-        (category: any) => category._id === product.categoryId,
-      );
-      acc.push({
-        categoryId: product.categoryId,
-        categoryName: category ? category.name : 'Unknown Category',
-        data: [product],
-      });
-    }
+  //   let existingCategory = result.find(
+  //     (combinedItem: any) => combinedItem.categoryId === item.category.id,
+  //   );
 
-    return acc;
+  //   if (existingCategory) {
+  //     existingCategory.data.push(item);
+  //   } else {
+  //     result.push({
+  //       categoryId: item.category.id,
+  //       categoryName: item.category.categoryName,
+  //       data: [item],
+  //     });
+  //   }
+  //   return result;
+  // }, []);
+
+  let sections = data.reduce((result: any, item: any) => {
+    let {id: categoryId, categoryName} = item.category;
+    let existingCategory = result.find((c: any) => c.categoryId === categoryId);
+
+    existingCategory
+      ? existingCategory.data.push(item)
+      : result.push({categoryId, categoryName, data: [item]});
+
+    return result;
   }, []);
+  sections.sort((a: any, b: any) => a.categoryId - b.categoryId);
 
   return (
     <ScrollView

@@ -18,20 +18,32 @@ import {NavigationBar, FontText, Input, Loader, Popup} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import {colors, SvgIcons, Images} from '../../assets';
+import utils from '../../helper/utils';
 import {
   useCompanyRequestMutation,
   useGetSupplierQuery,
-} from '../../api/company';
-import utils from '../../helper/utils';
+} from '../../api/companyRelation';
 
 const SupplierScreen = ({navigation}: any) => {
+  // const {
+  //   data: supplierList,
+  //   isFetching: isProcessing,
+  //   refetch,
+  // } = useGetSupplierQuery(
+  //   // {search: searchText, status: 'accepted'},
+  //   {status: 'accepted'},
+  //   {
+  //     refetchOnMountOrArgChange: true,
+  //   },
+  // );
+
   const {
     data: supplierList,
     isFetching: isProcessing,
     refetch,
   } = useGetSupplierQuery(
-    // {search: searchText, status: 'accepted'},
-    {status: 'accepted'},
+    // {isAccepted: true, sellerLists: true},
+    {supplierList: true},
     {
       refetchOnMountOrArgChange: true,
     },
@@ -77,15 +89,17 @@ const SupplierScreen = ({navigation}: any) => {
   }, [navigation]);
 
   useEffect(() => {
-    setSupplierData(supplierList?.result);
+    setSupplierData(supplierList?.result?.data);
   }, [isProcessing]);
 
   useEffect(() => {
     if (!search) {
-      setSupplierData(supplierList?.result);
+      setSupplierData(supplierList?.result?.data);
     } else {
-      const data = supplierList?.result.filter((item: any) => {
-        return item.companyName.toUpperCase().includes(search.toUpperCase());
+      const data = supplierList?.result?.data.filter((item: any) => {
+        return item?.company?.companyName
+          .toUpperCase()
+          .includes(search.toUpperCase());
       });
       setSupplierData(data);
     }
@@ -97,12 +111,12 @@ const SupplierScreen = ({navigation}: any) => {
         style={[styles.itemContainer, commonStyle.shadowContainer]}
         onPress={() =>
           navigation.navigate(RootScreens.ProductListing, {
-            id: item?._id,
-            company: item?.companyName,
+            id: item?.company?.id,
+            company: item?.company?.companyName,
           })
         }>
-        {item?.logo ? (
-          <Image source={{uri: item?.logo}} style={styles.logo} />
+        {item?.company?.logo ? (
+          <Image source={{uri: item?.company?.logo}} style={styles.logo} />
         ) : (
           <Image source={Images.supplierImg} style={styles.logo} />
         )}
@@ -113,7 +127,7 @@ const SupplierScreen = ({navigation}: any) => {
             color={'black'}
             // pTop={wp(2)}
             textAlign={'left'}>
-            {item?.companyName}
+            {item?.company?.companyName}
           </FontText>
           <FontText
             name={'lexend-regular'}
@@ -121,7 +135,7 @@ const SupplierScreen = ({navigation}: any) => {
             color={'gray'}
             pTop={wp(2)}
             textAlign={'left'}>
-            {item?.companyCode}
+            {item?.company?.companyCode}
           </FontText>
         </View>
       </TouchableOpacity>
@@ -134,12 +148,14 @@ const SupplierScreen = ({navigation}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    if (!error && data.statusCode === 200) {
+    if (!error && data?.statusCode === 201) {
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
       setCode('');
-      utils.showErrorToast(data?.message ? data?.message : error?.message);
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
     }
   };
 
@@ -245,6 +261,7 @@ const SupplierScreen = ({navigation}: any) => {
             style={styles.input}
             color={'black'}
             returnKeyType={'next'}
+            keyboardType={'numeric'}
             blurOnSubmit
           />
         }

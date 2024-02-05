@@ -44,7 +44,7 @@ export const cartApi = createApi({
     updateCart: builder.mutation({
       query: params => {
         return {
-          url: `update/cart/${params?._id}`,
+          url: `update/cart/${params?.id}`,
           method: 'PUT',
           body: params.body,
         };

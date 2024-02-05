@@ -54,7 +54,7 @@ const CartListScreen = ({navigation}: any) => {
   }, [isFetching, carts]);
 
   const onItemPress = (item: any) => {
-    navigation.navigate(RootScreens.Cart, {companyId: item.companyId?._id});
+    navigation.navigate(RootScreens.Cart, {companyId: item.companyId?.id});
   };
 
   const _renderItem = ({item, index}: any) => {

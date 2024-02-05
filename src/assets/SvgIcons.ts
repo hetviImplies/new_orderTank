@@ -28,8 +28,6 @@ import State from './svgs/state.svg';
 import Trash from './svgs/trash.svg';
 import Upload from './svgs/upload.svg';
 import User from './svgs/user.svg';
-import VerifyEmail from './svgs/verify-email.svg';
-import BgImg from './svgs/backgroung.svg';
 import FillBox from './svgs/fill-box.svg';
 import EmptyBox from './svgs/empty-box.svg';
 import DownArrow from './svgs/down-arrow.svg';
@@ -40,7 +38,6 @@ import ContactUs from './svgs/contactus.svg';
 import CompanyDetail from './svgs/company-detail.svg';
 import Pin from './svgs/pin.svg';
 import Logout from './svgs/logout.svg';
-import Notification from './svgs/notification.svg';
 import Policy from './svgs/policy.svg';
 import Profile from './svgs/profile.svg';
 import Purchase from './svgs/purchase.svg';
@@ -96,8 +93,6 @@ export default {
   State,
   Trash,
   Upload,
-  VerifyEmail,
-  BgImg,
   User,
   FillBox,
   EmptyBox,
@@ -106,10 +101,9 @@ export default {
   Category,
   Buy,
   AboutUs,
-  ContactUs, 
+  ContactUs,
   CompanyDetail,
-  Pin, 
-  Notification,
+  Pin,
   Policy,
   Term,
   Logout,
@@ -131,7 +125,7 @@ export default {
   Camera,
   Delete,
   PowerOff,
-  AddOrder, 
+  AddOrder,
   AddSupplier,
-  AndroidBack
+  AndroidBack,
 };

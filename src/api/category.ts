@@ -14,7 +14,7 @@ export const categoryApi = createApi({
     getCategory: builder.query({
       query: params => {
         return {
-          url: 'sellers/joined',
+          url: '',
           method: 'GET',
           params
         };

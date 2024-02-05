@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
@@ -34,6 +34,7 @@ import {emailRegx} from '../../helper/regex';
 
 const LoginScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
+  const userInfo = useSelector((state: any) => state.auth.userInfo);
   const [login, {isLoading}] = useLoginMutation();
   const [resend, {isLoading: isFetching}] = useResendEmailMutation();
 
@@ -83,19 +84,16 @@ const LoginScreen = ({navigation}: any) => {
       const {data, error}: any = await login({
         email,
         password,
-        isMobile: true,
-        notificationToken,
+        // isMobile: true,
+        notificationToken: JSON.stringify(notificationToken),
       });
       if (!error && data?.statusCode === 200) {
         clearData();
-        dispatch(setCurrentUser(data?.result));
-        dispatch(setToken(data?.token));
-        await AsyncStorage.setItem('token', data?.token);
-        // utils.showSuccessToast(data.message);
-        if (
-          data?.result?.companyCode === undefined ||
-          data?.result?.companyCode === ''
-        ) {
+        await dispatch(setCurrentUser(data?.result));
+        await dispatch(setToken(data?.result?.token));
+        await AsyncStorage.setItem('token', data?.result?.token);
+        utils.showSuccessToast(data.message);
+        if (!data?.result?.company || data?.result?.company === null) {
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
             name: 'Enter your company detail',
@@ -122,9 +120,9 @@ const LoginScreen = ({navigation}: any) => {
         }
       } else {
         dispatch(setIsAuthenticated(false));
-        data?.message !== 'Please verified email first' &&
-          utils.showErrorToast(data.message || error.message);
-        data?.message === 'Please verified email first' && setIsOpen(true);
+        error?.data?.message === 'Please verify email...'
+          ? setIsOpen(true)
+          : utils.showErrorToast(error?.data?.message);
       }
     }
   };
@@ -144,9 +142,12 @@ const LoginScreen = ({navigation}: any) => {
   const sendEmailPress = async () => {
     const {data, error}: any = await resend({email: email});
     if (!error && data?.statusCode === 200) {
+      utils.showSuccessToast(data.message);
       setIsOpen(false);
     } else {
-      utils.showErrorToast(data?.message ? data?.message : error?.message);
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
     }
   };
 
@@ -193,7 +194,7 @@ const LoginScreen = ({navigation}: any) => {
               </View>
               <Input
                 value={email}
-                onChangeText={(text: string) => setEmail(text)}
+                onChangeText={(text: string) => setEmail(text.trim())}
                 placeholder={'Enter Email'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}
@@ -296,12 +297,13 @@ const LoginScreen = ({navigation}: any) => {
                   </FontText>
                 )}
               </View>
-              <TouchableOpacity onPress={onForgotPress}>
+              <TouchableOpacity
+                onPress={onForgotPress}
+                style={{alignSelf: 'flex-end', marginTop: wp(2)}}>
                 <FontText
                   name={'lexend-regular'}
                   size={smallFont}
                   color={'orange'}
-                  pTop={wp(2)}
                   style={{textDecorationLine: 'underline'}}
                   textAlign={'right'}>
                   {'Forgot Password ?'}

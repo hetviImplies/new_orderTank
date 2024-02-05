@@ -29,10 +29,7 @@ const SplashScreen = ({navigation}: any) => {
         if (data === undefined) {
           resetNavigateTo(navigation, RootScreens.Login);
         } else {
-          if (
-            data?.result?.companyCode === undefined ||
-            data?.result?.companyCode === ''
-          ) {
+          if (!data?.result?.company || data?.result?.company === null) {
             resetNavigateTo(navigation, RootScreens.CompanyDetail, {
               from: 'Login',
               name: 'Enter your company detail',

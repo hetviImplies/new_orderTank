@@ -33,6 +33,7 @@ import {colors, SvgIcons, Images} from '../../assets';
 import {RootScreens} from '../../types/type';
 import {
   useAddOrderMutation,
+  useDeleteOrderMutation,
   useUpdateOrderStatusMutation,
 } from '../../api/order';
 import utils from '../../helper/utils';
@@ -45,7 +46,7 @@ import {
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
-  const [cancleOrder, {isLoading: isFetching}] = useUpdateOrderStatusMutation();
+  const [cancleOrder, {isLoading: isFetching}] = useDeleteOrderMutation();
   const deliveryAdd = route.params.deliveryAdd;
   const billingAdd = route.params.billingAdd;
   const from = route.params.from;
@@ -105,7 +106,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       // const companyNames = items.map(
       //   (item: any) => item.companyData[0].companyName,
       // );
-      const firstCompanyName = items[0]?.companyData[0]?.companyName;
+      const firstCompanyName = items[0]?.createdByCompany?.companyName;
       setCompanyName(firstCompanyName);
       setCartData(items);
       const price = await calculateTotalPrice();
@@ -141,9 +142,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       <>
         <View style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
-            {item?.image || item?.productData?.image ? (
+            {item?.image || item?.product?.image ? (
               <Image
-                source={{uri: isOrder ? item?.productData?.image : item?.image}}
+                source={{uri: isOrder ? item?.product?.image : item?.image}}
                 style={styles.logo}
               />
             ) : (
@@ -155,7 +156,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 size={mediumFont}
                 color={'gray4'}
                 textAlign={'left'}>
-                {isOrder ? item?.productData?.name : item?.name}
+                {isOrder ? item?.product?.productName : item?.productName}
               </FontText>
               <FontText
                 name={'lexend-regular'}
@@ -166,8 +167,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 {'₹'}
                 {item?.price}
                 {isOrder
-                  ? item?.productData?.unit &&
-                    `${'/'}${item?.productData?.unit}`
+                  ? item?.product?.unit && `${'/'}${item?.product?.unit}`
                   : item?.unit && `${'/'}${item?.unit}`}{' '}
                 ({item?.quantity} qty)
               </FontText>
@@ -309,20 +309,19 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       let ids;
       body = cartData?.map((item: any, index: any) => {
         return {
-          product: item?._id,
+          product: item?.id,
           quantity: item?.quantity,
         };
       });
-      ids = cartData?.find((item: any, index: any) => item?.companyId);
-
+      ids = cartData?.find((item: any, index: any) => item?.createdByCompany);
       let params = {
         orderDetails: body,
         notes: notes,
         approxDeliveryDate: date,
-        deliveryAddress: deliAdd,
-        billingAddress: billAdd,
-        companyId: ids.companyId,
-        isBuyer: true,
+        deliveryAddress: deliAdd?.id,
+        billingAddress: billAdd?.id,
+        company: ids.createdByCompany.id,
+        // isBuyer: true,
       };
       billAdd === undefined && delete params.billingAddress;
       const {data: order, error}: any = await createOrder(params);
@@ -333,25 +332,23 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
         }
       } else {
-        utils.showErrorToast(order?.message ? order?.message : error?.message);
+        utils.showErrorToast(
+          order?.message ? order?.message : error?.data?.message,
+        );
       }
     }
   };
 
   const cancelOrder = async () => {
     setIsOpen(false);
-    let params = {
-      data: {
-        status: 'cancelled',
-      },
-      id: orderDetails._id,
-    };
-    const {data, error}: any = await cancleOrder(params);
+    const {data, error}: any = await cancleOrder(orderDetails.id);
     if (!error && data?.statusCode === 200) {
       utils.showSuccessToast('Order Cancel Successfully.');
       navigation.goBack();
     } else {
-      utils.showErrorToast(data?.message ? data?.message : error?.message);
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
     }
   };
 
@@ -403,8 +400,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             color={'black2'}
             textAlign={'left'}>
             {' '}
-            {orderDetails?.companyId?.companyName
-              ? orderDetails?.companyId?.companyName
+            {orderDetails?.company?.companyName
+              ? orderDetails?.company?.companyName
               : companyName}
           </FontText>
         </FontText>
@@ -491,7 +488,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               nestedScrollEnabled
               scrollEnabled
               showsVerticalScrollIndicator={false}
-              keyExtractor={item => item?._id?.toString()}
+              keyExtractor={item => item?.id?.toString()}
             />
           </View>
         </View>
@@ -634,7 +631,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         leftBtnPress={() => setIsOpen(false)}
         rightBtnPress={() => cancelOrder()}
         onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.white2,
+          borderWidth: 0,
+        }}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
         leftBtnTextStyle={{
           color: colors.blue,

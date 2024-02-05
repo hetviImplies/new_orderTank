@@ -91,7 +91,7 @@ const CartScreen = ({navigation, route}: any) => {
               color={'gray4'}
               // pTop={wp(2)}
               textAlign={'left'}>
-              {item?.name}
+              {item?.productName}
             </FontText>
             <FontText
               name={'lexend-regular'}
@@ -110,8 +110,8 @@ const CartScreen = ({navigation, route}: any) => {
             style={{alignItems: 'flex-end'}}
             onPress={() => {
               setIsOpen(true);
-              setSelectedItem(item._id);
-              // handleRemoveItem(item._id);
+              setSelectedItem(item.id);
+              // handleRemoveItem(item.id);
             }}>
             <SvgIcons.Trash width={wp(4)} height={wp(4)} />
           </TouchableOpacity>
@@ -120,7 +120,7 @@ const CartScreen = ({navigation, route}: any) => {
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={() => {
-                handleDecrement(item?._id);
+                handleDecrement(item?.id);
               }}>
               <SvgIcons.Remove width={wp(4)} height={wp(4)} />
             </TouchableOpacity>
@@ -134,7 +134,7 @@ const CartScreen = ({navigation, route}: any) => {
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={() => {
-                handleIncrement(item?._id);
+                handleIncrement(item?.id);
               }}>
               <SvgIcons.Plus
                 width={wp(4)}
@@ -221,7 +221,11 @@ const CartScreen = ({navigation, route}: any) => {
         leftBtnPress={() => setIsOpen(false)}
         rightBtnPress={() => handleRemoveItem(selectedItem)}
         onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.white2,
+          borderWidth: 0,
+        }}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
         leftBtnTextStyle={{
           color: colors.blue,

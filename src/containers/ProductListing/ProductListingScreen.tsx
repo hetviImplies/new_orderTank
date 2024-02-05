@@ -28,6 +28,7 @@ import {useGetCategoryQuery} from '../../api/category';
 const ProductListingScreen = ({navigation, route}: any) => {
   const id = route?.params?.id;
   const filterRef: any = useRef(null);
+  const searchRef: any = useRef(null);
   const [selectedItems, setSelectedItems] = useState<[]>([]);
   const [search, setSearch] = useState('');
   // const [searchText, setSearchText] = useState('');
@@ -40,7 +41,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [selected, setSelected] = useState<any>({});
 
   const {data: category, isFetching} = useGetCategoryQuery(
-    {companyId: id},
+    {company: id},
     {
       refetchOnMountOrArgChange: true,
     },
@@ -51,9 +52,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
     refetch,
   } = useGetAllProductsQuery(
     {
-      isBuyer: true,
-      companyId: id,
-      categoryId: selectedItems,
+      company: id,
+      category: selectedItems,
       // search: searchText,
     },
     {
@@ -63,6 +63,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      setSelectedItems([]);
       refetch();
     }, [refetch]),
   );
@@ -98,15 +99,21 @@ const ProductListingScreen = ({navigation, route}: any) => {
   }, [navigation, isHorizontal, cartItems]);
 
   useEffect(() => {
-    setProductListData(productList?.result);
+    const filterData = productList?.result?.filter(
+      (item: any) => item?.isPublished,
+    );
+    setProductListData(filterData);
   }, [isProcessing, selectedItems]);
 
   useEffect(() => {
+    const filterData = productList?.result?.filter(
+      (item: any) => item?.isPublished,
+    );
     if (!search) {
-      setProductListData(productList?.result);
+      setProductListData(filterData);
     } else {
-      const data = productList?.result.filter((item: any) => {
-        return item.name.toUpperCase().includes(search.toUpperCase());
+      const data = filterData.filter((item: any) => {
+        return item.productName.toUpperCase().includes(search.toUpperCase());
       });
       setProductListData(data);
     }
@@ -140,12 +147,9 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const onProductPress = (item: any) => {
-    // navigation.navigate(RootScreens.ProductDetail, {
-    //   data: {item: item, companyId: id},
-    // });
     if (cartItems?.length > 0) {
       let isSameCompany = cartItems?.some(
-        (itm: any) => itm.companyId.toString() == item?.companyId.toString(),
+        (itm: any) => itm?.createdByCompany?.id === item?.createdByCompany?.id,
       );
       if (isSameCompany) {
         handleAddToCart(item);
@@ -167,6 +171,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const onRefreshing = () => {
+    searchRef.current.blur();
+    setSearch('');
     setRefreshing(true);
     refetch();
     setRefreshing(false);
@@ -246,6 +252,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
         ]}>
         <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
           <Input
+            ref={searchRef}
             value={search}
             onChangeText={(text: any) => setSearch(text.trimStart())}
             // onSubmit={(text: any) => setSearchText(text.trimStart())}
@@ -315,7 +322,11 @@ const ProductListingScreen = ({navigation, route}: any) => {
         leftBtnPress={handleOrderPlace}
         rightBtnPress={handleRemoveItem}
         onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.white2,
+          borderWidth: 0,
+        }}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
         leftBtnTextStyle={{
           color: colors.blue,

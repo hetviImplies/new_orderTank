@@ -1,25 +1,30 @@
-import {FlatList, Image, StyleSheet, View} from 'react-native';
-import React from 'react';
+import {FlatList, Image, RefreshControl, StyleSheet, View} from 'react-native';
+import React, {useState} from 'react';
 import {colors, Images} from '../../assets';
 import {NavigationBar, FontText, Button, Loader} from '../../components';
 import commonStyle, {fontSize, smallFont, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {useGetSupplierQuery} from '../../api/company';
+import {useGetSupplierQuery} from '../../api/companyRelation';
 
 const PendingRequestScreen = ({navigation}: any) => {
-  const {data: supplierList, isFetching: isProcessing} = useGetSupplierQuery(
-    {status: 'pending'},
+  const {
+    data: supplierList,
+    isFetching: isProcessing,
+    refetch: reqRefetch,
+  } = useGetSupplierQuery(
+    {isRequested: true, sellerLists: true},
     {
       refetchOnMountOrArgChange: true,
     },
   );
+  const [refreshing, setRefreshing] = useState(false);
 
   const _renderItem = ({item, index}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
-          {item?.logo ? (
-            <Image source={{uri: item?.logo}} style={styles.logo} />
+          {item?.company?.logo ? (
+            <Image source={{uri: item?.company?.logo}} style={styles.logo} />
           ) : (
             <Image source={Images.supplierImg} style={styles.logo} />
           )}
@@ -29,7 +34,7 @@ const PendingRequestScreen = ({navigation}: any) => {
               size={fontSize}
               color={'black'}
               textAlign={'left'}>
-              {item?.companyName}
+              {item?.company?.companyName}
             </FontText>
             <FontText
               name={'lexend-regular'}
@@ -37,7 +42,7 @@ const PendingRequestScreen = ({navigation}: any) => {
               color={'gray'}
               pTop={wp(2)}
               textAlign={'left'}>
-              {item?.companyCode}
+              {item?.company?.companyCode}
             </FontText>
           </View>
         </View>
@@ -48,6 +53,12 @@ const PendingRequestScreen = ({navigation}: any) => {
         </Button>
       </View>
     );
+  };
+
+  const onRefreshing = () => {
+    setRefreshing(true);
+    reqRefetch();
+    setRefreshing(false);
   };
 
   return (
@@ -78,8 +89,8 @@ const PendingRequestScreen = ({navigation}: any) => {
       /> */}
       <Loader loading={isProcessing} />
       {supplierList &&
-      supplierList?.result &&
-      supplierList?.result?.length === 0 ? (
+      supplierList?.result?.data &&
+      supplierList?.result?.data?.length === 0 ? (
         <View style={commonStyle.flexJC}>
           <FontText
             name={'lexend-regular'}
@@ -91,9 +102,12 @@ const PendingRequestScreen = ({navigation}: any) => {
         </View>
       ) : (
         <FlatList
-          data={supplierList?.result}
+          data={supplierList?.result?.data}
           renderItem={_renderItem}
           contentContainerStyle={styles.containerContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+          }
         />
       )}
     </View>

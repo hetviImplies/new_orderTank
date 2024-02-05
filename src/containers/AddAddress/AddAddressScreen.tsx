@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {BackHandler, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
@@ -32,7 +32,7 @@ const AddAddressScreen = (props: any) => {
   const item = route?.params?.data;
 
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
+  const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
     refetchOnMountOrArgChange: true,
     skip: item ? false : true,
   });
@@ -65,6 +65,18 @@ const AddAddressScreen = (props: any) => {
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
   // const isValidCountry = checkValid && country.length === 0;
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, []);
+
+  const backAction = () => {
+    navigation.goBack();
+    return true;
+  };
 
   useEffect(() => {
     STATES_DATA.map((state, index) => {
@@ -112,33 +124,43 @@ const AddAddressScreen = (props: any) => {
 
       let body = {
         params: addressObj,
-        companyId: userInfo?.companyId?._id,
-        addressId: item?._id,
+        companyId: userInfo?.company?.id,
+        addressId: item?.id,
       };
       item === undefined && delete body.addressId;
       if (item) {
         const {data, error}: any = await updateAddress(body);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
-          const mergedArray = await mergeArrays(data?.result?.address);
+          const updateAddress = data?.result?.addresses?.filter(
+            (item: any) => item?.isDeleted === false,
+          );
+          const mergedArray = await mergeArrays(updateAddress);
           await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();
           utils.showSuccessToast(data.message);
         } else {
-          utils.showErrorToast(data?.message ? data?.message : error?.message);
+          utils.showErrorToast(
+            data?.message ? data?.message : error?.data?.message,
+          );
         }
       } else {
         const {data, error}: any = await addAddress(body);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
-          const mergedArray = await mergeArrays(data?.result?.address);
+          const updateAddress = data?.result?.addresses?.filter(
+            (item: any) => item?.isDeleted === false,
+          );
+          const mergedArray = await mergeArrays(updateAddress);
           await updateAddressList(mergedArray);
           navigation.goBack();
           route?.params?.onGoBack();
         } else {
-          utils.showErrorToast(data?.message ? data?.message : error?.message);
+          utils.showErrorToast(
+            data?.message ? data?.message : error?.data?.message,
+          );
         }
       }
     }
@@ -189,7 +211,6 @@ const AddAddressScreen = (props: any) => {
               value={addressName}
               onChangeText={(text: string) => setAddressName(text.trimStart())}
               placeholder={'Enter Address Name'}
-              autoCapitalize="none"
               placeholderTextColor={'placeholder'}
               fontSize={fontSize}
               inputStyle={styles.inputText}
@@ -298,7 +319,6 @@ const AddAddressScreen = (props: any) => {
               value={locality}
               onChangeText={(text: string) => setLocality(text.trimStart())}
               placeholder={'Enter Locality'}
-              autoCapitalize="none"
               placeholderTextColor={'placeholder'}
               fontSize={fontSize}
               inputStyle={styles.inputText}
@@ -388,7 +408,6 @@ const AddAddressScreen = (props: any) => {
               value={city}
               onChangeText={(text: string) => setCity(text.trimStart())}
               placeholder={'Enter City'}
-              autoCapitalize="none"
               placeholderTextColor={'placeholder'}
               fontSize={fontSize}
               inputStyle={styles.inputText}

@@ -74,9 +74,10 @@ const ProfileScreen = ({navigation}: any) => {
   const logoutPress = async () => {
     setIsOpen(false);
     setLoading(true);
+    await dispatch(authReset());
     await AsyncStorage.clear();
-    await AsyncStorage.removeItem('token');
-    dispatch(authReset());
+    const keysToRemove = ['token', 'MyCart', 'MyAddressList', 'NotiToken'];
+    await AsyncStorage.multiRemove(keysToRemove);
     setLoading(false);
     resetNavigateTo(navigation, RootScreens.Login);
   };
@@ -115,7 +116,11 @@ const ProfileScreen = ({navigation}: any) => {
           leftBtnPress={() => setIsOpen(false)}
           rightBtnPress={() => logoutPress()}
           onTouchPress={() => setIsOpen(false)}
-          leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+          leftBtnStyle={{
+            width: '48%',
+            backgroundColor: colors.white2,
+            borderWidth: 0,
+          }}
           rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
           leftBtnTextStyle={{
             color: colors.blue,

@@ -27,7 +27,7 @@ const FilterModal = (props: any) => {
   };
 
   const toggleSelection = (item: any) => {
-    const itemId = item._id;
+    const itemId = item.id;
     const idx = selectedItems.findIndex((i: any) => i === itemId);
     let newSelectedItems = [...selectedItems]; // Create a new array reference
 
@@ -41,7 +41,7 @@ const FilterModal = (props: any) => {
   };
 
   const _renderItem = ({item, index}: any) => {
-    const isSelected = selectedItems.some((i: any) => i === item._id);
+    const isSelected = selectedItems.some((i: any) => i === item.id);
     return (
       <Pressable
         style={[
@@ -59,7 +59,7 @@ const FilterModal = (props: any) => {
           pLeft={wp(2)}
           pRight={wp(1)}
           textAlign={'center'}>
-          {item?.name}
+          {item?.categoryName}
         </FontText>
       </Pressable>
     );

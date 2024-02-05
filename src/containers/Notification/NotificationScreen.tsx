@@ -5,6 +5,7 @@ import {
   View,
   Platform,
   BackHandler,
+  RefreshControl,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import moment from 'moment';
@@ -18,14 +19,17 @@ import {
 } from '../../api/notification';
 
 const NotificationScreen = ({navigation}: any) => {
-  const {data: noitification, isFetching: isProcessing} =
-    useGetNotificationQuery(null, {
-      refetchOnMountOrArgChange: true,
-    });
-  const [readNotification, {isLoading: isReadFetch}] =
-    useReadNotificationMutation();
+  const {
+    data: noitification,
+    isFetching: isProcessing,
+    refetch,
+  } = useGetNotificationQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
+  const [readNotification, isLoading] = useReadNotificationMutation();
 
   const [notifiedData, setNotifiedData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -37,7 +41,7 @@ const NotificationScreen = ({navigation}: any) => {
           ]}
           onPress={() => {
             if (noitification?.result?.length !== 0) {
-              const data = noitification?.result?.map((item: any) => item?._id);
+              const data = noitification?.result?.map((item: any) => item?.id);
               seenNotification(data);
               navigation.goBack();
             } else {
@@ -72,7 +76,7 @@ const NotificationScreen = ({navigation}: any) => {
 
   const backAction = () => {
     if (noitification?.result?.length !== 0) {
-      const data = noitification?.result?.map((item: any) => item?._id);
+      const data = noitification?.result?.map((item: any) => item?.id);
       seenNotification(data);
       navigation.goBack();
     } else {
@@ -86,10 +90,10 @@ const NotificationScreen = ({navigation}: any) => {
   }, [isProcessing]);
 
   const seenNotification = async (idData: any) => {
-    let params: any = {
-      ids: idData,
-    };
-    const {data, error}: any = await readNotification(params);
+    // let params: any = {
+    //   ids: idData,
+    // };
+    const {data, error}: any = await readNotification(null);
   };
 
   const _renderItem = ({item, index}: any) => {
@@ -97,8 +101,8 @@ const NotificationScreen = ({navigation}: any) => {
     const convertedTimestamp = moment(originalTimestamp).format(
       'DD/MM/YYYY | hh:mm A',
     );
-    const notiRead = item?.seen ? colors.white : colors.orangeOpacity;
-    const shadow = item?.seen && commonStyle.shadowContainer;
+    const notiRead = item?.isSeen ? colors.white : colors.orangeOpacity;
+    const shadow = item?.isSeen && commonStyle.shadowContainer;
     return (
       // <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>
       //   <View style={{width: '100%'}}>
@@ -169,6 +173,12 @@ const NotificationScreen = ({navigation}: any) => {
     );
   };
 
+  const onRefreshing = () => {
+    setRefreshing(true);
+    refetch();
+    setRefreshing(false);
+  };
+
   const _sepratorView = () => {
     return <View style={styles.itemSeprator}></View>;
   };
@@ -205,9 +215,9 @@ const NotificationScreen = ({navigation}: any) => {
           data={notifiedData}
           renderItem={_renderItem}
           ItemSeparatorComponent={_sepratorView}
-          // refreshControl={
-          //   <RefreshControl refreshing={refresh} onRefresh={_onRefresh} />
-          // }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+          }
         />
       ) : (
         <View style={[commonStyle.allCenter, {flex: 1}]}>

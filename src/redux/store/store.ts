@@ -8,12 +8,14 @@ import {orderApi} from '../../api/order';
 import authSlice from '../slices/authSlice';
 import {notificationApi} from '../../api/notification';
 import {companyApi} from '../../api/company';
+import {companyRelationsApi} from '../../api/companyRelation';
 
 export const store = configureStore({
   reducer: {
     auth: authSlice,
     [authApi.reducerPath]: authApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
+    [companyRelationsApi.reducerPath]: companyRelationsApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
@@ -27,6 +29,7 @@ export const store = configureStore({
     })
       .concat(authApi.middleware)
       .concat(companyApi.middleware)
+      .concat(companyRelationsApi.middleware)
       .concat(categoryApi.middleware)
       .concat(productApi.middleware)
       .concat(profileApi.middleware)

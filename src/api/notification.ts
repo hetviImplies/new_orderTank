@@ -14,18 +14,17 @@ export const notificationApi = createApi({
     getNotification: builder.query({
       query: () => {
         return {
-          url: '',
+          url: 'get-all-user-notification',
           method: 'GET',
         };
       },
       providesTags: ['notification'],
     }),
     readNotification: builder.mutation({
-      query: body => {
+      query: () => {
         return {
-          url: 'seen',
-          method: 'POST',
-          body,
+          url: 'read-notification',
+          method: 'PUT',
         };
       },
       invalidatesTags: ['notification'],

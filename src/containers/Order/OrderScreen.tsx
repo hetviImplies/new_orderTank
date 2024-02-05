@@ -30,7 +30,7 @@ const OrderScreen = ({navigation, route}: any) => {
     refetch,
   } = useGetOrdersQuery(
     {
-      isBuyer: true,
+      isBuyerOrder: true,
       status: selectOrder?.value === 'all' ? '' : selectOrder?.value,
     },
     {
@@ -59,7 +59,7 @@ const OrderScreen = ({navigation, route}: any) => {
   );
 
   useEffect(() => {
-    setOrderData(orderList?.result);
+    setOrderData(orderList?.result?.data);
   }, [isProcess, selectOrder]);
 
   const onRefreshing = () => {
@@ -105,7 +105,7 @@ const OrderScreen = ({navigation, route}: any) => {
               size={smallFont}
               textAlign={'left'}
               name={'lexend-regular'}>
-              {item?.companyId?.companyName}
+              {item?.company?.companyName}
             </FontText>
           </View>
           <View>
@@ -221,10 +221,10 @@ const OrderScreen = ({navigation, route}: any) => {
                     name={'lexend-regular'}>
                     {item?.label}{' '}
                     {selectOrder?.label === item?.label
-                      ? orderList?.result?.length === undefined ||
-                        orderList?.result?.length === 0
+                      ? orderList?.result?.data?.length === undefined ||
+                        orderList?.result?.data?.length === 0
                         ? ''
-                        : `(${orderList?.result?.length})`
+                        : `(${orderList?.result?.data?.length})`
                       : ''}
                   </FontText>
                 </View>

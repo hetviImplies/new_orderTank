@@ -18,7 +18,7 @@ export const companyApi = createApi({
     getCompany: builder.query({
       query: id => {
         return {
-          url: id,
+          url: `/${id}`,
           method: 'GET',
         };
       },
@@ -37,29 +37,9 @@ export const companyApi = createApi({
     updateCompany: builder.mutation({
       query: body => {
         return {
-          url: body._id,
+          url: `/${body.id}`,
           method: 'PUT',
           body: body.params,
-        };
-      },
-      invalidatesTags: ['company'],
-    }),
-    getSupplier: builder.query({
-      query: params => {
-        return {
-          url: 'sellers/get',
-          method: 'GET',
-          params,
-        };
-      },
-      providesTags: ['company'],
-    }),
-    companyRequest: builder.mutation({
-      query: body => {
-        return {
-          url: 'request/send',
-          method: 'POST',
-          body,
         };
       },
       invalidatesTags: ['company'],
@@ -88,7 +68,7 @@ export const companyApi = createApi({
       query: body => {
         return {
           url: `${body.companyId}/removeAddress/${body.addressId}`,
-          method: 'PUT',
+          method: 'DELETE',
         };
       },
       invalidatesTags: ['company'],
@@ -100,8 +80,6 @@ export const {
   useGetCompanyQuery,
   useAddCompanyMutation,
   useUpdateCompanyMutation,
-  useGetSupplierQuery,
-  useCompanyRequestMutation,
   useCreateAddressMutation,
   useUpdateAddressMutation,
   useRemoveAddressMutation

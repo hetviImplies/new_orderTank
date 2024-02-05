@@ -6,7 +6,7 @@ import {colors, SvgIcons} from '../../assets';
 import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
 import commonStyle, {fontSize, iconSize, mediumFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {useGetCurrentUserQuery} from '../../api/auth';
+import {useGetCurrentUserQuery, useUpdateCurrentUserMutation} from '../../api/auth';
 import {useUpdateProfileMutation} from '../../api/profile';
 import utils from '../../helper/utils';
 import {setCurrentUser} from '../../redux/slices/authSlice';
@@ -17,7 +17,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
     refetchOnMountOrArgChange: true,
   });
 
-  const [updateProfile, {isLoading: isProcess}] = useUpdateProfileMutation();
+  const [updateProfile, {isLoading: isProcess}] = useUpdateCurrentUserMutation();
   const dispatch = useDispatch();
   const emailRef: any = useRef();
   const phonNoRef: any = useRef();
@@ -230,7 +230,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
               editable={false}
               ref={emailRef}
               value={email}
-              onChangeText={(text: string) => setEmail(text)}
+              onChangeText={(text: string) => setEmail(text.trim())}
               placeholder={'Enter Your Email'}
               autoCapitalize="none"
               placeholderTextColor={'placeholder'}

@@ -30,7 +30,7 @@ const addToCart = async (item: any) => {
 
     // Check if the item already exists in the cart
     const existingItemIndex = updatedCartItems.findIndex(
-      (cartItem: any) => cartItem._id === item._id,
+      (cartItem: any) => cartItem.id === item.id,
     );
 
     if (existingItemIndex !== -1) {
@@ -54,7 +54,7 @@ const incrementCartItem = async (itemId: any) => {
     let updatedCartItems = await getCartItems();
 
     const itemToIncrement = updatedCartItems.find(
-      (cartItem: any) => cartItem._id === itemId,
+      (cartItem: any) => cartItem.id === itemId,
     );
 
     if (itemToIncrement) {
@@ -73,7 +73,7 @@ const decrementCartItem = async (itemId: any, from: string) => {
     let updatedCartItems = await getCartItems();
 
     const itemToDecrement = updatedCartItems.find(
-      (cartItem: any) => cartItem._id === itemId,
+      (cartItem: any) => cartItem.id === itemId,
     );
 
     if (itemToDecrement && itemToDecrement.quantity > 1) {
@@ -83,7 +83,7 @@ const decrementCartItem = async (itemId: any, from: string) => {
     } else if (itemToDecrement && itemToDecrement.quantity === 1) {
       updatedCartItems =
         from === 'Product'
-          ? updatedCartItems.filter((cartItem: any) => cartItem._id !== itemId)
+          ? updatedCartItems.filter((cartItem: any) => cartItem.id !== itemId)
           : updatedCartItems;
       await updateCartItems(updatedCartItems);
       return updatedCartItems;
@@ -98,7 +98,7 @@ const removeCartItem = async (itemId: any) => {
     let updatedCartItems = await getCartItems();
 
     updatedCartItems = updatedCartItems.filter(
-      (cartItem: any) => cartItem._id !== itemId,
+      (cartItem: any) => cartItem.id !== itemId,
     );
 
     await updateCartItems(updatedCartItems);
@@ -165,7 +165,7 @@ const mergeArrays = async (apiAddress: any) => {
     resultArray = apiAddress.map((address: any) => {
       let find: any = addressData.find(
         (addressItem: any) =>
-          addressItem?._id.toString() === address?._id.toString(),
+          addressItem?.id.toString() === address?.id.toString(),
       );
       if (!find) {
         return {

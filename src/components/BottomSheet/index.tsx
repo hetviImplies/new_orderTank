@@ -163,7 +163,7 @@ const BottomSheet = (props: any) => {
                       {item?.name}
                     </FontText>
                     <View style={styles.boxcontainer}>
-                      {renderdata.some((i: any) => i._id === item._id) && (
+                      {renderdata.some((i: any) => i.id === item.id) && (
                         <SvgIcons.FillBox height={hp(2)} width={wp(3)} />
                       )}
                     </View>

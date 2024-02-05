@@ -1,4 +1,12 @@
-import {FlatList, StyleSheet, View} from 'react-native';
+import {
+  Alert,
+  BackHandler,
+  FlatList,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
@@ -13,7 +21,7 @@ import {
 } from '../../components';
 import commonStyle, {fontSize, mediumFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {colors} from '../../assets';
+import {SvgIcons, colors} from '../../assets';
 import {RootScreens} from '../../types/type';
 import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import utils from '../../helper/utils';
@@ -32,7 +40,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const notes = route?.params?.data?.notes;
   const date = route?.params?.data?.expectedDate;
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const {data, isFetching} = useGetCompanyQuery(userInfo?.companyId?._id, {
+  const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
     refetchOnMountOrArgChange: true,
   });
   const [deleteAddress, {isLoading}] = useRemoveAddressMutation();
@@ -42,6 +50,58 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [updateAdd, setUpdateAdd] = useState([]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          style={[
+            // commonStyle.iconView,
+            {marginLeft: wp(1)},
+          ]}
+          onPress={() => backAction()}>
+          {Platform.OS === 'android' ? (
+            <SvgIcons.AndroidBack
+              width={wp(6)}
+              height={wp(6)}
+              style={{marginLeft: wp(2)}}
+            />
+          ) : (
+            <SvgIcons.BackArrow
+              width={wp(5)}
+              height={wp(5)}
+              fill={colors.blue2}
+              stroke={colors.blue2}
+            />
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, addressData, checkedData]);
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, [addressData, checkedData]);
+
+  const backAction = () => {
+    const findData = addressData.find(
+      (address: any) => address?.id === checkedData?.id,
+    );
+
+    if (!findData && type === 'Delivery address') {
+      utils.showWarningToast('Please select address');
+    } else if (type === 'Delivery address' && !findData?.deliveryAdd) {
+      utils.showWarningToast('Please Continue to perform futher process.');
+    } else if (findData) {
+      navigation.goBack();
+    } else {
+      navigation.goBack();
+    }
+    return true;
+  };
 
   useEffect(() => {
     setCheckedData(type === 'Delivery address' ? deliveryAdd : billingAdd);
@@ -62,10 +122,10 @@ const AddressScreen = ({navigation, route, props}: any) => {
     let updateAddress: any =
       type === 'Delivery address'
         ? addressData.map((address: any) => {
-            if (address._id === item._id) {
+            if (address.id === item.id) {
               let result = {
                 ...address,
-                deliveryAdd: type === 'Delivery address' ? true : false,
+                deliveryAdd: true,
               };
               setCheckedData(result);
               return result;
@@ -73,10 +133,10 @@ const AddressScreen = ({navigation, route, props}: any) => {
             return {...address, deliveryAdd: false};
           })
         : addressData.map((address: any) => {
-            if (address._id === item._id) {
+            if (address.id === item.id) {
               let result = {
                 ...address,
-                billingAdd: type !== 'Delivery address' ? true : false,
+                billingAdd: true,
               };
               setCheckedData(result);
               return result;
@@ -87,42 +147,56 @@ const AddressScreen = ({navigation, route, props}: any) => {
   };
 
   const continuePress = async () => {
-    if (
-      JSON.stringify(checkedData) === JSON.stringify(deliveryAdd) ||
-      JSON.stringify(checkedData) === JSON.stringify(billingAdd)
-    ) {
-      navigation.goBack();
+    const findData = addressData.some(
+      (address: any) => address?.id === checkedData?.id,
+    );
+    if (findData) {
+      if (
+        checkedData?.id ===
+        (type === 'Delivery address' ? deliveryAdd?.id : billingAdd?.id)
+      ) {
+        navigation.goBack();
+      } else {
+        await updateAddressList(updateAdd);
+        let params = {
+          // deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
+          // billingAdd: type === 'Billing address' ? checkedData : billingAdd,
+          data: cartData,
+          from: RootScreens.Address,
+          name: 'Place Order',
+          notes: notes,
+          expectedDate: date,
+        };
+        navigation.goBack();
+        route.params.onGoBack(params);
+      }
     } else {
-      await updateAddressList(updateAdd);
-      let params = {
-        deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
-        billingAdd: type === 'Billing address' ? checkedData : billingAdd,
-        data: cartData,
-        from: RootScreens.Address,
-        name: 'Place Order',
-        notes: notes,
-        expectedDate: date,
-      };
-      navigation.goBack();
-      route.params.onGoBack(params);
+      type === 'Delivery address'
+        ? utils.showWarningToast('Please select address')
+        : navigation.goBack();
     }
   };
 
   const onAddressDelete = async (item: any) => {
     setIsOpen(false);
     let params = {
-      companyId: userInfo?.companyId?._id,
-      addressId: item._id,
+      companyId: userInfo?.company?.id,
+      addressId: item.id,
     };
     const {data, error}: any = await deleteAddress(params);
     if (!error && data?.statusCode === 200) {
-      const mergedArray = await mergeArrays(data?.result?.address);
+      const updateAddress = data?.result?.addresses?.filter(
+        (item: any) => item?.isDeleted === false,
+      );
+      const mergedArray = await mergeArrays(updateAddress);
       await updateAddressList(mergedArray);
       utils.showSuccessToast(data.message);
       const items = await getAddressList();
       setAddressData(mergedArray);
     } else {
-      utils.showErrorToast(data?.message ? data?.message : error?.message);
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
     }
   };
 
@@ -159,7 +233,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
         }
         disabled={from === RootScreens.SecureCheckout ? false : true}
         handleCheck={() => handleCheck(item)}
-        checked={item?._id === checkedData?._id}
+        checked={item?.id === checkedData?.id}
       />
     );
   };
@@ -250,7 +324,11 @@ const AddressScreen = ({navigation, route, props}: any) => {
         leftBtnPress={() => setIsOpen(false)}
         rightBtnPress={() => onAddressDelete(selectedItem)}
         onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{width: '48%', borderColor: colors.blue}}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.white2,
+          borderWidth: 0,
+        }}
         rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
         leftBtnTextStyle={{
           color: colors.blue,

@@ -40,7 +40,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
   const item = route.params.data.item;
   const companyId = route.params.data.companyId;
   const {data: product, isFetching: isProcessing} = useGetOneProductQuery(
-    {isBuyer: true, id: item?._id},
+    {id: item?.id},
     {
       refetchOnMountOrArgChange: true,
     },
@@ -69,7 +69,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
 
   // const addCart = async (item: any) => {
   //   const {data, error}: any = await addToCart({
-  //     productId: item._id,
+  //     productId: item.id,
   //     companyId: companyId,
   //   });
   //   if (!error) {
@@ -116,7 +116,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
     // });
     if (cartItems?.length > 0) {
       let isSameCompany = cartItems?.some(
-        (itm: any) => itm?.companyId?.toString() === item?.companyId.toString(),
+        (itm: any) => itm?.createdByCompany?.id === item?.createdByCompany?.id,
       );
       if (isSameCompany) {
         handleAddToCart(item);
@@ -195,7 +195,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
             name="lexend-medium"
             size={mediumLargeFont}
             textAlign={'left'}>
-            {productDetail?.name}
+            {productDetail?.productName}
           </FontText>
           <FontText
             name={'lexend-regular'}
@@ -226,13 +226,13 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           {productDetail?.description}
         </FontText>
         {cartItems?.filter(
-          (itm: any) => itm._id.toString() == productDetail?._id.toString(),
+          (itm: any) => itm.id.toString() == productDetail?.id.toString(),
         ).length > 0 ? (
           <View style={[commonStyle.rowAC, styles.countContainer]}>
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={() => {
-                handleDecrement(productDetail?._id);
+                handleDecrement(productDetail?.id);
               }}>
               <SvgIcons.Remove width={wp(4)} height={wp(4)} />
             </TouchableOpacity>
@@ -243,14 +243,14 @@ const ProductDetailScreen = ({navigation, route}: any) => {
               textAlign={'left'}>
               {
                 cartItems?.find((itm: any) => {
-                  return itm._id.toString() == productDetail?._id.toString();
+                  return itm.id.toString() == productDetail?.id.toString();
                 }).quantity
               }
             </FontText>
             <TouchableOpacity
               style={styles.iconContainer}
               onPress={() => {
-                handleIncrement(productDetail?._id);
+                handleIncrement(productDetail?.id);
               }}>
               <SvgIcons.Plus
                 width={wp(4)}

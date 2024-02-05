@@ -17,9 +17,8 @@ export const productApi = createApi({
   endpoints: builder => ({
     getAllProducts: builder.query({
       query: ((params) => {
-        // const {brands, category} = params;
         return {
-          url: '/',
+          url: '',
           method: 'GET',
           params
         };
@@ -28,11 +27,9 @@ export const productApi = createApi({
     }),
     getOneProduct: builder.query({
       query: ((params) => {
-        // const {brands, category} = params;
         return {
-          url: params?.id,
+          url: `${params?.id}`,
           method: 'GET',
-          params
         };
       }),
       providesTags: ['products'],

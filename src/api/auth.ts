@@ -30,6 +30,16 @@ export const authApi = createApi({
       },
       providesTags: ['CurrentUser'],
     }),
+    updateCurrentUser: builder.mutation({
+      query: body => {
+        return {
+          url: 'updateProfile',
+          method: 'PUT',
+          body,
+        };
+      },
+      invalidatesTags: ['CurrentUser'],
+    }),
     register: builder.mutation({
       query: body => {
         return {
@@ -71,6 +81,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useGetCurrentUserQuery,
+  useUpdateCurrentUserMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useResendEmailMutation,

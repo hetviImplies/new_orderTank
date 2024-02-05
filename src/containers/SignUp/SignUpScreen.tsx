@@ -75,7 +75,6 @@ const SignUpScreen = ({navigation}: any) => {
         email: email,
         phone: phoneNo,
         password: password,
-        isBuyer: true,
       };
       const {data, error}: any = await register(params);
       if (!error && data?.statusCode === 200) {
@@ -83,9 +82,7 @@ const SignUpScreen = ({navigation}: any) => {
         setIsOpen(true);
         // utils.showSuccessToast(data.message);
       } else {
-        utils.showErrorToast(
-          data.message ? data.message : error?.data?.message[0],
-        );
+        utils.showErrorToast(error?.data?.message)
         // Alert.alert('Error', data?.message || error);
       }
     }
@@ -227,7 +224,7 @@ const SignUpScreen = ({navigation}: any) => {
               <Input
                 ref={emailRef}
                 value={email}
-                onChangeText={(text: string) => setEmail(text)}
+                onChangeText={(text: string) => setEmail(text.trim())}
                 placeholder={'Enter Email'}
                 autoCapitalize="none"
                 placeholderTextColor={'placeholder'}

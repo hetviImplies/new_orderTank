@@ -54,7 +54,7 @@ export const orderApi = createApi({
     deleteOrder: builder.mutation({
       query: id => {
         return {
-          url: id,
+          url: `${id}/cancle`,
           method: 'DELETE',
         };
       },
@@ -68,5 +68,5 @@ export const {
   useUpdateOrderMutation,
   useAddOrderMutation,
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation
+  useDeleteOrderMutation,
 } = orderApi;

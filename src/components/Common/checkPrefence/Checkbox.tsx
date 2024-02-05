@@ -1,10 +1,10 @@
 import React from 'react';
 import {Pressable, View, Text} from 'react-native';
 import SvgIcons from '../../../assets/SvgIcons';
-import { normalize, wp } from '../../../styles/responsiveScreen';
-import commonStyle from '../../../styles'
+import {normalize, wp} from '../../../styles/responsiveScreen';
+import commonStyle from '../../../styles';
 
-const Checkbox = (props:any) => {
+const Checkbox = (props: any) => {
   return (
     <Pressable
       hitSlop={8}
@@ -20,11 +20,11 @@ const Checkbox = (props:any) => {
         ) : (
           <SvgIcons.EmptyRound />
         )
-      ) : props.checked ? (
+      ) : props.checked && props.checkbox ? (
         <SvgIcons.FillBox />
       ) : (
-        <SvgIcons.EmptyBox />
-      ) && null}
+        <SvgIcons.EmptyBox /> && null
+      )}
 
       <View style={{}}>
         {props.children ? (
@@ -35,7 +35,7 @@ const Checkbox = (props:any) => {
               fontSize: normalize(16),
               fontFamily: 'Lexend-Medium',
               paddingHorizontal: wp(4),
-              color:'black',
+              color: 'black',
             }}>
             {props.title}
           </Text>

@@ -97,8 +97,10 @@ const RootNavigator = () => {
 
   React.useEffect(() => {
     if (
-      (userInfo && Object.keys(userInfo).length === 0) ||
-      userInfo === undefined
+      ((userInfo && Object.keys(userInfo).length < 0) ||
+        !userInfo ||
+        userInfo == null) &&
+      data?.result
     ) {
       dispatch(setCurrentUser(data?.result));
     }

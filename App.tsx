@@ -1,5 +1,11 @@
 import * as React from 'react';
-import {LogBox, StatusBar, View} from 'react-native';
+import {
+  LogBox,
+  PermissionsAndroid,
+  Platform,
+  StatusBar,
+  View,
+} from 'react-native';
 import {Provider} from 'react-redux';
 import('./src/helper/ReactotronConfig');
 import Config from 'react-native-config';
@@ -27,8 +33,8 @@ const firebaseConfig = {
 export default () => {
   React.useEffect(() => {
     console.log('Config.API_URL', Config.API_URL);
+    requestNotificationPermission();
     if (!firebase.apps.length) {
-      console.log(firebase.initializeApp(firebaseConfig));
       firebase.initializeApp(firebaseConfig);
     }
     try {
@@ -53,6 +59,30 @@ export default () => {
       SplashScreen.hide();
     }, 500);
   }, []);
+
+  const requestNotificationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          {
+            title: 'Notification Permission',
+            message: 'Allow the app to receive notifications.',
+            buttonPositive: 'OK',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Notification permission granted');
+          // Handle notification logic here
+        } else {
+          console.log('Notification permission denied');
+          // Handle denial or show a message to the user
+        }
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+      }
+    }
+  };
 
   LogBox.ignoreAllLogs();
   return (

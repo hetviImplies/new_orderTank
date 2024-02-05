@@ -21,24 +21,26 @@ import {
   useUpdateCompanyMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {setCompanyId} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {RootScreens} from '../../types/type';
 import {gstNoRegx, panNoRegx, phoneRegx} from '../../helper/regex';
+import {setCurrentUser} from '../../redux/slices/authSlice';
 
 const CompanyDetail = (props: any) => {
   const {loading, from, navigation, loginData} = props;
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const companyId = useSelector((state: any) => state.auth.companyId);
+  // const {
+  //   data: userData,
+  //   isFetching: isFetch,
+  //   refetch,
+  // } = useGetCurrentUserQuery(null, {
+  //   refetchOnMountOrArgChange: true,
+  // });
 
-  const {data, isFetching} = useGetCompanyQuery(
-    userInfo?.companyId?._id || userInfo?.companyId || companyId,
-    {
-      refetchOnMountOrArgChange: true,
-    },
-  );
-  const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
+  console.log('USER INFO', userInfo)
+
+  const {data, isFetching} = useGetCompanyQuery(loginData?.id === userInfo?.id ? undefined : userInfo?.company?.id, {
     refetchOnMountOrArgChange: true,
   });
   const [addCompany, {isLoading}] = useAddCompanyMutation();
@@ -113,8 +115,14 @@ const CompanyDetail = (props: any) => {
   // const isValidCountry = checkValid && country.length === 0;
 
   useEffect(() => {
-    setNumberType(data?.result?.isGst ? 1 : data?.result?.isPan ? 2 : 1);
-    setImageUrl(data?.result ? data?.result?.logo : '');
+    setNumberType(data?.result?.gstNo ? 1 : data?.result?.panNo ? 2 : 1);
+    setImageUrl(
+      data?.result
+        ? data?.result?.logo !== null
+          ? data?.result?.logo
+          : ''
+        : '',
+    );
     setName(
       data?.result?.name
         ? data?.result?.name
@@ -132,19 +140,19 @@ const CompanyDetail = (props: any) => {
         : userInfo?.phone,
     );
     setCompany(data?.result ? data?.result?.companyName : '');
-    setAddress(data?.result ? data?.result.address[0]?.addressLine : '');
-    // setAddressName(data?.result ? data?.result.address[0]?.addressName : '');
-    setLocality(data?.result ? data?.result.address[0]?.locality : '');
-    setPinCode(data?.result ? data?.result.address[0]?.pincode : '');
-    setCity(data?.result ? data?.result.address[0]?.city : '');
-    setState(data?.result ? data?.result.address[0]?.state : '');
+    setAddress(data?.result ? data?.result?.addressLine : '');
+    // setAddressName(data?.result ? data?.result?.addressName : '');
+    setLocality(data?.result ? data?.result?.locality : '');
+    setPinCode(data?.result ? data?.result?.pincode : '');
+    setCity(data?.result ? data?.result?.city : '');
+    setState(data?.result ? data?.result?.state : '');
     STATES_DATA.map((state, index) => {
-      if (data?.result?.address[0]?.state === state.label) {
+      if (data?.result?.state === state.label) {
         setSelectedState(state.value);
       }
     });
-    // setCountry(data?.result ? data?.result.address[0]?.country : '');
-  }, [data, userData, userInfo, loginData]);
+    // setCountry(data?.result ? data?.result?.country : '');
+  }, [data, userInfo, loginData]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -218,26 +226,32 @@ const CompanyDetail = (props: any) => {
       // && country.length !== 0
     ) {
       const formData = new FormData();
-      const addressObj = [
-        {
-          isPriority: true,
-          addressName: 'Company Address',
-          addressLine: address,
-          locality: locality,
-          pincode: pinCode,
-          city: city,
-          state: state,
-          // country: country,
-        },
-      ];
+      // const addressObj = [
+      //   {
+      //     isPriority: true,
+      //     addressName: 'Company Address',
+      //     addressLine: address,
+      //     locality: locality,
+      //     pincode: pinCode,
+      //     city: city,
+      //     state: state,
+      //     // country: country,
+      //   },
+      // ];
       formData.append('companyName', company);
       formData.append('name', name);
       formData.append('phone', phone);
+      formData.append('addressName', 'Company Address');
+      formData.append('addressLine', address);
+      formData.append('locality', locality);
+      formData.append('pincode', pinCode);
+      formData.append('city', city);
+      formData.append('state', state);
       numberType === 1
         ? formData.append('gstNo', gstNo)
         : formData.append('panNo', panNo);
-      formData.append('isGst', numberType === 1 ? true : false);
-      formData.append('isPan', numberType === 2 ? true : false);
+      // formData.append('isGst', numberType === 1 ? true : false);
+      // formData.append('isPan', numberType === 2 ? true : false);
       imageUrl !== '' &&
         (Object.keys(imageRes).length !== 0
           ? formData.append('logo', {
@@ -246,38 +260,32 @@ const CompanyDetail = (props: any) => {
               name: 'image',
             })
           : formData.append('logo', imageUrl));
-      // imageUrl !== '' &&
-      //   Object.keys(imageRes).length !== 0 &&
-      //   formData.append('logo', {
-      //     uri: imageUrl,
-      //     type: `image/${imageUrl.split('.').pop()}`,
-      //     name: 'image',
-      //   });
-      addressObj.forEach((value: any, index: any) => {
-        for (var key in value) {
-          formData.append(`address[${[index]}][${key}]`, value[key]);
-        }
-      });
+      // addressObj.forEach((value: any, index: any) => {
+      //   for (var key in value) {
+      //     formData.append(`address[${[index]}][${key}]`, value[key]);
+      //   }
+      // });
 
       if (from === 'Profile') {
         let body = {
           params: formData,
-          _id: userData?.result?.companyId?._id,
+          id: userInfo?.company?.id,
         };
         const {data, error}: any = await updateCompany(body);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
         } else {
-          utils.showErrorToast(data?.message ? data?.message : error?.message);
+          utils.showErrorToast(
+            data?.message ? data?.message : error?.data?.message,
+          );
         }
         setBtnText('Edit Details');
         setEditInformation(false);
       } else {
         const {data, error}: any = await addCompany(formData);
-        if (data?.statusCode === 201) {
+        if (!error && data?.statusCode === 201) {
           setCheckValid(false);
-          dispatch(setCompanyId(data?.result?._id));
           navigation.reset({
             index: 0,
             routes: [
@@ -296,7 +304,9 @@ const CompanyDetail = (props: any) => {
             ],
           });
         } else {
-          utils.showErrorToast(data?.message ? data?.message : error?.message);
+          utils.showErrorToast(
+            data?.message ? data?.message : error?.data?.message,
+          );
         }
       }
     }
@@ -347,9 +357,7 @@ const CompanyDetail = (props: any) => {
           borderBottomWidth={0}
         />
       ) : null} */}
-      <Loader
-        loading={isFetching || isLoading || loading || isFetch || isProcess}
-      />
+      <Loader loading={isFetching || isLoading || loading || isProcess} />
       <View
         style={[commonStyle.paddingH4, commonStyle.flex, commonStyle.marginT2]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>

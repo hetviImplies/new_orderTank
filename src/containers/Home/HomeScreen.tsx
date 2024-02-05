@@ -33,11 +33,7 @@ import commonStyle, {
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import utils from '../../helper/utils';
-import {
-  useCompanyRequestMutation,
-  useGetCompanyQuery,
-  useGetSupplierQuery,
-} from '../../api/company';
+import {useGetCompanyQuery} from '../../api/company';
 import {useGetOrdersQuery} from '../../api/order';
 import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {setCurrentUser} from '../../redux/slices/authSlice';
@@ -45,21 +41,29 @@ import {useGetCurrentUserQuery} from '../../api/auth';
 import {mergeArrays, updateAddressList} from '../Cart/Carthelper';
 import {useGetNotificationQuery} from '../../api/notification';
 import {FLOATING_BTN_ACTION} from '../../helper/data';
+import {
+  useCompanyRequestMutation,
+  useGetSupplierQuery,
+} from '../../api/companyRelation';
 
 const HomeScreen = ({navigation, route, showNotification}: any) => {
   const dispatch = useDispatch();
   const loginData = route?.params?.data;
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  const companyId = useSelector((state: any) => state.auth.companyId);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
+  const {
+    data: userData,
+    isFetching: isFetch,
+    refetch: refetchCurrentUser,
+  } = useGetCurrentUserQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
   const {
     data,
     isFetching,
     refetch: compRefetch,
   } = useGetCompanyQuery(
-    userInfo?.companyId?._id ||
-      userInfo?.companyId ||
-      loginData?.companyId?._id,
+    loginData?.company?.id ? loginData?.company?.id : userInfo?.company?.id,
     {
       refetchOnMountOrArgChange: true,
     },
@@ -71,16 +75,13 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   } = useGetNotificationQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-  const {data: userData, isFetching: isFetch} = useGetCurrentUserQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
   const {
     data: orderList,
     isFetching: isProcessing,
     refetch,
   } = useGetOrdersQuery(
     {
-      isBuyer: true,
+      isBuyerOrder: true,
       status: 'pending',
     },
     {
@@ -92,7 +93,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     isFetching: isReqProcessing,
     refetch: reqRefetch,
   } = useGetSupplierQuery(
-    {status: 'pending'},
+    {isRequested: true, sellerLists: true},
     {
       refetchOnMountOrArgChange: true,
     },
@@ -110,14 +111,21 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       notiRefetch();
       compRefetch();
       reqRefetch();
+      refetchCurrentUser();
     }, [refetch]),
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetchCurrentUser();
+    }, [isFetching, refetch]),
   );
 
   useFocusEffect(
     React.useCallback(() => {
       if (notificationData?.result?.length !== 0) {
         const data = notificationData?.result?.find(
-          (item: any) => item.seen === false,
+          (item: any) => item.isSeen === false,
         );
         setNotification(data === undefined ? {} : data);
       }
@@ -125,13 +133,18 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   );
 
   useEffect(() => {
-    dispatch(setCurrentUser(userData?.result));
-  }, [isFetch]);
+    async function currentUserData() {
+      await dispatch(setCurrentUser(userData?.result));
+    }
+    currentUserData();
+  }, [isFetch, userData]);
 
   useEffect(() => {
     async function getAddressData() {
-      const mergedArray = await mergeArrays(data?.result?.address);
-      console.log('mergedArray', mergedArray);
+      const updateAddress = data?.result?.addresses.filter(
+        (item: any) => item?.isDeleted === false,
+      );
+      const mergedArray = await mergeArrays(updateAddress);
       await updateAddressList(mergedArray);
     }
     getAddressData();
@@ -167,7 +180,9 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             onPress={() => navigation.navigate(RootScreens.Notification)}>
             <SvgIcons.Bell width={tabIcon} height={tabIcon} />
             {Object.keys(notification)?.length !== 0 &&
-              notification?.seen === false && <View style={styles.countView} />}
+              notification?.isSeen === false && (
+                <View style={styles.countView} />
+              )}
           </TouchableOpacity>
         </View>
       ),
@@ -182,7 +197,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   ]);
 
   useEffect(() => {
-    setOrderData(orderList?.result);
+    setOrderData(orderList?.result?.data);
   }, [isProcessing]);
 
   useEffect(() => {
@@ -197,13 +212,27 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         title: remoteMessage?.notification?.title,
         message: remoteMessage?.notification?.body,
         icon: Images.notificationImg,
+        onPress: () => {
+          navigation.navigate(RootScreens.Notification);
+        },
       });
     });
+
+    const onNotificationOpened = messaging().onNotificationOpenedApp(
+      remoteMessage => {
+        navigation.navigate(RootScreens.Notification);
+      },
+    );
+
+    const notificationOpen = await messaging().getInitialNotification();
+    if (notificationOpen) {
+      navigation.navigate(RootScreens.Notification);
+    }
 
     return async () => {
       try {
         onMessageListener();
-        // onNotificationOpened();
+        onNotificationOpened();
       } catch (error) {
         utils.showErrorToast(error);
       }
@@ -247,7 +276,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               size={smallFont}
               textAlign={'left'}
               name={'lexend-regular'}>
-              {item?.companyId?.companyName}
+              {item?.company?.companyName}
             </FontText>
           </View>
           <View>
@@ -314,8 +343,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
-          {item?.logo ? (
-            <Image source={{uri: item?.logo}} style={styles.logo} />
+          {item?.company?.logo ? (
+            <Image source={{uri: item?.company?.logo}} style={styles.logo} />
           ) : (
             <Image source={Images.supplierImg} style={styles.logo} />
           )}
@@ -325,7 +354,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               size={fontSize}
               color={'black'}
               textAlign={'left'}>
-              {item?.companyName}
+              {item?.company?.companyName}
             </FontText>
             <FontText
               name={'lexend-regular'}
@@ -333,7 +362,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               color={'gray'}
               pTop={wp(2)}
               textAlign={'left'}>
-              {item?.companyCode}
+              {item?.company?.companyCode}
             </FontText>
           </View>
         </View>
@@ -356,26 +385,22 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       companyCode: code,
     };
     const {data, error}: any = await sendCompanyReq(params);
-    if (!error && data?.statusCode === 200) {
+    if (!error && data?.statusCode === 201) {
       setCode('');
       utils.showSuccessToast(data.message);
     } else {
       setCode('');
-      utils.showErrorToast(data?.message ? data?.message : error?.message);
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
     }
   };
 
-  const onRefreshing = () => {
+  const onRefreshing = (from: string) => {
     setRefreshing(true);
-    refetch();
+    from === 'order' ? refetch() : reqRefetch();
     setRefreshing(false);
   };
-
-  console.log(
-    'supplierList?.result?.length',
-    supplierList?.result?.length,
-    orderData?.length !== 0,
-  );
 
   return (
     <>
@@ -427,7 +452,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           loading={
             isProcessing ||
             isProcess ||
-            isFetch ||
+            // isFetch ||
             isNotiFetch ||
             isReqProcessing
           }
@@ -435,11 +460,11 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
         {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
         <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
       </Modal> */}
-        {supplierList?.result?.length !== 0 || orderData?.length !== 0 ? (
+        {supplierList?.result?.data?.length !== 0 || orderData?.length !== 0 ? (
           <View style={{marginTop: hp(1)}}>
             {supplierList &&
-            supplierList?.result &&
-            supplierList?.result.length !== 0 ? (
+            supplierList?.result?.data &&
+            supplierList?.result?.data.length !== 0 ? (
               <View style={styles.listContainer}>
                 <ListHeader
                   leftName={'Pending Requests'}
@@ -449,9 +474,15 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
                   }}
                 />
                 <FlatList
-                  data={supplierList?.result}
+                  data={supplierList?.result?.data?.slice(0, 2)}
                   renderItem={_reqRenderItem}
                   contentContainerStyle={styles.containerContent}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={() => onRefreshing('request')}
+                    />
+                  }
                 />
               </View>
             ) : null}
@@ -473,6 +504,12 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
                   data={orderData && orderData.slice(0, 2)}
                   renderItem={_renderItem}
                   contentContainerStyle={styles.product2CC}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={() => onRefreshing('order')}
+                    />
+                  }
                 />
               </View>
             ) : null}
@@ -528,6 +565,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               style={styles.input}
               color={'black'}
               returnKeyType={'next'}
+              keyboardType={'numeric'}
               blurOnSubmit
             />
           }

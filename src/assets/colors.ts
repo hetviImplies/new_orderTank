@@ -16,7 +16,7 @@ const colors: any = {
   shadow: '#D0CFDF4D',
   placeholder: '#110E0C4D', 
   red:'#E4343C', 
-  red2:'#CB202D',
+  red2:'#ED1C17',
   green:'#23CF5F',
   blue: '#3071FF',
   blue2:'#006bf8',
