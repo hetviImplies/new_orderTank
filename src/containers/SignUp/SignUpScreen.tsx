@@ -53,7 +53,7 @@ const SignUpScreen = ({navigation}: any) => {
     checkValid &&
     (phoneNo.length === 0 || phoneNo.length < 10 || !validationNumber(phoneNo));
   const isValidPassword =
-    checkValid && (password.length === 0 || password.length < 8);
+    checkValid && (password.length === 0 || password.length < 6);
 
   const signInPress = () => {
     resetNavigateTo(navigation, RootScreens.Login);
@@ -61,13 +61,24 @@ const SignUpScreen = ({navigation}: any) => {
 
   const onSignUpPress = async () => {
     setCheckValid(true);
+    console.log(
+      'COND.....',
+      userName.length !== 0 ,
+        email.length !== 0 ,
+        validationEmail(email) ,
+        phoneNo.length !== 0 ,
+        validationNumber(phoneNo) ,
+        password.length !== 0 ,
+        password.length > 6,
+    );
     if (
       userName.length !== 0 &&
       email.length !== 0 &&
       validationEmail(email) &&
       phoneNo.length !== 0 &&
       validationNumber(phoneNo) &&
-      password.length !== 0
+      password.length !== 0 &&
+      password.length >= 6
       // && isCheck === true
     ) {
       const params: any = {
@@ -82,7 +93,7 @@ const SignUpScreen = ({navigation}: any) => {
         setIsOpen(true);
         // utils.showSuccessToast(data.message);
       } else {
-        utils.showErrorToast(error?.data?.message)
+        utils.showErrorToast(error?.data?.message);
         // Alert.alert('Error', data?.message || error);
       }
     }
@@ -317,7 +328,7 @@ const SignUpScreen = ({navigation}: any) => {
                   name="regular">
                   {checkValid && password.length === 0
                     ? `Password is required.`
-                    : 'Password must be at least 8 characters long.'}
+                    : 'Password must be at least 6 characters long.'}
                 </FontText>
               )}
             </View>

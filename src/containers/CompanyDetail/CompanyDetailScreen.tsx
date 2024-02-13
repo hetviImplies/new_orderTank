@@ -3,12 +3,13 @@ import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CompanyDetail, Popup} from '../../components';
-import {colors,SvgIcons} from '../../assets';
+import {colors, SvgIcons} from '../../assets';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {authReset} from '../../redux/slices/authSlice';
 import {wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import {mediumFont} from '../../styles';
+import {Platform} from 'react-native';
 
 const CompanyDetailScreen = ({navigation, route}: any) => {
   const from = route.params.from;
@@ -18,7 +19,11 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   React.useLayoutEffect(() => {
-    if (from !== 'Profile') {
+    if (from === 'Profile') {
+      navigation.setOptions({
+        gestureEnabled: true,
+      });
+    } else {
       navigation.setOptions({
         headerLeft: () => <></>,
         headerTitleAlign: 'left',

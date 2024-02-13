@@ -35,6 +35,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
   const [productListData, setProductListData] = useState([]);
+  const [publishedData, setPublishedData] = useState([]);
   const [cartItems, setCartItems] = useState<any>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       setSelectedItems([]);
+      setSearch('');
       refetch();
     }, [refetch]),
   );
@@ -103,6 +105,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
       (item: any) => item?.isPublished,
     );
     setProductListData(filterData);
+    setPublishedData(filterData);
   }, [isProcessing, selectedItems]);
 
   useEffect(() => {
@@ -122,13 +125,26 @@ const ProductListingScreen = ({navigation, route}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
-        setLoading(true);
-        const items = await getCartItems();
-        setCartItems(items);
-        setLoading(false);
+        if (publishedData?.length > 0) {
+          // setLoading(true);
+          const items = await getCartItems();
+          if (
+            items?.length > 0 &&
+            route?.params?.id == items[0]?.createdByCompany.id
+          ) {
+            let updatedCart = items.filter((item: any) =>
+              publishedData.find((itm: any) => itm.id === item.id),
+            );
+            await updateCartItems(updatedCart);
+            setCartItems(updatedCart);
+          } else {
+            setCartItems(items);
+          }
+          // setLoading(false);
+        }
       };
       fetchCartItems();
-    }, []),
+    }, [publishedData]),
   );
 
   const handleAddToCart = async (item: any) => {
@@ -243,7 +259,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </View>
         }
       /> */}
-      <Loader loading={isProcessing || loading || isFetching} />
+      <Loader loading={isProcessing || isFetching} />
       <View
         style={[
           commonStyle.paddingH4,

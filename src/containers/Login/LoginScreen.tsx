@@ -53,7 +53,7 @@ const LoginScreen = ({navigation}: any) => {
   const isValidEmail =
     checkValid && (email.length === 0 || !validationEmail(email));
   const isValidPassword =
-    checkValid && (password.length === 0 || password.length < 8);
+    checkValid && (password.length === 0 || password.length < 6);
 
   useEffect(() => {
     getToken();
@@ -77,7 +77,16 @@ const LoginScreen = ({navigation}: any) => {
 
   const onLoginPress = async () => {
     setCheckValid(true);
-    if (email.length !== 0 && validationEmail(email) && password.length !== 0) {
+    console.log(
+      'COND.....',
+      email.length !== 0 , validationEmail(email) ,password.length !== 0, password.length > 6,
+    );
+    if (
+      email.length !== 0 &&
+      validationEmail(email) &&
+      password.length !== 0 &&
+      password.length >= 6
+    ) {
       setCheckValid(false);
       const notificationToken: any = await AsyncStorage.getItem('NotiToken');
       console.log('Notification token', notificationToken);
@@ -92,7 +101,7 @@ const LoginScreen = ({navigation}: any) => {
         await dispatch(setCurrentUser(data?.result));
         await dispatch(setToken(data?.result?.token));
         await AsyncStorage.setItem('token', data?.result?.token);
-        utils.showSuccessToast(data.message);
+        // utils.showSuccessToast(data.message);
         if (!data?.result?.company || data?.result?.company === null) {
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
             from: 'Login',
@@ -293,7 +302,7 @@ const LoginScreen = ({navigation}: any) => {
                     name="regular">
                     {checkValid && password.length === 0
                       ? `Password is required.`
-                      : 'Password must be at least 8 characters long.'}
+                      : 'Password must be at least 6 characters long.'}
                   </FontText>
                 )}
               </View>

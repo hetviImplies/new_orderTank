@@ -59,12 +59,14 @@ const SupplierScreen = ({navigation}: any) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      setSearch('');
       refetch();
     }, [refetch]),
   );
 
   const onRefreshing = () => {
     setRefreshing(true);
+    setSearch('');
     refetch();
     setRefreshing(false);
   };

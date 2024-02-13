@@ -90,8 +90,8 @@ export default () => {
       <InAppNotificationProvider>
         <View style={{flex: 1}}>
           <StatusBar
-            backgroundColor={colors.black}
-            barStyle={'light-content'}
+            backgroundColor={colors.white}
+            barStyle={'dark-content'}
           />
           <NavigationContainer>
             <RootNavigator />

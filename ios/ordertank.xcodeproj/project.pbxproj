@@ -17,8 +17,8 @@
 		4E8CB8A6C0C04542BA369B2D /* Lexend-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E212A8CDFF142979E6C11B6 /* Lexend-Bold.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-ordertank-ordertankTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-ordertank-ordertankTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		88A52EFF2B47B7FF00B19606 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88A52EFE2B47B7FE00B19606 /* GoogleService-Info.plist */; };
-		88A52F002B47B7FF00B19606 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88A52EFE2B47B7FE00B19606 /* GoogleService-Info.plist */; };
+		88B220D62B7359DE0097C735 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88B220D52B7359DE0097C735 /* GoogleService-Info.plist */; };
+		88B220D72B7359DE0097C735 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88B220D52B7359DE0097C735 /* GoogleService-Info.plist */; };
 		913E93FDBCE8492192839B72 /* Lexend-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8CDA28FE12C24F089C779111 /* Lexend-Regular.ttf */; };
 		FEA28C523943461F876D5817 /* Lexend-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ECC82C0A25F4F499833B24A /* Lexend-ExtraBold.ttf */; };
 /* End PBXBuildFile section */
@@ -53,7 +53,7 @@
 		5E212A8CDFF142979E6C11B6 /* Lexend-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lexend-Bold.ttf"; path = "../src/assets/fonts/Lexend-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ordertank/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		889011742B428F640062FE75 /* ordertank.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ordertank.entitlements; path = ordertank/ordertank.entitlements; sourceTree = "<group>"; };
-		88A52EFE2B47B7FE00B19606 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../../../../Users/imac/Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		88B220D52B7359DE0097C735 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../../../../Users/imac/Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-ordertank-ordertankTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ordertank-ordertankTests.release.xcconfig"; path = "Target Support Files/Pods-ordertank-ordertankTests/Pods-ordertank-ordertankTests.release.xcconfig"; sourceTree = "<group>"; };
 		8CDA28FE12C24F089C779111 /* Lexend-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lexend-Regular.ttf"; path = "../src/assets/fonts/Lexend-Regular.ttf"; sourceTree = "<group>"; };
 		9ECC82C0A25F4F499833B24A /* Lexend-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lexend-ExtraBold.ttf"; path = "../src/assets/fonts/Lexend-ExtraBold.ttf"; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 		13B07FAE1A68108700A75B9A /* ordertank */ = {
 			isa = PBXGroup;
 			children = (
-				88A52EFE2B47B7FE00B19606 /* GoogleService-Info.plist */,
+				88B220D52B7359DE0097C735 /* GoogleService-Info.plist */,
 				889011742B428F640062FE75 /* ordertank.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -264,7 +264,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88A52F002B47B7FF00B19606 /* GoogleService-Info.plist in Resources */,
+				88B220D72B7359DE0097C735 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,7 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				88A52EFF2B47B7FF00B19606 /* GoogleService-Info.plist in Resources */,
+				88B220D62B7359DE0097C735 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				4E8CB8A6C0C04542BA369B2D /* Lexend-Bold.ttf in Resources */,
 				FEA28C523943461F876D5817 /* Lexend-ExtraBold.ttf in Resources */,
@@ -516,7 +516,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ordertank/ordertank.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = UMF7249LB9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ordertank/Info.plist;
@@ -545,7 +545,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ordertank/ordertank.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = UMF7249LB9;
 				INFOPLIST_FILE = ordertank/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

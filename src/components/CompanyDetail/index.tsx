@@ -30,31 +30,32 @@ const CompanyDetail = (props: any) => {
   const {loading, from, navigation, loginData} = props;
   const dispatch = useDispatch();
   const userInfo = useSelector((state: any) => state.auth.userInfo);
-  // const {
-  //   data: userData,
-  //   isFetching: isFetch,
-  //   refetch,
-  // } = useGetCurrentUserQuery(null, {
-  //   refetchOnMountOrArgChange: true,
-  // });
-
-  console.log('USER INFO', userInfo)
-
-  const {data, isFetching} = useGetCompanyQuery(loginData?.id === userInfo?.id ? undefined : userInfo?.company?.id, {
+  const {
+    data: userData,
+    isFetching: isFetch,
+    refetch,
+  } = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
+
+  const {data, isFetching} = useGetCompanyQuery(
+    loginData ? loginData?.company?.id : userData?.result?.company?.id,
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
   const [addCompany, {isLoading}] = useAddCompanyMutation();
   const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
 
   const validationGstNo = (val: any) => {
-    const result = gstNoRegx.test(val.trim());
+    const result = gstNoRegx.test(val?.trim());
     return result;
   };
 
   const validationPanNo = (val: any) => {
-    const result = panNoRegx.test(val.trim());
+    const result = panNoRegx.test(val?.trim());
     return result;
   };
 
@@ -93,7 +94,7 @@ const CompanyDetail = (props: any) => {
   const [selectedState, setSelectedState] = useState('');
 
   const validationNumber = (val: any) => {
-    const result = phoneRegx.test(val.trim());
+    const result = phoneRegx.test(val?.trim());
     return result;
   };
 
@@ -128,7 +129,7 @@ const CompanyDetail = (props: any) => {
         ? data?.result?.name
         : loginData?.name
         ? loginData?.name
-        : userInfo?.name,
+        : userData?.result?.name,
     );
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
@@ -137,7 +138,7 @@ const CompanyDetail = (props: any) => {
         ? data?.result?.phone
         : loginData?.phone
         ? loginData?.phone
-        : userInfo?.phone,
+        : userData?.result?.phone,
     );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result?.addressLine : '');
@@ -210,20 +211,20 @@ const CompanyDetail = (props: any) => {
   const submitPress = async () => {
     setCheckValid(true);
     if (
-      company.length !== 0 &&
+      company?.length !== 0 &&
       (numberType === 1
-        ? gstNo.length !== 0 && validationGstNo(gstNo)
-        : panNo.length !== 0 && validationPanNo(panNo)) &&
-      // addressName.length !== 0 &&
-      address.length !== 0 &&
-      locality.length !== 0 &&
-      city.length !== 0 &&
-      pinCode.length !== 0 &&
-      state.length !== 0 &&
-      phone.length !== 0 &&
+        ? gstNo?.length !== 0 && validationGstNo(gstNo)
+        : panNo?.length !== 0 && validationPanNo(panNo)) &&
+      // addressName?.length !== 0 &&
+      address?.length !== 0 &&
+      locality?.length !== 0 &&
+      city?.length !== 0 &&
+      pinCode?.length !== 0 &&
+      state?.length !== 0 &&
+      phone?.length !== 0 &&
       validationNumber(phone) &&
-      name.length !== 0
-      // && country.length !== 0
+      name?.length !== 0
+      // && country?.length !== 0
     ) {
       const formData = new FormData();
       // const addressObj = [
@@ -252,14 +253,25 @@ const CompanyDetail = (props: any) => {
         : formData.append('panNo', panNo);
       // formData.append('isGst', numberType === 1 ? true : false);
       // formData.append('isPan', numberType === 2 ? true : false);
-      imageUrl !== '' &&
-        (Object.keys(imageRes).length !== 0
-          ? formData.append('logo', {
-              uri: imageUrl,
-              type: `image/${imageUrl.split('.').pop()}`,
-              name: 'image',
-            })
-          : formData.append('logo', imageUrl));
+      // imageUrl !== '' &&
+      //   (Object.keys(imageRes).length !== 0
+      //     ? formData.append('logo', {
+      //         uri: imageUrl,
+      //         type: `image/${imageUrl.split('.').pop()}`,
+      //         name: 'image',
+      //       })
+      //     : formData.append('logo', imageUrl));
+      if (imageUrl !== '') {
+        if (Object.keys(imageRes).length !== 0) {
+          formData.append('logo', {
+            uri: imageUrl,
+            type: `image/${imageUrl.split('.').pop()}`,
+            name: 'image',
+          });
+        } else {
+          formData.append('logo', imageUrl);
+        }
+      }
       // addressObj.forEach((value: any, index: any) => {
       //   for (var key in value) {
       //     formData.append(`address[${[index]}][${key}]`, value[key]);
@@ -275,10 +287,12 @@ const CompanyDetail = (props: any) => {
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
+          setImageRes({});
         } else {
           utils.showErrorToast(
             data?.message ? data?.message : error?.data?.message,
           );
+          setImageRes({});
         }
         setBtnText('Edit Details');
         setEditInformation(false);
@@ -484,13 +498,13 @@ const CompanyDetail = (props: any) => {
                 name="regular">
                 {numberType === 1 ? (
                   <>
-                    {checkValid && gstNo.length === 0
+                    {checkValid && gstNo?.length === 0
                       ? `GST Number is required.`
                       : !validationGstNo(gstNo) && 'Invalid GST Number.'}
                   </>
                 ) : (
                   <>
-                    {checkValid && panNo.length === 0
+                    {checkValid && panNo?.length === 0
                       ? `PAN Number is required.`
                       : !validationPanNo(panNo) && 'Invalid PAN Number.'}
                   </>
@@ -606,7 +620,7 @@ const CompanyDetail = (props: any) => {
                   pTop={wp(1)}
                   textAlign="right"
                   name="regular">
-                  {checkValid && phone.length === 0
+                  {checkValid && phone?.length === 0
                     ? `Mobile Number is required.`
                     : 'Invalid Mobile Number.'}
                 </FontText>
@@ -851,7 +865,7 @@ const CompanyDetail = (props: any) => {
                   pTop={wp(1)}
                   textAlign="right"
                   name="regular">
-                  {checkValid && pinCode.length === 0
+                  {checkValid && pinCode?.length === 0
                     ? `Pin Code is required.`
                     : 'Invalid Pin Code.'}
                 </FontText>
