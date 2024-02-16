@@ -208,7 +208,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     const notificationToken = await AsyncStorage.getItem('NotiToken');
     const onMessageListener = messaging().onMessage(async remoteMessage => {
       console.log('home notitoken.......', notificationToken);
-      console.log('remoteMessage', remoteMessage)
+      console.log('remoteMessage', remoteMessage);
       showNotification({
         title: remoteMessage?.notification?.title,
         message: remoteMessage?.notification?.body,
@@ -399,7 +399,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
 
   const onRefreshing = (from: string) => {
     setRefreshing(true);
-    from === 'order' ? refetch() : reqRefetch();
+    refetch();
+    reqRefetch();
     setRefreshing(false);
   };
 

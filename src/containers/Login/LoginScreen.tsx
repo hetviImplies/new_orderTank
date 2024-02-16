@@ -60,10 +60,11 @@ const LoginScreen = ({navigation}: any) => {
   }, []);
 
   const getToken = async () => {
-    const notificationToken = await AsyncStorage.getItem('NotiToken');
-    if (!notificationToken) {
-      requestPermission();
-    }
+    // const notificationToken = await AsyncStorage.getItem('NotiToken');
+    // console.log('NOTIFICATION TOKEN', notificationToken);
+    // if (!notificationToken) {
+     await requestPermission();
+    // }
     const token: any = await AsyncStorage.getItem('token');
     if (token && token.trim() !== '') {
       dispatch(setIsAuthenticated(true));
@@ -77,10 +78,6 @@ const LoginScreen = ({navigation}: any) => {
 
   const onLoginPress = async () => {
     setCheckValid(true);
-    console.log(
-      'COND.....',
-      email.length !== 0 , validationEmail(email) ,password.length !== 0, password.length > 6,
-    );
     if (
       email.length !== 0 &&
       validationEmail(email) &&

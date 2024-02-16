@@ -10,6 +10,7 @@ import {PROFILE_LIST} from '../../helper/data';
 import {RootScreens} from '../../types/type';
 import {authReset} from '../../redux/slices/authSlice';
 import {resetNavigateTo} from '../../helper/navigationHelper';
+import { removeToken } from '../../helper/PushNotification';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -79,6 +80,7 @@ const ProfileScreen = ({navigation}: any) => {
     const keysToRemove = ['token', 'MyCart', 'MyAddressList', 'NotiToken'];
     await AsyncStorage.multiRemove(keysToRemove);
     setLoading(false);
+    await removeToken();
     resetNavigateTo(navigation, RootScreens.Login);
   };
 
