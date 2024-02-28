@@ -1,5 +1,6 @@
 import {
   Alert,
+  BackHandler,
   FlatList,
   Image,
   Platform,
@@ -34,6 +35,7 @@ import {RootScreens} from '../../types/type';
 import {
   useAddOrderMutation,
   useDeleteOrderMutation,
+  useUpdateOrderMutation,
   useUpdateOrderStatusMutation,
 } from '../../api/order';
 import utils from '../../helper/utils';
@@ -41,18 +43,22 @@ import {
   calculateTotalPrice,
   getAddressList,
   getCartItems,
+  updateAddressList,
   updateCartItems,
 } from '../Cart/Carthelper';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
+  const [updateOrder, {isLoading: isProcessing}] = useUpdateOrderMutation();
   const [cancleOrder, {isLoading: isFetching}] = useDeleteOrderMutation();
   const deliveryAdd = route.params.deliveryAdd;
   const billingAdd = route.params.billingAdd;
   const from = route.params.from;
+  const nav = route.params.nav;
   const orderDetails = route.params.orderDetails;
   const note = route?.params?.notes;
   const expectedDate = route?.params?.expectedDate;
+  const cartType = route?.params?.cartType;
   const [notes, setNotes] = useState(note ? note : '');
   const [date, setDate] = useState(expectedDate ? expectedDate : new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -65,7 +71,15 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [cartData, setCartData] = useState<any>([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const product = isOrder ? orderDetails?.orderDetails : cartData;
+  const [isClick, setIsClick] = useState(false);
+  const product = isOrder
+    ? orderDetails?.orderDetails?.map((item: any) => {
+        return {
+          ...item,
+          company: {...orderDetails?.company},
+        };
+      })
+    : cartData;
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -75,7 +89,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             // commonStyle.iconView,
             {marginLeft: wp(1)},
           ]}
-          onPress={() => navigation.goBack()}>
+          onPress={onBackPress}>
           {Platform.OS === 'android' ? (
             <SvgIcons.AndroidBack
               width={wp(6)}
@@ -93,39 +107,133 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, [navigation, cartType, isOrder, nav]);
 
-  // useEffect(() => {
-  //   setDeliAdd(addressData?.find((d: any) => d?.deliveryAdd === true));
-  //   setBillAdd(addressData?.find((d: any) => d?.billingAdd === true));
-  // }, [addressData]);
+  const onBackPress = () => {
+    if (!isOrder && cartType === 'updateOrder') {
+      navigation.navigate(RootScreens.SecureCheckout, {
+        from: RootScreens.Order,
+        deliveryAdd: orderDetails?.deliveryAddress,
+        billingAdd: orderDetails?.billingAddress,
+        orderDetails: orderDetails,
+        notes: orderDetails?.notes,
+        name: 'Order Details',
+        expectedDate: orderDetails?.approxDeliveryDate,
+        nav: nav,
+      });
+    } else {
+      if (nav === 'Home') {
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: RootScreens.DashBoard,
+              state: {
+                index: 0,
+                routes: [
+                  {
+                    name: RootScreens.Home,
+                  },
+                ],
+              },
+            },
+          ],
+        });
+      } else if (nav === 'Order') {
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: RootScreens.DashBoard,
+              state: {
+                index: 0,
+                routes: [
+                  {
+                    name: RootScreens.Order,
+                  },
+                ],
+              },
+            },
+          ],
+        });
+      } else {
+        navigation.goBack();
+      }
+    }
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, [cartType, isOrder, nav]);
+
+  const backAction = () => {
+    onBackPress();
+    return true;
+  };
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      const items = await getCartItems();
+      let items: any;
+      if (cartType && cartType === 'updateOrder') {
+        items = await getCartItems('updateOrder');
+      } else {
+        items = await getCartItems();
+      }
       // const companyNames = items.map(
       //   (item: any) => item.companyData[0].companyName,
       // );
-      const firstCompanyName = items[0]?.createdByCompany?.companyName;
+      const firstCompanyName = items[0]?.company?.companyName;
       setCompanyName(firstCompanyName);
       setCartData(items);
-      const price = await calculateTotalPrice();
+      const price = await calculateTotalPrice(cartType);
       setTotalPrice(price);
     };
     fetchCartItems();
-  }, []);
+  }, [navigation, cartType]);
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchAddressItems = async () => {
-        const items = await getAddressList();
-        setDeliAdd(items?.find((d: any) => d?.deliveryAdd === true));
-        setBillAdd(items?.find((d: any) => d?.billingAdd === true));
+      const fetchAddressItems = async (cartType?: any) => {
+        let items: any;
+        if (cartType === 'updateOrder') {
+          items = await getAddressList('updateAddress');
+          if (items?.length === 0) {
+            items = await getAddressList();
+
+            const itms = items.map((obj: any) => {
+              if (obj.id === deliveryAdd.id) {
+                obj.deliveryAdd = true;
+              } else {
+                obj.deliveryAdd = false;
+              }
+              if (obj.id === billingAdd.id) {
+                obj.billingAdd = true;
+              } else {
+                obj.billingAdd = false;
+              }
+              return obj;
+            });
+
+            await updateAddressList(items, 'updateAddress');
+          }
+
+          setDeliAdd(items?.find((d: any) => d?.deliveryAdd === true));
+          setBillAdd(items?.find((d: any) => d?.billingAdd === true));
+        } else {
+          items = await getAddressList();
+
+          setDeliAdd(items?.find((d: any) => d?.deliveryAdd === true));
+          setBillAdd(items?.find((d: any) => d?.billingAdd === true));
+        }
         setAddressData(items);
       };
-      fetchAddressItems();
-    }, [navigation]),
+      fetchAddressItems(cartType);
+    }, [navigation, cartType]),
   );
+
   const onChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
     setShow(Platform.OS === 'ios');
@@ -142,11 +250,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       <>
         <View style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
-            {item?.image || item?.product?.image ? (
-              <Image
-                source={{uri: isOrder ? item?.product?.image : item?.image}}
-                style={styles.logo}
-              />
+            {item?.product?.image ? (
+              <Image source={{uri: item?.product?.image}} style={styles.logo} />
             ) : (
               <Image source={Images.productImg} style={styles.logo} />
             )}
@@ -156,7 +261,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 size={mediumFont}
                 color={'gray4'}
                 textAlign={'left'}>
-                {isOrder ? item?.product?.productName : item?.productName}
+                {item?.product?.productName}
               </FontText>
               <FontText
                 name={'lexend-regular'}
@@ -166,10 +271,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 textAlign={'left'}>
                 {'₹'}
                 {item?.price}
-                {isOrder
-                  ? item?.product?.unit && `${'/'}${item?.product?.unit}`
-                  : item?.unit && `${'/'}${item?.unit}`}{' '}
-                ({item?.quantity} qty)
+                {item?.product?.unit && `${'/'}${item?.product?.unit}`} (
+                {item?.quantity} qty)
               </FontText>
             </View>
             <View style={{width: '20%'}}>
@@ -179,7 +282,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 textAlign={'right'}
                 color={'orange'}>
                 {'₹'}
-                {item?.price * item?.quantity}
+                {(item?.price * item?.quantity).toFixed(2)}
               </FontText>
             </View>
           </View>
@@ -205,7 +308,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           }
           isEdit={isOrder ? false : true}
           onEditPress={() => {
-            let params = {
+            let params: any = {
               from: RootScreens.SecureCheckout,
               type: index === 0 ? 'Delivery address' : 'Billing address',
               deliveryAdd: delivery,
@@ -213,9 +316,13 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               cartData: cartData,
               notes: notes,
               expectedDate: date,
+              orderDetails: orderDetails,
             };
             navigation.navigate(RootScreens.Address, {
-              data: params,
+              data:
+                cartType === undefined
+                  ? params
+                  : {...params, addressType: 'updateAddress'},
               onGoBack: (param: any) => {
                 setDeliAdd(param?.deliveryAdd);
                 setBillAdd(param?.billingAdd);
@@ -309,32 +416,71 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       let ids;
       body = cartData?.map((item: any, index: any) => {
         return {
-          product: item?.id,
+          product: item?.product?.id,
           quantity: item?.quantity,
         };
       });
-      ids = cartData?.find((item: any, index: any) => item?.createdByCompany);
+      ids = cartData?.find((item: any, index: any) => item?.company);
       let params = {
         orderDetails: body,
         notes: notes,
         approxDeliveryDate: date,
         deliveryAddress: deliAdd?.id,
         billingAddress: billAdd?.id,
-        company: ids.createdByCompany.id,
+        company: ids.company.id,
         // isBuyer: true,
       };
       billAdd === undefined && delete params.billingAddress;
-      const {data: order, error}: any = await createOrder(params);
-      if (!error && order?.statusCode === 201) {
-        await updateCartItems([]);
-        let updatedCartItems = await getCartItems();
-        if (updatedCartItems?.length == 0) {
-          navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
+      if (cartType === 'updateOrder') {
+        let body = {
+          data: params,
+          id: orderDetails.id,
+        };
+        const {data: order, error}: any = await updateOrder(body);
+        if (!error && order?.statusCode === 200) {
+          await updateCartItems([], 'updateOrder');
+          let updatedCartItems = await getCartItems('updateOrder');
+          utils.showSuccessToast(order?.message);
+          setIsClick(false);
+          if (updatedCartItems?.length == 0) {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: RootScreens.DashBoard,
+                  state: {
+                    index: 0,
+                    routes: [
+                      {
+                        name: RootScreens.Order,
+                      },
+                    ],
+                  },
+                },
+              ],
+            });
+          }
+        } else {
+          setIsClick(false);
+          utils.showErrorToast(
+            order?.message ? order?.message : error?.data?.message,
+          );
         }
       } else {
-        utils.showErrorToast(
-          order?.message ? order?.message : error?.data?.message,
-        );
+        const {data: order, error}: any = await createOrder(params);
+        if (!error && order?.statusCode === 201) {
+          await updateCartItems([]);
+          let updatedCartItems = await getCartItems();
+          if (updatedCartItems?.length == 0) {
+            setIsClick(false);
+            navigation.navigate(RootScreens.OrderPlaced, {data: order?.result});
+          }
+        } else {
+          setIsClick(false);
+          utils.showErrorToast(
+            order?.message ? order?.message : error?.data?.message,
+          );
+        }
       }
     }
   };
@@ -350,6 +496,30 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         data?.message ? data?.message : error?.data?.message,
       );
     }
+  };
+
+  const onEditPress = async () => {
+    const orderData = await product.map((item: any) => {
+      item.id = Number(item.product.id);
+      return item;
+    });
+    await updateCartItems(orderData, 'updateOrder');
+    await updateAddressList([], 'updateAddress');
+    navigation.navigate(RootScreens.SecureCheckout, {
+      from: RootScreens.Cart,
+      name: 'Update Order',
+      expectedDate: date,
+      notes: notes,
+      cartType: 'updateOrder',
+      deliveryAdd: deliveryAdd,
+      billingAdd: billingAdd,
+      orderDetails: orderDetails,
+      nav: nav,
+      onGoBackCart: (paramCart: any) => {
+        setNotes(paramCart?.notes);
+        setDate(paramCart?.expectedDate);
+      },
+    });
   };
 
   return (
@@ -378,7 +548,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           </View>
         }
       /> */}
-      <Loader loading={isLoading || isFetching} />
+      <Loader loading={isLoading || isFetching || isProcessing} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -466,17 +636,25 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <TouchableOpacity
               style={styles.editBtn}
               onPress={() => {
-                // navigation.navigate(RootScreens.Cart);
-                let params = {
+                let params: any = {
                   from: RootScreens.SecureCheckout,
                   deliveryAdd: deliAdd,
                   billingAdd: billAdd,
                   cartData: cartData,
                   notes: notes,
                   expectedDate: date,
+                  cartType: 'updateOrder',
+                  orderDetails: orderDetails,
+                  nav: nav,
                 };
-                navigation.goBack();
-                route.params.onGoBackCart(params);
+                if (cartType === 'updateOrder') {
+                  navigation.navigate(RootScreens.Cart, params);
+                } else {
+                  delete params.orderDetails;
+                  delete params.cartType;
+                  navigation.goBack();
+                  route.params.onGoBackCart(params);
+                }
               }}>
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
@@ -521,7 +699,10 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           </View>
         )}
         <View style={styles.addressContainer}>
-          <IconHeader label={'Expected date:'} icon={<SvgIcons.Calender />} />
+          <IconHeader
+            label={'Scheduled Delivery Date:'}
+            icon={<SvgIcons.Calender />}
+          />
           {isOrder ? (
             <View
               style={{
@@ -543,7 +724,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </View>
           ) : (
             <Button
-              onPress={showDatepicker}
+              onPress={() => showDatepicker()}
               bgColor={'white2'}
               style={[styles.quantityBtn, {alignSelf: 'center'}]}>
               <FontText
@@ -565,16 +746,27 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         </View>
       </ScrollView>
       <CartCountModule
-        btnText={isOrder ? 'Cancel Order' : 'Place Order'}
-        btnColor={isOrder ? 'red' : 'orange'}
+        btnText={cartType === 'updateOrder' ? 'Update Order' : 'Place Order'}
+        btnText1={'Edit Order'}
+        btnText2={'Cancel Order'}
+        btnColor={'orange'}
+        btnColor1={'orange'}
+        btnColor2={'red'}
         cartData={product}
         orderDetails={orderDetails}
-        isShow={isOrder ? orderDetails?.status === 'pending' : true}
+        isShow={isOrder ? false : true}
+        isShowButtons={isOrder ? orderDetails?.status === 'pending' : false}
         onPress={() => {
-          isOrder ? setIsOpen(true) : placeOrderPress();
+          setIsClick(true);
+          placeOrderPress();
         }}
+        onBtn1Press={onEditPress}
+        onBtn2Press={() => setIsOpen(true)}
+        clickDisable={isClick}
         total={
-          isOrder ? orderDetails?.totalAmount.toFixed(2) : totalPrice.toFixed(2)
+          isOrder
+            ? Number(orderDetails?.totalAmount).toFixed(2)
+            : totalPrice.toFixed(2)
         }
         showText={
           <View>
@@ -665,7 +857,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </View>
           )}
           <DateTimePicker
-            value={date}
+            value={new Date(date)}
             mode="date"
             is24Hour={true}
             minimumDate={new Date()}
@@ -723,6 +915,10 @@ const styles = StyleSheet.create({
   editBtn: {
     alignSelf: 'flex-end',
     marginBottom: hp(-1),
+    paddingTop: hp(0.5),
+    paddingLeft: wp(5),
+    paddingBottom: hp(0.5),
+    paddingRight: wp(0.5),
   },
   datePickerStyle: {
     position: 'absolute',

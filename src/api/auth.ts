@@ -74,6 +74,13 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['CurrentUser'],
     }),
+    logout: builder.mutation({
+      query: () => ({
+        url: 'logout',
+        method: 'POST',
+      }),
+      invalidatesTags: ['CurrentUser'],
+    }),
   }),
 });
 
@@ -85,4 +92,5 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useResendEmailMutation,
+  useLogoutMutation
 } = authApi;

@@ -60,19 +60,21 @@ const ProductItem = ({
   productAddToCartPress,
 }: any) => {
   const isItemInCart =
-    cartItems?.filter((itm: any) => itm.id.toString() === item.id.toString())
-      .length > 0;
+    cartItems?.filter(
+      (itm: any) => itm?.product?.id.toString() === item.id.toString(),
+    ).length > 0;
+
   return (
-    <TouchableOpacity
-      onPress={() => productPress(item)}
+    <View
       style={[
         isHorizontal ? styles.itemContainer : styles.itemVerticalContainer,
         commonStyle.shadowContainer,
       ]}>
-      <View
+      <TouchableOpacity
+        onPress={() => productPress(item)}
         style={[
           isHorizontal ? null : commonStyle.rowAC,
-          {width: isHorizontal ? null : '70%'},
+          {width: isHorizontal ? '100%' : '70%', alignItems: 'center'},
         ]}>
         {item?.image ? (
           <Image source={{uri: item.image}} style={styles.productImg} />
@@ -103,7 +105,7 @@ const ProductItem = ({
             {item?.unit && `${'/'}${item?.unit}`}
           </FontText>
         </View>
-      </View>
+      </TouchableOpacity>
       {isItemInCart ? (
         <View
           style={[
@@ -121,9 +123,11 @@ const ProductItem = ({
             name="lexend-medium"
             size={mediumFont}
             textAlign={'left'}>
+            {/* {item?.minOrderQuantity} */}
             {
               cartItems?.find(
-                (itm: any) => itm.id.toString() === item.id.toString(),
+                (itm: any) =>
+                  itm?.product?.id.toString() === item.id.toString(),
               )?.quantity
             }
           </FontText>
@@ -146,7 +150,7 @@ const ProductItem = ({
           </FontText>
         </Button>
       )}
-    </TouchableOpacity>
+    </View>
   );
 };
 

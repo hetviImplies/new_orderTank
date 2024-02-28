@@ -1,4 +1,5 @@
 import {
+  BackHandler,
   FlatList,
   Image,
   StyleSheet,
@@ -33,44 +34,123 @@ const CartScreen = ({navigation, route}: any) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [selectedItem, setSelectedItem] = useState<any>({});
   const [isOpen, setIsOpen] = useState(false);
-  const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [notes, setNotes] = useState(
+    route?.params?.notes ? route?.params?.notes : '',
+  );
+  const [date, setDate] = useState(
+    route?.params?.expectedDate ? route?.params?.expectedDate : new Date(),
+  );
+  const cartType = route?.params?.cartType;
+  const orderDetails = route?.params?.orderDetails;
+  const deliveryAdd = route?.params?.deliveryAdd;
+  const billingAdd = route?.params?.billingAdd;
+  const nav = route?.params?.nav;
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, []);
+
+  const backAction = () => {
+    navigation.goBack();
+    return true;
+  };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={[commonStyle.rowAC, {marginRight: wp(3)}]}>
+          {cartType === 'updateOrder' ? (
+            <TouchableOpacity
+              style={[{marginRight: wp(1)}]}
+              onPress={() =>
+                navigation.navigate(RootScreens.ProductListing, {
+                  id: orderDetails?.company?.id,
+                  company: orderDetails?.company?.companyName,
+                  cartType: cartType,
+                  deliveryAdd: deliveryAdd,
+                  billingAdd: billingAdd,
+                  orderDetails: orderDetails,
+                  notes: notes,
+                  expectedDate: date,
+                  nav: nav
+                })
+              }>
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'black2'}
+                textAlign={'left'}>
+                {'ADD'}
+              </FontText>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      const items = await getCartItems();
+      let items: any;
+      if (cartType && cartType === 'updateOrder') {
+        items = await getCartItems('updateOrder');
+      } else {
+        items = await getCartItems();
+      }
+      // const items = await getCartItems();
       setCartData(items);
-      const price = await calculateTotalPrice();
+      const price = await calculateTotalPrice(cartType);
       setTotalPrice(price);
     };
     fetchCartItems();
   }, [cartData]);
 
   const placeOrderPress = () => {
-    navigation.navigate(RootScreens.SecureCheckout, {
-      from: RootScreens.Cart,
-      name: 'Place Order',
-      expectedDate: date,
-      notes: notes,
-      onGoBackCart: (paramCart: any) => {
-        setNotes(paramCart?.notes);
-        setDate(paramCart?.expectedDate);
-      },
-    });
+    if (cartType === 'updateOrder') {
+      navigation.navigate(RootScreens.SecureCheckout, {
+        from: RootScreens.Cart,
+        name: 'Update Order',
+        expectedDate: date,
+        notes: notes,
+        cartType: 'updateOrder',
+        deliveryAdd: deliveryAdd,
+        billingAdd: billingAdd,
+        orderDetails: orderDetails,
+        nav: nav,
+        onGoBackCart: (paramCart: any) => {
+          setNotes(paramCart?.notes);
+          setDate(paramCart?.expectedDate);
+        },
+      });
+    } else {
+      navigation.navigate(RootScreens.SecureCheckout, {
+        from: RootScreens.Cart,
+        name: 'Place Order',
+        expectedDate: date,
+        notes: notes,
+        onGoBackCart: (paramCart: any) => {
+          setNotes(paramCart?.notes);
+          setDate(paramCart?.expectedDate);
+        },
+      });
+    }
   };
 
   const handleIncrement = async (cartId: any) => {
-    const data = await incrementCartItem(cartId);
+    const data = await incrementCartItem(cartId, cartType);
     setCartData(data);
   };
 
   const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId, 'Cart');
+    const data = await decrementCartItem(cartId, 'Cart', cartType);
     setCartData(data);
   };
 
   const handleRemoveItem = async (cartId: any) => {
-    const data = await removeCartItem(cartId);
+    const data = await removeCartItem(cartId, cartType);
     setCartData(data);
     setIsOpen(false);
   };
@@ -79,8 +159,8 @@ const CartScreen = ({navigation, route}: any) => {
     return (
       <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={[commonStyle.rowAC, commonStyle.flex]}>
-          {item?.image ? (
-            <Image source={{uri: item.image}} style={styles.logo} />
+          {item?.product?.image ? (
+            <Image source={{uri: item?.product?.image}} style={styles.logo} />
           ) : (
             <Image source={Images.productImg} style={styles.logo} />
           )}
@@ -91,7 +171,7 @@ const CartScreen = ({navigation, route}: any) => {
               color={'gray4'}
               // pTop={wp(2)}
               textAlign={'left'}>
-              {item?.productName}
+              {item?.product?.productName}
             </FontText>
             <FontText
               name={'lexend-regular'}
@@ -101,13 +181,17 @@ const CartScreen = ({navigation, route}: any) => {
               textAlign={'left'}>
               {'₹'}
               {item?.price}
-              {item?.unit && `${'/'}${item?.unit}`}
+              {item?.product?.unit && `${'/'}${item?.product?.unit}`}
             </FontText>
           </View>
         </View>
         <View>
           <TouchableOpacity
-            style={{alignItems: 'flex-end'}}
+            style={{
+              alignSelf: 'flex-end',
+              paddingTop: hp(1),
+              paddingLeft: wp(5),
+            }}
             onPress={() => {
               setIsOpen(true);
               setSelectedItem(item.id);

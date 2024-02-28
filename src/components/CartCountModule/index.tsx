@@ -6,7 +6,23 @@ import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {colors} from '../../assets';
 
 const CartCountModule = (props: any) => {
-  const {cartData, onPress, btnText, btnColor, isShow, showText, total} = props;
+  const {
+    cartData,
+    onPress,
+    btnText,
+    btnColor,
+    isShow,
+    showText,
+    total,
+    isShowButtons,
+    btnText1,
+    btnText2,
+    btnColor1,
+    btnColor2,
+    onBtn1Press,
+    onBtn2Press,
+    clickDisable
+  } = props;
   return (
     <View>
       {cartData && cartData?.length !== 0 && (
@@ -67,11 +83,41 @@ const CartCountModule = (props: any) => {
               </FontText>
             </View>
             {showText}
+            {isShowButtons ? (
+              <View style={styles.rowConatiner}>
+                <Button
+                  onPress={onBtn1Press}
+                  bgColor={btnColor1}
+                  style={[styles.buttonContainer]}>
+                  <FontText
+                    name={'lexend-medium'}
+                    size={fontSize}
+                    color={'white'}>
+                    {btnText1}
+                  </FontText>
+                </Button>
+                <Button
+                  onPress={onBtn2Press}
+                  bgColor={btnColor2}
+                  style={[styles.buttonContainer]}>
+                  <FontText
+                    name={'lexend-medium'}
+                    size={fontSize}
+                    color={'white'}>
+                    {btnText2}
+                  </FontText>
+                </Button>
+              </View>
+            ) : null}
             {isShow ? (
               <Button
                 onPress={onPress}
                 bgColor={btnColor}
-                style={[styles.buttonContainer]}>
+                disabled={clickDisable}
+                style={[
+                  styles.buttonContainer,
+                  {width: '54%', marginVertical:hp(3)},
+                ]}>
                 <FontText
                   name={'lexend-medium'}
                   size={fontSize}
@@ -101,8 +147,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: normalize(6),
-    marginVertical: hp(3),
-    width: '88%',
+    width: '45%',
     alignSelf: 'center',
+  },
+  rowConatiner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: hp(4),
+    marginVertical: hp(3),
   },
 });

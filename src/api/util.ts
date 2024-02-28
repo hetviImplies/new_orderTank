@@ -22,14 +22,14 @@ export const prepareHeaders = async (headers: any, {getState}: any) => {
   // const token = getState().auth.token || await AsyncStorage.getItem('token');
   // if (token) headers.set('token', `${token}`);
   headers.set('platform-type', 'mobile');
-  if (getState().auth.token || (await AsyncStorage.getItem('token'))) {
-    headers.set(
-      'Authorization',
-      `Bearer ${
-        getState().auth.token || (await AsyncStorage.getItem('token'))
-      }`,
-    );
-  }
+  // if (getState().auth.token || (await AsyncStorage.getItem('token'))) {
+  //   headers.set(
+  //     'Authorization',
+  //     `Bearer ${
+  //       getState().auth.token || (await AsyncStorage.getItem('token'))
+  //     }`,
+  //   );
+  // }
   return headers;
 };
 // (args: FetchBaseQueryArgs) => BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =

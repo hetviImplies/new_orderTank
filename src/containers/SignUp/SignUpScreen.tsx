@@ -61,16 +61,6 @@ const SignUpScreen = ({navigation}: any) => {
 
   const onSignUpPress = async () => {
     setCheckValid(true);
-    console.log(
-      'COND.....',
-      userName.length !== 0 ,
-        email.length !== 0 ,
-        validationEmail(email) ,
-        phoneNo.length !== 0 ,
-        validationNumber(phoneNo) ,
-        password.length !== 0 ,
-        password.length > 6,
-    );
     if (
       userName.length !== 0 &&
       email.length !== 0 &&

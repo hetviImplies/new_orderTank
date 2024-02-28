@@ -248,6 +248,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       orderDetails: item,
       notes: item?.notes,
       name: 'Order Details',
+      expectedDate: item?.approxDeliveryDate,
+      nav: 'Home',
     });
   };
 
@@ -294,7 +296,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
               textAlign={'right'}
               name={'lexend-medium'}>
               {'₹'}
-              {item?.totalAmount?.toFixed(2)}
+              {Number(item?.totalAmount).toFixed(2)}
             </FontText>
           </View>
         </View>

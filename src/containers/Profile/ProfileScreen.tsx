@@ -11,11 +11,14 @@ import {RootScreens} from '../../types/type';
 import {authReset} from '../../redux/slices/authSlice';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import { removeToken } from '../../helper/PushNotification';
+import { useLogoutMutation } from '../../api/auth';
+import utils from '../../helper/utils';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [logout, {isLoading}] = useLogoutMutation();
 
   const onItemPress = (index: any) => {
     switch (index) {
@@ -74,14 +77,19 @@ const ProfileScreen = ({navigation}: any) => {
 
   const logoutPress = async () => {
     setIsOpen(false);
-    setLoading(true);
-    await dispatch(authReset());
-    await AsyncStorage.clear();
-    const keysToRemove = ['token', 'MyCart', 'MyAddressList', 'NotiToken'];
-    await AsyncStorage.multiRemove(keysToRemove);
-    setLoading(false);
-    await removeToken();
-    resetNavigateTo(navigation, RootScreens.Login);
+    const {data, error}: any = await logout();
+    if(!error && data.statusCode === 200) {
+      setLoading(true);
+      await dispatch(authReset());
+      await AsyncStorage.clear();
+      const keysToRemove = ['token', 'MyCart', 'MyAddressList', 'NotiToken'];
+      await AsyncStorage.multiRemove(keysToRemove);
+      await removeToken();
+      setLoading(false);
+      resetNavigateTo(navigation, RootScreens.Login);
+    } else {
+      utils.showErrorToast(error.data.message);
+    }
   };
 
   return (
@@ -102,7 +110,7 @@ const ProfileScreen = ({navigation}: any) => {
           </FontText>
         }
       /> */}
-      <Loader loading={loading} />
+      <Loader loading={loading || isLoading} />
       <View style={[commonStyle.paddingH4, {marginTop: hp(1)}]}>
         <FlatList
           data={PROFILE_LIST}

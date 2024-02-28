@@ -39,6 +39,8 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const type = route?.params?.data?.type;
   const notes = route?.params?.data?.notes;
   const date = route?.params?.data?.expectedDate;
+  const orderDetails = route?.params?.data?.orderDetails;
+  const addressType = route?.params?.data?.addressType;
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
     refetchOnMountOrArgChange: true,
@@ -114,7 +116,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
   );
 
   const fetchAddressItems = async () => {
-    const items = await getAddressList();
+    const items = await getAddressList(addressType);
     setAddressData(items);
   };
 
@@ -157,7 +159,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
       ) {
         navigation.goBack();
       } else {
-        await updateAddressList(updateAdd);
+        await updateAddressList(updateAdd, addressType);
         let params = {
           // deliveryAdd: type === 'Delivery address' ? checkedData : deliveryAdd,
           // billingAdd: type === 'Billing address' ? checkedData : billingAdd,
@@ -166,6 +168,8 @@ const AddressScreen = ({navigation, route, props}: any) => {
           name: 'Place Order',
           notes: notes,
           expectedDate: date,
+          orderDetails: orderDetails,
+          addressType: addressType,
         };
         navigation.goBack();
         route.params.onGoBack(params);
@@ -188,10 +192,10 @@ const AddressScreen = ({navigation, route, props}: any) => {
       const updateAddress = data?.result?.addresses?.filter(
         (item: any) => item?.isDeleted === false,
       );
-      const mergedArray = await mergeArrays(updateAddress);
-      await updateAddressList(mergedArray);
+      const mergedArray = await mergeArrays(updateAddress, addressType);
+      await updateAddressList(mergedArray, addressType);
       utils.showSuccessToast(data.message);
-      const items = await getAddressList();
+      const items = await getAddressList(addressType);
       setAddressData(mergedArray);
     } else {
       utils.showErrorToast(
@@ -276,6 +280,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
                 navigation.navigate(RootScreens.AddAddress, {
                   address: data?.result?.address,
                   name: 'Add Address',
+                  addressType: addressType
                 });
               }}
               bgColor={'orange'}

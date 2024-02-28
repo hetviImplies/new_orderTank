@@ -76,6 +76,7 @@ const OrderScreen = ({navigation, route}: any) => {
       orderDetails: item,
       notes: item?.notes,
       name: 'Order Details',
+      nav: 'Order'
     });
   };
 
@@ -122,7 +123,7 @@ const OrderScreen = ({navigation, route}: any) => {
               textAlign={'right'}
               name={'lexend-medium'}>
               {'₹'}
-              {item?.totalAmount.toFixed(2)}
+              {Number(item?.totalAmount).toFixed(2)}
             </FontText>
           </View>
         </View>

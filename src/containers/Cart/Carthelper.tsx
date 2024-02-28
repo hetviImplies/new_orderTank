@@ -1,12 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import utils from '../../helper/utils';
 
 const CART_KEY = 'MyCart';
 const ADDRESS_KEY = 'MyAddressList';
 
 // Function to retrieve cart items from AsyncStorage
-const getCartItems = async () => {
+const getCartItems = async (cartKey?: any) => {
   try {
-    const cartItems = await AsyncStorage.getItem(CART_KEY);
+    const cartItems = await AsyncStorage.getItem(cartKey ? cartKey : CART_KEY);
     return cartItems ? JSON.parse(cartItems) : [];
   } catch (error) {
     console.log('Error getting cart items:', error);
@@ -15,116 +16,148 @@ const getCartItems = async () => {
 };
 
 // Function to update cart items in AsyncStorage
-const updateCartItems = async (cartItems: any) => {
+const updateCartItems = async (cartItems: any, cartKey?: any) => {
   try {
-    await AsyncStorage.setItem(CART_KEY, JSON.stringify(cartItems));
+    await AsyncStorage.setItem(
+      cartKey ? cartKey : CART_KEY,
+      JSON.stringify(cartItems),
+    );
   } catch (error) {
     console.log('Error updating cart items:', error);
   }
 };
 
 // Function to add an item to the cart in AsyncStorage
-const addToCart = async (item: any) => {
+const addToCart = async (item: any, cartKey?: any) => {
   try {
-    let updatedCartItems = await getCartItems();
-
+    let updatedCartItems = await getCartItems(cartKey);
     // Check if the item already exists in the cart
     const existingItemIndex = updatedCartItems.findIndex(
       (cartItem: any) => cartItem.id === item.id,
     );
 
     if (existingItemIndex !== -1) {
-      // If the item exists, increment its quantity
-      updatedCartItems[existingItemIndex].quantity += 1;
+      const newItemQuantity = updatedCartItems[existingItemIndex].quantity + 1;
+      if (
+        updatedCartItems[existingItemIndex].product.maxOrderQuantity === 0 ||
+        newItemQuantity <=
+          updatedCartItems[existingItemIndex].product.maxOrderQuantity
+      ) {
+        updatedCartItems[existingItemIndex].quantity = newItemQuantity;
+      } else {
+        console.log('Max quantity reached for item:', item.id);
+      }
     } else {
-      // If the item is not in the cart, add it with a quantity of 1
-      updatedCartItems.push({...item, quantity: 1});
+      const initialQuantity =
+        item.product.minOrderQuantity > 1 ? item.product.minOrderQuantity : 1;
+      updatedCartItems.push({...item, quantity: initialQuantity});
     }
 
-    await updateCartItems(updatedCartItems);
+    await updateCartItems(updatedCartItems, cartKey);
     return updatedCartItems;
   } catch (error) {
     console.log('Error adding item to cart:', error);
   }
 };
 
-// Function to increment quantity of an item in the cart
-const incrementCartItem = async (itemId: any) => {
+// Function to increment quantity of an item in the cartr
+const incrementCartItem = async (itemId: any, cartKey?: any) => {
   try {
-    let updatedCartItems = await getCartItems();
-
-    const itemToIncrement = updatedCartItems.find(
-      (cartItem: any) => cartItem.id === itemId,
-    );
+    let updatedCartItems = await getCartItems(cartKey);
+    let itemToIncrement = updatedCartItems.find((cartItem: any) => {
+      return Number(cartItem?.id) === itemId;
+    });
 
     if (itemToIncrement) {
-      itemToIncrement.quantity += 1;
-      await updateCartItems(updatedCartItems);
-      return updatedCartItems;
+      if (itemToIncrement.product.maxOrderQuantity < 1) {
+        itemToIncrement.quantity += 1;
+        await updateCartItems(updatedCartItems, cartKey);
+      } else {
+        if (
+          itemToIncrement.product.maxOrderQuantity &&
+          itemToIncrement.quantity >= itemToIncrement.product.maxOrderQuantity
+        ) {
+          utils.showWarningToast('Max quantity reached for item');
+        } else {
+          itemToIncrement.quantity += 1;
+          await updateCartItems(updatedCartItems, cartKey);
+        }
+      }
     }
+    return updatedCartItems;
   } catch (error) {
     console.log('Error incrementing item quantity:', error);
   }
 };
 
 // Function to decrement quantity of an item in the cart
-const decrementCartItem = async (itemId: any, from: string) => {
+const decrementCartItem = async (itemId: any, from: string, cartKey?: any) => {
   try {
-    let updatedCartItems = await getCartItems();
+    let updatedCartItems = await getCartItems(cartKey);
 
-    const itemToDecrement = updatedCartItems.find(
+    let itemToDecrement = updatedCartItems.find(
       (cartItem: any) => cartItem.id === itemId,
     );
 
-    if (itemToDecrement && itemToDecrement.quantity > 1) {
-      itemToDecrement.quantity -= 1;
-      await updateCartItems(updatedCartItems);
-      return updatedCartItems;
-    } else if (itemToDecrement && itemToDecrement.quantity === 1) {
-      updatedCartItems =
-        from === 'Product'
-          ? updatedCartItems.filter((cartItem: any) => cartItem.id !== itemId)
-          : updatedCartItems;
-      await updateCartItems(updatedCartItems);
-      return updatedCartItems;
+    if (itemToDecrement) {
+      if (
+        itemToDecrement.product.minOrderQuantity < 1 &&
+        itemToDecrement.quantity === 1
+      ) {
+        itemToDecrement.quantity = 1;
+        await updateCartItems(updatedCartItems, cartKey);
+      } else {
+        if (
+          itemToDecrement.product.minOrderQuantity &&
+          itemToDecrement.quantity <= itemToDecrement.product.minOrderQuantity
+        ) {
+          utils.showWarningToast('Min quantity reached for item');
+        } else {
+          itemToDecrement.quantity -= 1;
+          await updateCartItems(updatedCartItems, cartKey);
+        }
+      }
     }
+    return updatedCartItems;
   } catch (error) {
     console.log('Error decrementing item quantity:', error);
   }
 };
 
-const removeCartItem = async (itemId: any) => {
+const removeCartItem = async (itemId: any, cartKey?: any) => {
   try {
-    let updatedCartItems = await getCartItems();
+    let updatedCartItems = await getCartItems(cartKey);
 
     updatedCartItems = updatedCartItems.filter(
       (cartItem: any) => cartItem.id !== itemId,
     );
 
-    await updateCartItems(updatedCartItems);
+    await updateCartItems(updatedCartItems, cartKey);
     return updatedCartItems;
   } catch (error) {
     console.log('Error removing item from cart:', error);
   }
 };
 
-const calculateTotalPrice = async () => {
+const calculateTotalPrice = async (cartKey?: any) => {
   try {
-    const cartItems = await getCartItems();
+    const cartItems = await getCartItems(cartKey);
     const totalPrice = cartItems.reduce(
       (total: any, item: any) => total + item.quantity * item.price,
       0,
     );
-    return totalPrice;
+    return Number(totalPrice);
   } catch (error) {
     console.log('Error calculating total price:', error);
     return 0;
   }
 };
 
-const getAddressList = async () => {
+const getAddressList = async (addKey?: any) => {
   try {
-    const addressList = await AsyncStorage.getItem(ADDRESS_KEY);
+    const addressList = await AsyncStorage.getItem(
+      addKey ? addKey : ADDRESS_KEY,
+    );
     return addressList ? JSON.parse(addressList) : [];
   } catch (error) {
     console.log('Error getting address items:', error);
@@ -133,16 +166,19 @@ const getAddressList = async () => {
 };
 
 // Function to update address items in AsyncStorage
-const updateAddressList = async (addressList: any) => {
+const updateAddressList = async (addressList: any, addKey?: any) => {
   try {
-    await AsyncStorage.setItem(ADDRESS_KEY, JSON.stringify(addressList));
+    await AsyncStorage.setItem(
+      addKey ? addKey : ADDRESS_KEY,
+      JSON.stringify(addressList),
+    );
   } catch (error) {
     console.log('Error updating cart items:', error);
   }
 };
 
-const mergeArrays = async (apiAddress: any) => {
-  let addressData = await getAddressList();
+const mergeArrays = async (apiAddress: any, addKey?: any) => {
+  let addressData = await getAddressList(addKey);
   let resultArray: any = [];
 
   if (apiAddress && addressData.length < 1) {

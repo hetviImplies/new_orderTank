@@ -22,9 +22,7 @@ import commonStyle, {
 } from '../../styles';
 import SvgIcons from '../../assets/SvgIcons';
 import {
-  setCurrentUser,
-  setIsAuthenticated,
-  setToken,
+  setCurrentUser
 } from '../../redux/slices/authSlice';
 import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
@@ -65,10 +63,6 @@ const LoginScreen = ({navigation}: any) => {
     // if (!notificationToken) {
      await requestPermission();
     // }
-    const token: any = await AsyncStorage.getItem('token');
-    if (token && token.trim() !== '') {
-      dispatch(setIsAuthenticated(true));
-    }
   };
 
   const clearData = async () => {
@@ -96,8 +90,8 @@ const LoginScreen = ({navigation}: any) => {
       if (!error && data?.statusCode === 200) {
         clearData();
         await dispatch(setCurrentUser(data?.result));
-        await dispatch(setToken(data?.result?.token));
-        await AsyncStorage.setItem('token', data?.result?.token);
+        // await dispatch(setToken(data?.result?.token));
+        await AsyncStorage.setItem('token', "true");
         // utils.showSuccessToast(data.message);
         if (!data?.result?.company || data?.result?.company === null) {
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
@@ -125,7 +119,6 @@ const LoginScreen = ({navigation}: any) => {
           });
         }
       } else {
-        dispatch(setIsAuthenticated(false));
         error?.data?.message === 'Please verify email...'
           ? setIsOpen(true)
           : utils.showErrorToast(error?.data?.message);

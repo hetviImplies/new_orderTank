@@ -33,12 +33,12 @@ import {
   decrementCartItem,
   getCartItems,
   incrementCartItem,
-  updateCartItems,
 } from '../Cart/Carthelper';
 
 const ProductDetailScreen = ({navigation, route}: any) => {
   const item = route.params.data.item;
   const companyId = route.params.data.companyId;
+  const cartType = route?.params?.cartType;
   const {data: product, isFetching: isProcessing} = useGetOneProductQuery(
     {id: item?.id},
     {
@@ -87,7 +87,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
     React.useCallback(() => {
       const fetchCartItems = async () => {
         setLoading(true);
-        const items = await getCartItems();
+        const items = await getCartItems(cartType);
         setCartItems(items);
         setLoading(false);
       };
@@ -96,17 +96,38 @@ const ProductDetailScreen = ({navigation, route}: any) => {
   );
 
   const handleAddToCart = async (item: any) => {
-    const data = await addToCart(item);
+    let cartData = {
+      id: item.id,
+      price: item.price,
+      quantity: item.quantity,
+      company: item.createdByCompany,
+      product: {
+        createdAt: item.createdAt,
+        description: item.description,
+        id: item.id,
+        image: item.image,
+        isDeleted: item.isDeleted,
+        isPublished: item.isPublished,
+        price: item.price,
+        productName: item.productName,
+        sku: item.sku,
+        unit: item.unit,
+        updatedAt: item.updatedAt,
+        maxOrderQuantity: Number(item.maxOrderQuantity),
+        minOrderQuantity: Number(item.minOrderQuantity),
+      },
+    };
+    const data = await addToCart(cartData, cartType);
     setCartItems(data);
   };
 
   const handleIncrement = async (cartId: any) => {
-    const data = await incrementCartItem(cartId);
+    const data = await incrementCartItem(cartId, cartType);
     setCartItems(data);
   };
 
   const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId, 'Product');
+    const data = await decrementCartItem(cartId, 'Product', cartType);
     setCartItems(data);
   };
 
@@ -116,7 +137,7 @@ const ProductDetailScreen = ({navigation, route}: any) => {
     // });
     if (cartItems?.length > 0) {
       let isSameCompany = cartItems?.some(
-        (itm: any) => itm?.createdByCompany?.id === item?.createdByCompany?.id,
+        (itm: any) => itm?.company?.id === item?.createdByCompany?.id,
       );
       if (isSameCompany) {
         handleAddToCart(item);

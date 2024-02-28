@@ -26,7 +26,14 @@ import {
 import {useGetCategoryQuery} from '../../api/category';
 
 const ProductListingScreen = ({navigation, route}: any) => {
+  const cartType = route?.params?.cartType;
   const id = route?.params?.id;
+  const nav = route?.params?.nav;
+  const orderDetails = route?.params?.orderDetails;
+  const deliveryAdd = route?.params?.deliveryAdd;
+  const billingAdd = route?.params?.billingAdd;
+  const notes = route?.params?.notes;
+  const expectedDate = route?.params?.expectedDate;
   const filterRef: any = useRef(null);
   const searchRef: any = useRef(null);
   const [selectedItems, setSelectedItems] = useState<[]>([]);
@@ -81,7 +88,19 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </TouchableOpacity>
           <TouchableOpacity
             // style={commonStyle.iconView}
-            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            onPress={() => {
+              let params = {
+                from: RootScreens.SecureCheckout,
+                deliveryAdd: deliveryAdd,
+                billingAdd: billingAdd,
+                orderDetails: orderDetails,
+                notes: notes,
+                expectedDate: expectedDate,
+                cartType: cartType,
+                nav: nav,
+              };
+              navigation.navigate(RootScreens.Cart, params);
+            }}>
             <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
             {cartItems?.length ? (
               <View style={styles.countView}>
@@ -106,16 +125,13 @@ const ProductListingScreen = ({navigation, route}: any) => {
     );
     setProductListData(filterData);
     setPublishedData(filterData);
-  }, [isProcessing, selectedItems]);
+  }, [isProcessing]);
 
   useEffect(() => {
-    const filterData = productList?.result?.filter(
-      (item: any) => item?.isPublished,
-    );
     if (!search) {
-      setProductListData(filterData);
+      setProductListData(publishedData);
     } else {
-      const data = filterData.filter((item: any) => {
+      const data = publishedData.filter((item: any) => {
         return item.productName.toUpperCase().includes(search.toUpperCase());
       });
       setProductListData(data);
@@ -125,17 +141,19 @@ const ProductListingScreen = ({navigation, route}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
-        if (publishedData?.length > 0) {
+        if(selectedItems.length > 0) {
+          setProductListData(productListData);
+        }
+        else if (publishedData?.length > 0) {
           // setLoading(true);
-          const items = await getCartItems();
-          if (
-            items?.length > 0 &&
-            route?.params?.id == items[0]?.createdByCompany.id
-          ) {
-            let updatedCart = items.filter((item: any) =>
-              publishedData.find((itm: any) => itm.id === item.id),
-            );
-            await updateCartItems(updatedCart);
+          const items = await getCartItems(cartType);
+          if (items?.length > 0 && route?.params?.id == items[0]?.company?.id) {
+            let updatedCart = items.filter((item: any) => {
+              return publishedData.find(
+                (itm: any) => itm.id === item.product.id,
+              );
+            });
+            await updateCartItems(updatedCart, cartType);
             setCartItems(updatedCart);
           } else {
             setCartItems(items);
@@ -148,24 +166,45 @@ const ProductListingScreen = ({navigation, route}: any) => {
   );
 
   const handleAddToCart = async (item: any) => {
-    const data = await addToCart(item);
+    let cartData = {
+      id: item.id,
+      price: item.price,
+      quantity: Number(item.quantity),
+      company: item.createdByCompany,
+      product: {
+        createdAt: item.createdAt,
+        description: item.description,
+        id: item.id,
+        image: item.image,
+        isDeleted: item.isDeleted,
+        isPublished: item.isPublished,
+        price: item.price,
+        productName: item.productName,
+        sku: item.sku,
+        unit: item.unit,
+        updatedAt: item.updatedAt,
+        maxOrderQuantity: Number(item.maxOrderQuantity),
+        minOrderQuantity: Number(item.minOrderQuantity),
+      },
+    };
+    const data = await addToCart(cartData, cartType);
     setCartItems(data);
   };
 
   const handleIncrement = async (cartId: any) => {
-    const data = await incrementCartItem(cartId);
+    const data = await incrementCartItem(cartId, cartType);
     setCartItems(data);
   };
 
   const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId, 'Product');
+    const data = await decrementCartItem(cartId, 'Product', cartType);
     setCartItems(data);
   };
 
   const onProductPress = (item: any) => {
     if (cartItems?.length > 0) {
       let isSameCompany = cartItems?.some(
-        (itm: any) => itm?.createdByCompany?.id === item?.createdByCompany?.id,
+        (itm: any) => itm?.company?.id === item?.createdByCompany?.id,
       );
       if (isSameCompany) {
         handleAddToCart(item);
@@ -200,8 +239,8 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const handleRemoveItem = async () => {
-    await updateCartItems([]);
-    let updatedCartItems = await getCartItems();
+    await updateCartItems([], cartType);
+    let updatedCartItems = await getCartItems(cartType);
     if (updatedCartItems?.length == 0) {
       handleAddToCart(selected);
       setIsOpen(false);
@@ -305,6 +344,13 @@ const ProductListingScreen = ({navigation, route}: any) => {
               navigation.navigate(RootScreens.ProductDetail, {
                 name: item?.name,
                 data: {item: item, companyId: id},
+                company: orderDetails?.company?.companyName,
+                cartType: cartType,
+                deliveryAdd: deliveryAdd,
+                billingAdd: billingAdd,
+                orderDetails: orderDetails,
+                notes: notes,
+                expectedDate: expectedDate,
               })
             }
             navigation={navigation}

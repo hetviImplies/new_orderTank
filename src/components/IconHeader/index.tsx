@@ -3,7 +3,7 @@ import React from 'react';
 import commonStyle, {iconSize, smallFont} from '../../styles';
 import {colors, SvgIcons} from '../../assets';
 import {FontText} from '..';
-import {wp} from '../../styles/responsiveScreen';
+import {hp, wp} from '../../styles/responsiveScreen';
 
 const IconHeader = (props: any) => {
   const {label, icon, isEdit, onEditPress} = props;
@@ -20,7 +20,7 @@ const IconHeader = (props: any) => {
         </FontText>
       </View>
       {isEdit && (
-        <TouchableOpacity onPress={onEditPress}>
+        <TouchableOpacity onPress={onEditPress} style={styles.editBtn}>
           <SvgIcons.Edit
             width={iconSize}
             height={iconSize}
@@ -34,4 +34,13 @@ const IconHeader = (props: any) => {
 
 export default IconHeader;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  editBtn: {
+    alignSelf: 'flex-end',
+    marginBottom: hp(-1),
+    paddingTop: hp(0.5),
+    paddingLeft: wp(5),
+    paddingBottom: hp(0.5),
+    paddingRight: wp(0.5),
+  },
+});

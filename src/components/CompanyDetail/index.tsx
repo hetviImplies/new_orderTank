@@ -23,7 +23,7 @@ import {
 import utils from '../../helper/utils';
 import {useGetCurrentUserQuery} from '../../api/auth';
 import {RootScreens} from '../../types/type';
-import {gstNoRegx, panNoRegx, phoneRegx} from '../../helper/regex';
+import {gstNoRegx, numRegx, panNoRegx, phoneRegx} from '../../helper/regex';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 
 const CompanyDetail = (props: any) => {
@@ -93,8 +93,12 @@ const CompanyDetail = (props: any) => {
   // const [search, setSearch] = useState('');
   const [selectedState, setSelectedState] = useState('');
 
-  const validationNumber = (val: any) => {
+  const validationPhnNumber = (val: any) => {
     const result = phoneRegx.test(val?.trim());
+    return result;
+  };
+  const validationNumber = (val: any) => {
+    const result = numRegx.test(val?.trim());
     return result;
   };
 
@@ -106,10 +110,14 @@ const CompanyDetail = (props: any) => {
   const isValidName = checkValid && name?.length === 0;
   const isValidPhone =
     checkValid &&
-    (phone?.length === 0 || phone?.length < 10 || !validationNumber(phone));
+    (phone?.length === 0 || phone?.length < 10 || !validationPhnNumber(phone));
   const isValidAddress = checkValid && address?.length === 0;
   // const isValidAddressName = checkValid && addressName?.length === 0;
-  const isValidPinCode = checkValid && pinCode?.length === 0;
+  const isValidPinCode =
+    checkValid &&
+    (pinCode?.length === 0 ||
+      pinCode?.length < 6 ||
+      !validationNumber(pinCode));
   const isValidLocality = checkValid && locality?.length === 0;
   const isValidCity = checkValid && city?.length === 0;
   const isValidState = checkValid && state?.length === 0;
@@ -153,7 +161,7 @@ const CompanyDetail = (props: any) => {
       }
     });
     // setCountry(data?.result ? data?.result?.country : '');
-  }, [data, userInfo, loginData]);
+  }, [data, userInfo, loginData, userData]);
 
   const imagePress = () => {
     imageRef.current.open();
@@ -220,9 +228,11 @@ const CompanyDetail = (props: any) => {
       locality?.length !== 0 &&
       city?.length !== 0 &&
       pinCode?.length !== 0 &&
+      pinCode?.length === 6 &&
+      validationNumber(pinCode) &&
       state?.length !== 0 &&
       phone?.length !== 0 &&
-      validationNumber(phone) &&
+      validationPhnNumber(phone) &&
       name?.length !== 0
       // && country?.length !== 0
     ) {

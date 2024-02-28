@@ -26,10 +26,12 @@ import {
   mergeArrays,
   updateAddressList,
 } from '../Cart/Carthelper';
+import {numRegx} from '../../helper/regex';
 
 const AddAddressScreen = (props: any) => {
   const {navigation, route} = props;
   const item = route?.params?.data;
+  const addressType = route?.params?.addressType;
 
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
@@ -58,9 +60,18 @@ const AddAddressScreen = (props: any) => {
   const [addressData, setAddressData] = useState([]);
   // const [country, setCountry] = useState(item ? item?.country : '');
 
+  const validationNumber = (val: any) => {
+    const result = numRegx.test(val?.trim());
+    return result;
+  };
+
   const isValidAddressName = checkValid && addressName.length === 0;
   const isValidAddress = checkValid && address.length === 0;
-  const isValidPinCode = checkValid && pinCode.length === 0;
+  const isValidPinCode =
+    checkValid &&
+    (pinCode?.length === 0 ||
+      pinCode?.length < 6 ||
+      !validationNumber(pinCode));
   const isValidLocality = checkValid && locality.length === 0;
   const isValidCity = checkValid && city.length === 0;
   const isValidState = checkValid && state.length === 0;
@@ -89,7 +100,7 @@ const AddAddressScreen = (props: any) => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchAddressItems = async () => {
-        const items = await getAddressList();
+        const items = await getAddressList(addressType);
         setAddressData(items);
       };
       fetchAddressItems();
@@ -103,7 +114,9 @@ const AddAddressScreen = (props: any) => {
       address.length !== 0 &&
       locality.length !== 0 &&
       city.length !== 0 &&
-      pinCode.length !== 0 &&
+      pinCode?.length !== 0 &&
+      pinCode?.length === 6 &&
+      validationNumber(pinCode) &&
       state.length !== 0
       // && country.length !== 0
     ) {
@@ -135,8 +148,8 @@ const AddAddressScreen = (props: any) => {
           const updateAddress = data?.result?.addresses?.filter(
             (item: any) => item?.isDeleted === false,
           );
-          const mergedArray = await mergeArrays(updateAddress);
-          await updateAddressList(mergedArray);
+          const mergedArray = await mergeArrays(updateAddress, addressType);
+          await updateAddressList(mergedArray, addressType);
           navigation.goBack();
           route?.params?.onGoBack();
           utils.showSuccessToast(data.message);
@@ -153,8 +166,8 @@ const AddAddressScreen = (props: any) => {
           const updateAddress = data?.result?.addresses?.filter(
             (item: any) => item?.isDeleted === false,
           );
-          const mergedArray = await mergeArrays(updateAddress);
-          await updateAddressList(mergedArray);
+          const mergedArray = await mergeArrays(updateAddress, addressType);
+          await updateAddressList(mergedArray, addressType);
           navigation.goBack();
           route?.params?.onGoBack();
         } else {
@@ -386,7 +399,7 @@ const AddAddressScreen = (props: any) => {
                 pTop={wp(1)}
                 textAlign="right"
                 name="regular">
-                {checkValid && pinCode.length === 0
+                {checkValid && pinCode?.length === 0
                   ? `Pin Code is required.`
                   : 'Invalid Pin Code.'}
               </FontText>
