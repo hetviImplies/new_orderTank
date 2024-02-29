@@ -28,7 +28,7 @@ import ForgotPasswordScreen from '../containers/ForgotPassword/ForgotPasswordScr
 import {RootScreens, RootStackParamList} from '../types/type';
 import {useGetCurrentUserQuery} from '../api/auth';
 import {setCurrentUser} from '../redux/slices/authSlice';
-import {hp, isIOS, normalize} from '../styles/responsiveScreen';
+import {hp, isIOS, normalize, wp} from '../styles/responsiveScreen';
 import colors from '../assets/colors';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
@@ -149,7 +149,7 @@ const RootNavigator = () => {
         component={ProductListingScreen}
         options={({route}: any) => ({
           title: route.params.company,
-          headerTitleStyle: styles.title,
+          headerTitleStyle: styles.title1,
         })}
       />
       <RootStack.Screen
@@ -225,6 +225,12 @@ export default RootNavigator;
 
 const styles = StyleSheet.create({
   title: {
+    color: colors.black2,
+    fontSize: normalize(18),
+    fontFamily: 'Lexend-Medium',
+  },
+  title1: {
+    width: wp(60),
     color: colors.black2,
     fontSize: normalize(18),
     fontFamily: 'Lexend-Medium',

@@ -1,59 +1,50 @@
-import {ImageBackground} from 'react-native';
-import React, {useEffect, useLayoutEffect} from 'react';
+import { ImageBackground } from 'react-native';
+import React, { useEffect, useLayoutEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {resetNavigateTo} from '../../helper/navigationHelper';
-import {RootScreens} from '../../types/type';
-import {useGetCurrentUserQuery} from '../../api/auth';
+import { resetNavigateTo } from '../../helper/navigationHelper';
+import { RootScreens } from '../../types/type';
+import { useLoginMutation } from '../../api/auth';
+import { Loader } from '../../components';
 
-const SplashScreen = ({navigation}: any) => {
-  const {data, isFetching} = useGetCurrentUserQuery(null, {
-    refetchOnMountOrArgChange: true,
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await data.fetch();
-      } catch (error) {
-        console.log('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, [data]);
+const SplashScreen = ({ navigation }: any) => {
+  const [login, { isLoading }] = useLoginMutation();
 
   useLayoutEffect(() => {
-    const checkCompanyCode = async () => {
-      const token: any = await AsyncStorage.getItem('token');
-      if (token !== null) {
-        if (data === undefined) {
-          resetNavigateTo(navigation, RootScreens.Login);
+    authData()
+  }, []);
+
+  const authData = async () => {
+    const UserData = await AsyncStorage.getItem('userData');
+    console.log('UserData...', UserData)
+    if (UserData) {
+      const body = JSON.parse(UserData);
+      const { data, error }: any = await login(body);
+      if (!error && data?.statusCode === 200) {
+        console.log('login data....', data)
+        if (!data?.result?.company || data?.result?.company === null) {
+          resetNavigateTo(navigation, RootScreens.CompanyDetail, {
+            from: 'Login',
+            name: 'Enter your company detail',
+          });
         } else {
-          if (!data?.result?.company || data?.result?.company === null) {
-            resetNavigateTo(navigation, RootScreens.CompanyDetail, {
-              from: 'Login',
-              name: 'Enter your company detail',
-            });
-          } else {
-            resetNavigateTo(navigation, RootScreens.DashBoard);
-          }
+          resetNavigateTo(navigation, RootScreens.DashBoard);
         }
       } else {
         resetNavigateTo(navigation, RootScreens.Login);
       }
-    };
-
-    if (!isFetching) {
-      checkCompanyCode();
+    } else {
+      resetNavigateTo(navigation, RootScreens.Login);
     }
-  }, [isFetching, data, navigation]);
+  }
 
   return (
     <ImageBackground
       source={require('../../assets/images/splash.png')}
       resizeMode="stretch"
-      style={{flex: 1}}
-    />
+      style={{ flex: 1 }}
+    >
+      <Loader loading={isLoading} />
+    </ImageBackground>
   );
 };
 

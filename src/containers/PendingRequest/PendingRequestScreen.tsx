@@ -28,7 +28,7 @@ const PendingRequestScreen = ({navigation}: any) => {
           ) : (
             <Image source={Images.supplierImg} style={styles.logo} />
           )}
-          <View>
+           <View style={{width: wp(45)}}>
             <FontText
               name={'lexend-regular'}
               size={fontSize}

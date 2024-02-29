@@ -81,17 +81,18 @@ const LoginScreen = ({navigation}: any) => {
       setCheckValid(false);
       const notificationToken: any = await AsyncStorage.getItem('NotiToken');
       console.log('Notification token', notificationToken);
-      const {data, error}: any = await login({
+      const body = {
         email,
         password,
         // isMobile: true,
         notificationToken: JSON.stringify(notificationToken),
-      });
+      }
+      const {data, error}: any = await login(body);
       if (!error && data?.statusCode === 200) {
         clearData();
         await dispatch(setCurrentUser(data?.result));
         // await dispatch(setToken(data?.result?.token));
-        await AsyncStorage.setItem('token', "true");
+        await AsyncStorage.setItem('userData', JSON.stringify(body));
         // utils.showSuccessToast(data.message);
         if (!data?.result?.company || data?.result?.company === null) {
           resetNavigateTo(navigation, RootScreens.CompanyDetail, {
