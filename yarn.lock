@@ -6161,6 +6161,11 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-check-version@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-check-version/-/react-native-check-version-1.1.1.tgz#f469fe8d85d7575325fd13a57ce5c678447f7b86"
+  integrity sha512-/8dLMExwYeZAEWic6Dr9S4TMPdDmuTNif8wS7oaF8gEHl8/i9lABD3YjBglXwieXSqzfge/Tuo0himUOEtQMZg==
+
 react-native-compressor@^1.8.23:
   version "1.8.23"
   resolved "https://registry.yarnpkg.com/react-native-compressor/-/react-native-compressor-1.8.23.tgz#87fef6759d776e05753cee5e723696119c2f6b32"

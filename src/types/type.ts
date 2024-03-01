@@ -23,7 +23,7 @@ export enum RootScreens {
 }
 
 export type RootStackParamList = {
-  Splash: undefined;
+  Splash: { systemData: object };
   Welcome: undefined;
   Login: undefined;
   SignUp: undefined;

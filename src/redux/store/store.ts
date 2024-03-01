@@ -9,6 +9,7 @@ import authSlice from '../slices/authSlice';
 import {notificationApi} from '../../api/notification';
 import {companyApi} from '../../api/company';
 import {companyRelationsApi} from '../../api/companyRelation';
+import {settingApi} from '../../api/setting';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     [cartApi.reducerPath]: cartApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
+    [settingApi.reducerPath]: settingApi.reducer,
   },
   middleware: (getDefaultMiddleware: any) =>
     getDefaultMiddleware({
@@ -35,7 +37,8 @@ export const store = configureStore({
       .concat(profileApi.middleware)
       .concat(cartApi.middleware)
       .concat(orderApi.middleware)
-      .concat(notificationApi.middleware),
+      .concat(notificationApi.middleware)
+      .concat(settingApi.middleware),
 });
 // const createActions = (slice: any) =>
 //   _.mapValues(

@@ -28,7 +28,7 @@ const CartCountModule = (props: any) => {
       {cartData && cartData?.length !== 0 && (
         <>
           <View style={[styles.totalContainer]}>
-            <View style={{padding: wp(3)}}>
+            {/* <View style={{padding: wp(3)}}>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
                 <FontText
                   color="black2"
@@ -64,14 +64,14 @@ const CartCountModule = (props: any) => {
                   {`0`}
                 </FontText>
               </View>
-            </View>
+            </View> */}
             <View style={[commonStyle.rowJB, styles.totalSubContainer]}>
               <FontText
                 color="white"
                 name="lexend-regular"
                 size={mediumFont}
                 textAlign={'left'}>
-                {'Total Amount'}
+                {`Total Amount (${cartData?.length} items)`}
               </FontText>
               <FontText
                 color="white"

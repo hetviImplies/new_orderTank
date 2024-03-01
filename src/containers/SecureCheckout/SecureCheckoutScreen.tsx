@@ -46,6 +46,7 @@ import {
   updateAddressList,
   updateCartItems,
 } from '../Cart/Carthelper';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [createOrder, {isLoading}] = useAddOrderMutation();
@@ -175,6 +176,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   };
 
   useEffect(() => {
+    setIsClick(false);
     const fetchCartItems = async () => {
       let items: any;
       if (cartType && cartType === 'updateOrder') {
@@ -410,7 +412,14 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
 
   const placeOrderPress = async () => {
     if (deliAdd === undefined) {
-      Alert.alert('Delivery Address is required.');
+      Alert.alert('Error', 'Delivery Address is required', [
+        {
+          text: 'Ok',
+          onPress: () => {
+            setIsClick(false);
+          },
+        },
+      ]);
     } else {
       let body: any = {};
       let ids;
@@ -549,14 +558,13 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         }
       /> */}
       <Loader loading={isLoading || isFetching || isProcessing} />
-      <ScrollView
+      <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
+        style={[commonStyle.paddingH4]}
         contentContainerStyle={{
           paddingBottom: hp(2),
           paddingTop: isOrder ? hp(2) : 0,
-        }}
-        nestedScrollEnabled
-        style={[commonStyle.paddingH4]}>
+        }}>
         <FontText
           name={'lexend-regular'}
           size={mediumFont}
@@ -744,7 +752,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </Button>
           )}
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <CartCountModule
         btnText={cartType === 'updateOrder' ? 'Update Order' : 'Place Order'}
         btnText1={'Edit Order'}
