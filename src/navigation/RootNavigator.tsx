@@ -113,6 +113,7 @@ const RootNavigator = () => {
         headerShown: true,
         headerBackTitleVisible: false,
         headerTitleAlign: 'center',
+        gestureEnabled: false,
       }}>
       <RootStack.Screen
         name={RootScreens.Splash}

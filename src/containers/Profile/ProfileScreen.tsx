@@ -10,14 +10,15 @@ import {PROFILE_LIST} from '../../helper/data';
 import {RootScreens} from '../../types/type';
 import {authReset} from '../../redux/slices/authSlice';
 import {resetNavigateTo} from '../../helper/navigationHelper';
-import { removeToken } from '../../helper/PushNotification';
-import { useLogoutMutation } from '../../api/auth';
+import {removeToken} from '../../helper/PushNotification';
+import {useLogoutMutation} from '../../api/auth';
 import utils from '../../helper/utils';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [logout, {isLoading}] = useLogoutMutation();
 
   const onItemPress = (index: any) => {
@@ -35,10 +36,13 @@ const ProfileScreen = ({navigation}: any) => {
         navigation.navigate(RootScreens.Address);
         break;
       case 3:
+        setIsDelete(false);
         setIsOpen(true);
         // navigation.navigate(RootScreens.VEHICLE, {From: 'Step'});
         break;
       case 4:
+        setIsDelete(true);
+        setIsOpen(true);
         // navigation.navigate(RootScreens.DEPOSITE, {From: 'Step'});
         break;
       case 5:
@@ -64,8 +68,8 @@ const ProfileScreen = ({navigation}: any) => {
         <View style={commonStyle.rowAC}>
           <View style={styles.iconContainer}>{item?.icon}</View>
           <FontText
-            color="black"
-            name="lexend-regular"
+            color={item?.name === 'Delete Account' ? 'red' : 'black'}
+            name="lexend-medium"
             size={fontSize}
             textAlign={'left'}>
             {item?.name}
@@ -77,8 +81,8 @@ const ProfileScreen = ({navigation}: any) => {
 
   const logoutPress = async () => {
     setIsOpen(false);
-    const {data, error}: any = await logout();
-    if(!error && data.statusCode === 200) {
+    const {data, error}: any = await logout({});
+    if (!error && data.statusCode === 200) {
       setLoading(true);
       await dispatch(authReset());
       await AsyncStorage.clear();
@@ -119,13 +123,23 @@ const ProfileScreen = ({navigation}: any) => {
         />
         <Popup
           visible={isOpen}
-          title={'Log out'}
-          description={`Are you sure you want to logout?`}
+          title={isDelete ? 'Delete Account' : 'Log out'}
+          description={
+            isDelete
+              ? 'Are you sure you want to delete account?'
+              : `Are you sure you want to logout?`
+          }
           leftBtnText={'No'}
           rightBtnText={'Yes'}
-          leftBtnPress={() => setIsOpen(false)}
+          leftBtnPress={() => {
+            setIsOpen(false);
+            setIsOpen(false);
+          }}
           rightBtnPress={() => logoutPress()}
-          onTouchPress={() => setIsOpen(false)}
+          onTouchPress={() => {
+            setIsOpen(false);
+            setIsOpen(false);
+          }}
           leftBtnStyle={{
             width: '48%',
             backgroundColor: colors.white2,

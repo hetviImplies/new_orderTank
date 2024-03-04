@@ -130,7 +130,7 @@ const BottomSheet = (props: any) => {
         </View>
       ) : (
         <FlatList
-          keyExtractor={(item, index) => String(index)}
+          keyExtractor={(item, index) => index?.toString()}
           data={finalData !== '' ? dataRender() : data}
           style={{flex: 1, height: hp(35), bottom: hp(1)}}
           contentContainerStyle={{flexGrow: 1, paddingBottom: wp(5)}}
@@ -148,7 +148,7 @@ const BottomSheet = (props: any) => {
           renderItem={({item, index}) => {
             const value = item.value;
             return (
-              <View key={index}>
+              <View key={index?.toString()}>
                 {multiple ? (
                   <Pressable
                     onPress={() => {

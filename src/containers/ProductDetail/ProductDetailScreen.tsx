@@ -221,11 +221,18 @@ const ProductDetailScreen = ({navigation, route}: any) => {
           <FontText
             name={'lexend-regular'}
             size={mediumLarge2Font}
-            pTop={wp(2)}
+            pTop={wp(1)}
             color={'orange'}>
             {'₹'}
             {productDetail?.price}
             {productDetail?.unit && `${'/'}${productDetail?.unit}`}
+          </FontText>
+          <FontText
+            color="black2"
+            name="lexend-medium"
+            size={mediumLargeFont}
+            textAlign={'left'}>
+            {`Range : ${item?.minOrderQuantity} - ${item?.maxOrderQuantity}`}
           </FontText>
         </View>
         <FontText

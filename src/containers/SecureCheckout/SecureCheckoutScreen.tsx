@@ -1,7 +1,6 @@
 import {
   Alert,
   BackHandler,
-  FlatList,
   Image,
   Platform,
   ScrollView,
@@ -27,7 +26,6 @@ import commonStyle, {
   iconSize,
   mediumFont,
   smallFont,
-  tabIcon,
 } from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {colors, SvgIcons, Images} from '../../assets';
@@ -36,7 +34,6 @@ import {
   useAddOrderMutation,
   useDeleteOrderMutation,
   useUpdateOrderMutation,
-  useUpdateOrderStatusMutation,
 } from '../../api/order';
 import utils from '../../helper/utils';
 import {
@@ -250,7 +247,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const _renderItem = ({item, index}: any) => {
     return (
       <>
-        <View style={[styles.itemContainer]}>
+        <View key={item.id} style={[styles.itemContainer]}>
           <View style={[commonStyle.rowJB, commonStyle.flex]}>
             {item?.product?.image ? (
               <Image source={{uri: item?.product?.image}} style={styles.logo} />
@@ -269,13 +266,24 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 name={'lexend-regular'}
                 size={mediumFont}
                 color={'black2'}
-                pTop={wp(2)}
+                pTop={wp(1)}
+                pBottom={wp(1)}
                 textAlign={'left'}>
                 {'₹'}
                 {item?.price}
                 {item?.product?.unit && `${'/'}${item?.product?.unit}`} (
                 {item?.quantity} qty)
               </FontText>
+              {item?.product?.minOrderQuantity == 0 &&
+              item?.product?.maxOrderQuantity == 0 ? null : (
+                <FontText
+                  name={'lexend-regular'}
+                  size={mediumFont}
+                  color={'gray4'}
+                  textAlign={'left'}>
+                  {`Range : ${item?.product?.minOrderQuantity} - ${item?.product?.maxOrderQuantity}`}
+                </FontText>
+              )}
             </View>
             <View style={{width: '20%'}}>
               <FontText
@@ -298,7 +306,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     let delivery = addressData?.find((d: any) => d?.deliveryAdd);
     let billing = addressData?.find((d: any) => d?.billingAdd);
     return (
-      <View>
+      <View key={index}>
         <IconHeader
           label={index === 0 ? 'Delivery address' : 'Billing address'}
           icon={
@@ -633,11 +641,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           </View>
         ) : null}
         <View style={[styles.addressContainer, {marginTop: hp(1)}]}>
-          <FlatList
-            data={[1, 2]}
-            renderItem={addressRenderItem}
-            keyExtractor={(item, index) => index?.toString()}
-          />
+          {[1,2].map((item, index) =>{
+            return(
+              addressRenderItem({item, index})
+            )
+          })}
         </View>
         <View style={styles.addressContainer}>
           {isOrder ? null : (
@@ -667,16 +675,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               <SvgIcons.Edit width={iconSize} height={iconSize} />
             </TouchableOpacity>
           )}
-          <View style={{maxHeight: hp(32)}}>
-            <FlatList
-              data={product}
-              renderItem={_renderItem}
-              nestedScrollEnabled
-              scrollEnabled
-              showsVerticalScrollIndicator={false}
-              keyExtractor={item => item?.id?.toString()}
-            />
-          </View>
+          <ScrollView style={{maxHeight: hp(32)}} showsVerticalScrollIndicator={false}>
+            {product.map((item: any, index: any) => {
+              return _renderItem({item, index});
+            })}
+          </ScrollView>
         </View>
         {isOrder && notes === '' ? null : (
           <View style={styles.addressContainer}>

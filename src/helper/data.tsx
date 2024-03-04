@@ -1,7 +1,7 @@
 import SvgIcons from '../assets/SvgIcons';
 import colors from '../assets/colors';
 import {iconSize, tabIcon} from '../styles';
-import {hp} from '../styles/responsiveScreen';
+import {hp, wp} from '../styles/responsiveScreen';
 
 export const PROFILE_LIST = [
   {
@@ -35,6 +35,10 @@ export const PROFILE_LIST = [
   {
     name: 'Log out',
     icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,
+  },
+  {
+    name: 'Delete Account',
+    icon: <SvgIcons.Trash width={wp(5)} height={wp(5)} />,
   },
 ];
 

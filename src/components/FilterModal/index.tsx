@@ -1,6 +1,6 @@
 import {
-  FlatList,
   Pressable,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -79,12 +79,11 @@ const FilterModal = (props: any) => {
           <SvgIcons.Close width={tabIcon} height={tabIcon} />
         </TouchableOpacity>
       </View>
-      <FlatList
-        data={categoryData}
-        renderItem={_renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentStyle}
-      />
+      <ScrollView contentContainerStyle={styles.contentStyle} showsVerticalScrollIndicator={false}>
+        {categoryData.map((item: any, index: any) => {
+          return _renderItem({item, index});
+        })}
+      </ScrollView>
       <View style={commonStyle.rowJB}>
         <Button
           onPress={onReset}

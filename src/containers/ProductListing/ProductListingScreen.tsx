@@ -45,7 +45,6 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [publishedData, setPublishedData] = useState([]);
   const [cartItems, setCartItems] = useState<any>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<any>({});
 
   const {data: category, isFetching} = useGetCategoryQuery(
@@ -141,11 +140,9 @@ const ProductListingScreen = ({navigation, route}: any) => {
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
-        if(selectedItems.length > 0) {
+        if (selectedItems.length > 0) {
           setProductListData(productListData);
-        }
-        else if (publishedData?.length > 0) {
-          // setLoading(true);
+        } else if (publishedData?.length > 0) {
           const items = await getCartItems(cartType);
           if (items?.length > 0 && route?.params?.id == items[0]?.company?.id) {
             let updatedCart = items.filter((item: any) => {
@@ -153,12 +150,29 @@ const ProductListingScreen = ({navigation, route}: any) => {
                 (itm: any) => itm.id === item.product.id,
               );
             });
+            updatedCart = await Promise.all(
+              updatedCart.map(async (item: any) => {
+                let productData: any = await publishedData.find(
+                  (itm: any) => itm.id === item.product.id,
+                );
+                if (productData) {
+                  item.quantity =
+                    (await productData.maxOrderQuantity) > 0 &&
+                    item.quantity > productData.maxOrderQuantity
+                      ? productData.maxOrderQuantity
+                      : item.quantity < productData.minOrderQuantity
+                      ? productData.minOrderQuantity
+                      : item.quantity;
+                }
+                item.product = productData;
+                return item;
+              }),
+            );
             await updateCartItems(updatedCart, cartType);
             setCartItems(updatedCart);
           } else {
             setCartItems(items);
           }
-          // setLoading(false);
         }
       };
       fetchCartItems();

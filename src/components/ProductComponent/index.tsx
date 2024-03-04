@@ -98,12 +98,22 @@ const ProductItem = ({
             name={'lexend-regular'}
             size={smallFont}
             color={'black2'}
-            pTop={wp(2)}
+            pTop={wp(1)}
+            pBottom={wp(1)}
             textAlign={'left'}>
             {'₹'}
             {item?.price}
             {item?.unit && `${'/'}${item?.unit}`}
           </FontText>
+          {item?.minOrderQuantity == 0 && item?.maxOrderQuantity == 0 ? null : (
+            <FontText
+              name={'lexend-regular'}
+              size={smallFont}
+              color={'gray4'}
+              textAlign={'left'}>
+              {`Range : ${item?.minOrderQuantity} - ${item?.maxOrderQuantity}`}
+            </FontText>
+          )}
         </View>
       </TouchableOpacity>
       {isItemInCart ? (
@@ -114,16 +124,18 @@ const ProductItem = ({
             {marginTop: isHorizontal ? hp(1) : 0},
           ]}>
           <TouchableOpacity
-            style={styles.iconContainer}
+            style={{flex: 0.3}}
             onPress={() => quantityDecrement(item.id)}>
-            <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+            <View style={[styles.iconContainer]}>
+              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+            </View>
           </TouchableOpacity>
           <FontText
             color="white"
             name="lexend-medium"
             size={mediumFont}
-            textAlign={'left'}>
-            {/* {item?.minOrderQuantity} */}
+            style={{flex: 0.45}}
+            textAlign={'center'}>
             {
               cartItems?.find(
                 (itm: any) =>
@@ -132,9 +144,15 @@ const ProductItem = ({
             }
           </FontText>
           <TouchableOpacity
-            style={styles.iconContainer}
+            style={{flex: 0.3, alignItems: 'flex-end'}}
             onPress={() => quantityIncrement(item.id)}>
-            <SvgIcons.Plus width={wp(4)} height={wp(4)} fill={colors.orange} />
+            <View style={[styles.iconContainer]}>
+              <SvgIcons.Plus
+                width={wp(4)}
+                height={wp(4)}
+                fill={colors.orange}
+              />
+            </View>
           </TouchableOpacity>
         </View>
       ) : (
@@ -264,12 +282,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: normalize(5),
-    height: hp(3.7),
+    height: hp(4),
     width: wp(25),
   },
   iconContainer: {
-    width: hp(2.5),
-    height: hp(2.5),
+    width: hp(2.8),
+    height: hp(2.8),
     borderRadius: normalize(3),
     backgroundColor: colors.white2,
     alignItems: 'center',
@@ -280,6 +298,6 @@ const styles = StyleSheet.create({
     borderRadius: normalize(4),
     justifyContent: 'space-between',
     width: wp(25),
-    padding: hp(0.6),
+    padding: wp(1.2),
   },
 });

@@ -75,7 +75,7 @@ const CartScreen = ({navigation, route}: any) => {
                   orderDetails: orderDetails,
                   notes: notes,
                   expectedDate: date,
-                  nav: nav
+                  nav: nav,
                 })
               }>
               <FontText
@@ -169,7 +169,6 @@ const CartScreen = ({navigation, route}: any) => {
               name={'lexend-regular'}
               size={mediumFont}
               color={'gray4'}
-              // pTop={wp(2)}
               textAlign={'left'}>
               {item?.product?.productName}
             </FontText>
@@ -177,12 +176,23 @@ const CartScreen = ({navigation, route}: any) => {
               name={'lexend-regular'}
               size={fontSize}
               color={'black2'}
-              pTop={wp(2)}
+              pTop={wp(1)}
+              pBottom={wp(1)}
               textAlign={'left'}>
               {'₹'}
               {item?.price}
               {item?.product?.unit && `${'/'}${item?.product?.unit}`}
             </FontText>
+            {item?.product?.minOrderQuantity == 0 &&
+            item?.product?.maxOrderQuantity == 0 ? null : (
+              <FontText
+                name={'lexend-regular'}
+                size={mediumFont}
+                color={'gray4'}
+                textAlign={'left'}>
+                {`Range : ${item?.product?.minOrderQuantity} - ${item?.product?.maxOrderQuantity}`}
+              </FontText>
+            )}
           </View>
         </View>
         <View>
@@ -202,29 +212,30 @@ const CartScreen = ({navigation, route}: any) => {
           <View
             style={[commonStyle.rowAC, styles.countContainer, {width: wp(25)}]}>
             <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                handleDecrement(item?.id);
-              }}>
-              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+              style={{flex: 0.3}}
+              onPress={() => handleDecrement(item?.id)}>
+              <View style={[styles.iconContainer]}>
+                <SvgIcons.Remove width={wp(4)} height={wp(4)} />
+              </View>
             </TouchableOpacity>
             <FontText
               color="white"
               name="lexend-medium"
               size={mediumFont}
-              textAlign={'left'}>
+              style={{flex: 0.45}}
+              textAlign={'center'}>
               {item.quantity}
             </FontText>
             <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => {
-                handleIncrement(item?.id);
-              }}>
-              <SvgIcons.Plus
-                width={wp(4)}
-                height={wp(4)}
-                fill={colors.orange}
-              />
+              style={{flex: 0.3, alignItems: 'flex-end'}}
+              onPress={() => handleIncrement(item?.id)}>
+              <View style={[styles.iconContainer]}>
+                <SvgIcons.Plus
+                  width={wp(4)}
+                  height={wp(4)}
+                  fill={colors.orange}
+                />
+              </View>
             </TouchableOpacity>
           </View>
         </View>

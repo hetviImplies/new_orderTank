@@ -50,7 +50,7 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
 
   const logoutPress = async () => {
     setIsOpen(false);
-    const {data, error}: any = await logout();
+    const {data, error}: any = await logout({});
     if(!error && data.statusCode === 200) {
       setLoading(true);
       await dispatch(authReset());

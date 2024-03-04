@@ -1,5 +1,4 @@
 import {
-  FlatList,
   Image,
   RefreshControl,
   ScrollView,
@@ -256,6 +255,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const _renderItem = ({item, index}: any) => {
     return (
       <View
+        key={item?.orderId}
         style={[
           commonStyle.shadowContainer,
           {
@@ -344,14 +344,14 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
 
   const _reqRenderItem = ({item, index}: any) => {
     return (
-      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
+      <View key={item?.id} style={[styles.itemContainer, commonStyle.shadowContainer]}>
         <View style={commonStyle.rowAC}>
           {item?.company?.logo ? (
             <Image source={{uri: item?.company?.logo}} style={styles.logo} />
           ) : (
             <Image source={Images.supplierImg} style={styles.logo} />
           )}
-         <View style={{width: wp(45)}}>
+          <View style={{width: wp(45)}}>
             <FontText
               name={'lexend-regular'}
               size={fontSize}
@@ -399,7 +399,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     }
   };
 
-  const onRefreshing = (from: string) => {
+  const onRefreshing = () => {
     setRefreshing(true);
     refetch();
     reqRefetch();
@@ -411,6 +411,9 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
       <ScrollView
         style={commonStyle.container}
         contentContainerStyle={{flex: 1}}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+        }
         showsVerticalScrollIndicator={false}>
         {/* <NavigationBar
         hasLeft
@@ -461,9 +464,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             isReqProcessing
           }
         />
-        {/* <Modal transparent={true} animationType={'none'} visible={isOpenPopup}>
-        <CompanyDetail setOpenPopup={setOpenPopup} from={from} />
-      </Modal> */}
         {supplierList?.result?.data?.length !== 0 || orderData?.length !== 0 ? (
           <View style={{marginTop: hp(1)}}>
             {supplierList &&
@@ -477,17 +477,11 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
                     navigation.navigate(RootScreens.PendingRequest);
                   }}
                 />
-                <FlatList
-                  data={supplierList?.result?.data?.slice(0, 2)}
-                  renderItem={_reqRenderItem}
-                  contentContainerStyle={styles.containerContent}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={() => onRefreshing('request')}
-                    />
-                  }
-                />
+                <View style={styles.containerContent}>
+                  {supplierList?.result?.data?.slice(0, 2).map((item: any) => {
+                    return _reqRenderItem({item});
+                  })}
+                </View>
               </View>
             ) : null}
             {orderData && orderData.length !== 0 ? (
@@ -504,17 +498,12 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
                     });
                   }}
                 />
-                <FlatList
-                  data={orderData && orderData.slice(0, 2)}
-                  renderItem={_renderItem}
-                  contentContainerStyle={styles.product2CC}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={refreshing}
-                      onRefresh={() => onRefreshing('order')}
-                    />
-                  }
-                />
+                <View style={styles.product2CC}>
+                  {orderData &&
+                    orderData.slice(0, 2).map((item: any) => {
+                      return _renderItem({item});
+                    })}
+                </View>
               </View>
             ) : null}
           </View>
@@ -529,29 +518,6 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             </FontText>
           </View>
         )}
-        {/* {orderData && orderData.length === 0 ? (
-        <View style={[commonStyle.allCenter, {flex: 1}]}>
-          <FontText
-            color="gray"
-            name="lexend-regular"
-            size={mediumFont}
-            textAlign={'center'}>
-            {'No pending orders are available.'}
-          </FontText>
-        </View>
-      ) : (
-        <FlatList
-          data={orderData}
-          renderItem={_renderItem}
-          contentContainerStyle={{
-            paddingHorizontal: wp(4),
-            paddingBottom: hp(2),
-          }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
-          }
-        />
-      )} */}
         <Popup
           visible={isOpen}
           onBackPress={() => setIsOpen(false)}
