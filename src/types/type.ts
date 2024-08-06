@@ -4,6 +4,7 @@ export enum RootScreens {
   SignUp = 'SignUp',
   ForgotPass = 'ForgotPass',
   DashBoard = 'DashBoard',
+  Add = 'Add',
   Home = 'Home',
   Supplier = 'Supplier',
   PendingRequest = 'PendingRequest',
@@ -19,16 +20,17 @@ export enum RootScreens {
   OrderPlaced = 'OrderPlaced',
   PersonalDetail = 'PersonalDetail',
   CompanyDetail = 'CompanyDetail',
-  SecureCheckout = 'SecureCheckout'
+  SecureCheckout = 'SecureCheckout',
 }
 
 export type RootStackParamList = {
-  Splash: { systemData: object };
+  Splash: {systemData: object};
   Welcome: undefined;
   Login: undefined;
   SignUp: undefined;
   ForgotPass: undefined;
   DashBoard: undefined;
+  Add: undefined;
   Home: undefined;
   Supplier: undefined;
   PendingRequest: undefined;

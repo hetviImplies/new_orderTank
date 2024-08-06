@@ -46,6 +46,10 @@
 		<string>Lexend-Medium.ttf</string>
 		<string>Lexend-Regular.ttf</string>
 		<string>Lexend-SemiBold.ttf</string>
+		<string>Montserrat-Bold.ttf</string>
+		<string>Montserrat-Medium.ttf</string>
+		<string>Montserrat-Regular.ttf</string>
+		<string>Montserrat-SemiBold.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

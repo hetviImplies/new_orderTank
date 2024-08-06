@@ -63,6 +63,13 @@ import AddOrder from './svgs/add-order.svg';
 import AddSupplier from './svgs/add-supplier.svg';
 import AndroidBack from './svgs/android-back.svg';
 
+//new
+import LogoBg from './svgs/new/mask-group.svg';
+import TabHome from './svgs/new/new-home.svg';
+import TabSupplier from './svgs/new/new-supplier.svg';
+import TabProfile from './svgs/new/new-profile.svg';
+import TabOrder from './svgs/new/new-order.svg';
+
 export default {
   BackRound,
   BackArrow,
@@ -128,4 +135,9 @@ export default {
   AddOrder,
   AddSupplier,
   AndroidBack,
+  LogoBg,
+  TabHome,
+  TabOrder,
+  TabSupplier,
+  TabProfile,
 };

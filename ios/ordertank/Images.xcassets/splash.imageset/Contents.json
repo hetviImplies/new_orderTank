@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Splesh screen 1.png",
+      "filename" : "splash1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Splesh screen 1 (1).png",
+      "filename" : "splash2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Splesh screen 1 (2).png",
+      "filename" : "splash.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

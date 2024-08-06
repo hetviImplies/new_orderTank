@@ -66,6 +66,10 @@ function TabNavigator({route}: any) {
           headerTitleStyle: styles.title,
         }}
       />
+       <TabStack.Screen
+        name={RootScreens.Add}
+        component={OrderScreen}
+      />
       <TabStack.Screen
         name={RootScreens.Order}
         component={OrderScreen}

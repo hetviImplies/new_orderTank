@@ -1,34 +1,21 @@
-import {
-  ImageBackground,
-  Keyboard,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Keyboard, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
-import {colors, Images} from '../../assets';
+import {colors} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader, Popup} from '../../components';
-import commonStyle, {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLarge2Font,
-  smallFont,
-} from '../../styles';
+import {Button, FontText, Loader, Popup} from '../../components';
+import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
 import SvgIcons from '../../assets/SvgIcons';
-import {
-  setCurrentUser
-} from '../../redux/slices/authSlice';
+import {setCurrentUser} from '../../redux/slices/authSlice';
 import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import utils from '../../helper/utils';
 import {requestPermission} from '../../helper/PushNotification';
 import {emailRegx} from '../../helper/regex';
+import {DefaultTheme, TextInput} from 'react-native-paper';
 
 const LoginScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -42,6 +29,18 @@ const LoginScreen = ({navigation}: any) => {
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  const theme = {
+    ...DefaultTheme,
+    fontSize: mediumFont,
+    roundness: 15,
+    fonts: {
+      medium: {
+        fontFamily: 'mont-medium',
+        fontSize: mediumFont,
+      },
+    },
+  };
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -61,7 +60,7 @@ const LoginScreen = ({navigation}: any) => {
     // const notificationToken = await AsyncStorage.getItem('NotiToken');
     // console.log('NOTIFICATION TOKEN', notificationToken);
     // if (!notificationToken) {
-     await requestPermission();
+    await requestPermission();
     // }
   };
 
@@ -86,7 +85,7 @@ const LoginScreen = ({navigation}: any) => {
         password,
         // isMobile: true,
         notificationToken: JSON.stringify(notificationToken),
-      }
+      };
       const {data, error}: any = await login(body);
       if (!error && data?.statusCode === 200) {
         clearData();
@@ -155,63 +154,50 @@ const LoginScreen = ({navigation}: any) => {
     <>
       <View style={commonStyle.container}>
         <Loader loading={isLoading || isFetching} />
-        <ImageBackground
-          source={Images.bgImg}
-          style={styles.headerImg}
-          resizeMode="cover">
-          <SvgIcons.Logo
-            style={{
-              alignSelf: 'center',
-              marginVertical: hp(11.5),
-            }}
-          />
-          <FontText
-            name={'lexend-bold'}
-            size={mediumLarge2Font}
-            color={'orange'}
-            textAlign={'center'}>
-            {'Sign in'}
-          </FontText>
-        </ImageBackground>
+        <SvgIcons.LogoBg
+          width={wp(100)}
+          height={wp(41)}
+          style={{alignSelf: 'center'}}
+        />
         <View style={styles.middleContainer}>
+          <FontText
+            name={'mont-bold'}
+            size={largeFont}
+            color={'black2'}
+            pTop={wp(7)}
+            textAlign={'left'}>
+            {'Sign In'}
+          </FontText>
+          <FontText
+            name={'mont-medium'}
+            size={mediumFont}
+            color={'darkGray'}
+            pTop={wp(2)}
+            textAlign={'left'}>
+            {'Welcome back to OrderTank! 👋'}
+          </FontText>
           <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
-            <View style={{marginTop: hp(6)}}>
-              <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Email:'}
-                </FontText>
-              </View>
-              <Input
+            <View style={{marginTop: hp(3)}}>
+              <TextInput
+                label="Email"
                 value={email}
-                onChangeText={(text: string) => setEmail(text.trim())}
-                placeholder={'Enter Email'}
+                blurOnSubmit={false}
+                onChangeText={value => setEmail(value.trimStart())}
+                mode="outlined"
                 autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
+                outlineColor={isValidEmail ? colors.red : colors.lightGray}
+                activeOutlineColor={isValidEmail ? colors.red : colors.black2}
+                outlineStyle={{borderWidth: 1, borderRadius: 25}}
                 returnKeyType={'next'}
-                blurOnSubmit
-                onSubmit={() => {
+                keyboardType={'email-address'}
+                onSubmitEditing={() => {
                   passwordRef?.current.focus();
                 }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.Email width={iconSize} height={iconSize} />
-                  </View>
-                }
+                style={{backgroundColor: colors.white}}
+                textColor={colors.black4}
+                contentStyle={styles.inputText}
+                cursorColor={colors.darkGray}
+                theme={theme}
               />
               {isValidEmail && (
                 <FontText
@@ -225,123 +211,99 @@ const LoginScreen = ({navigation}: any) => {
                     : 'Invalid Email.'}
                 </FontText>
               )}
-              <View style={styles.marginTopView}>
-                <View
-                  style={[
-                    commonStyle.rowAC,
-                    {
-                      marginBottom: hp(1),
-                    },
-                  ]}>
-                  <FontText
-                    name={'lexend-regular'}
-                    size={mediumFont}
-                    color={'gray3'}
-                    pLeft={wp(1)}
-                    textAlign={'left'}>
-                    {'Password:'}
-                  </FontText>
-                </View>
-                <View style={commonStyle.rowAC}>
-                  <Input
-                    ref={passwordRef}
-                    value={password}
-                    onChangeText={(text: string) => setPassword(text.trim())}
-                    placeholder={'Enter Password'}
-                    placeholderTextColor={'placeholder'}
-                    fontSize={fontSize}
-                    color={'black'}
-                    inputStyle={[styles.inputText, {paddingRight: wp(12)}]}
-                    style={[styles.input]}
-                    secureTextEntry={!eyeIcon}
-                    returnKeyType={'done'}
-                    blurOnSubmit
-                    children={
-                      <View
-                        style={[
-                          commonStyle.abs,
-                          commonStyle.rowJB,
-                          {left: wp(4)},
-                        ]}>
-                        <SvgIcons.Lock width={iconSize} height={iconSize} />
-                      </View>
-                    }
-                    onSubmit={() => Keyboard.dismiss()}
-                  />
-                  <TouchableOpacity
+            </View>
+            <View style={{marginTop: hp(1.5)}}>
+              <TextInput
+                ref={passwordRef}
+                label="Password"
+                value={password}
+                onChangeText={(text: string) => setPassword(text.trim())}
+                mode="outlined"
+                outlineColor={
+                  isValidPassword && password.length < 6
+                    ? colors.red
+                    : colors.lightGray
+                }
+                activeOutlineColor={
+                  isValidPassword && password.length < 6
+                    ? colors.red
+                    : colors.black2
+                }
+                outlineStyle={{borderWidth: 1, borderRadius: 25}}
+                secureTextEntry={!eyeIcon}
+                right={
+                  <TextInput.Icon
+                    color={colors.darkGray}
                     onPress={handleEyePress}
-                    style={[
-                      commonStyle.abs,
-                      {
-                        right: wp(3),
-                        padding: wp(2),
-                      },
-                    ]}>
-                    {eyeIcon ? (
-                      <SvgIcons.EyeOpen width={iconSize} height={iconSize} />
-                    ) : (
-                      <SvgIcons.EyeClose width={iconSize} height={iconSize} />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {isValidPassword && (
-                  <FontText
-                    size={normalize(12)}
-                    color={'red'}
-                    pTop={wp(1)}
-                    textAlign="right"
-                    name="regular">
-                    {checkValid && password.length === 0
-                      ? `Password is required.`
-                      : 'Password must be at least 6 characters long.'}
-                  </FontText>
-                )}
-              </View>
-              <TouchableOpacity
-                onPress={onForgotPress}
-                style={{alignSelf: 'flex-end', marginTop: wp(2)}}>
+                    icon={eyeIcon ? 'eye-outline' : 'eye-off-outline'}
+                    size={wp(5)}
+                  />
+                }
+                returnKeyType={'done'}
+                onSubmitEditing={() => Keyboard.dismiss()}
+                style={{backgroundColor: colors.white}}
+                textColor={colors.black4}
+                contentStyle={styles.inputText}
+                cursorColor={colors.darkGray}
+                theme={theme}
+              />
+              {isValidPassword && (
                 <FontText
-                  name={'lexend-regular'}
-                  size={smallFont}
-                  color={'orange'}
-                  style={{textDecorationLine: 'underline'}}
-                  textAlign={'right'}>
-                  {'Forgot Password ?'}
+                  size={normalize(12)}
+                  color={'red'}
+                  pTop={wp(1)}
+                  textAlign="right"
+                  name="regular">
+                  {checkValid && password.length === 0
+                    ? `Password is required.`
+                    : 'Password must be at least 6 characters long.'}
                 </FontText>
-              </TouchableOpacity>
+              )}
             </View>
-            <Button
-              onPress={onLoginPress}
-              disabled={isLoading}
-              bgColor={'orange'}
-              style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={onForgotPress}
+              style={{alignSelf: 'flex-end', marginTop: wp(2.5)}}>
               <FontText
-                name={'lexend-semibold'}
-                size={fontSize}
-                color={'white'}>
-                {'Sign in'}
-              </FontText>
-            </Button>
-            <View style={[commonStyle.rowC, commonStyle.marginT2]}>
-              <FontText
-                name={'lexend-medium'}
+                name={'mont-semibold'}
                 size={mediumFont}
-                color={'black'}
-                textAlign={'center'}>
-                {'Don’t have an account?'}
+                color={'orange'}
+                textAlign={'right'}>
+                {'Forgot Password?'}
               </FontText>
-              <TouchableOpacity onPress={signUpPress}>
-                <FontText
-                  name={'lexend-medium'}
-                  size={mediumFont}
-                  color={'orange'}
-                  style={{textDecorationLine: 'underline'}}
-                  textAlign={'center'}>
-                  {' Sign up'}
-                </FontText>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </KeyboardAwareScrollView>
+          <Button
+            onPress={onLoginPress}
+            disabled={isLoading}
+            bgColor={'orange'}
+            style={styles.buttonContainer}>
+            <FontText name={'mont-bold'} size={fontSize} color={'white'}>
+              {'Sign In'}
+            </FontText>
+          </Button>
+          <View
+            style={[
+              commonStyle.rowC,
+              commonStyle.marginT2,
+              {marginBottom: hp(2)},
+            ]}>
+            <FontText
+              name={'mont-medium'}
+              size={mediumFont}
+              color={'darkGray'}
+              textAlign={'center'}>
+              {'Don’t have an account?'}
+            </FontText>
+            <TouchableOpacity onPress={signUpPress}>
+              <FontText
+                name={'mont-semibold'}
+                size={mediumFont}
+                color={'orange'}
+                textAlign={'center'}>
+                {' Sign Up'}
+              </FontText>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       <Popup
@@ -353,7 +315,6 @@ const LoginScreen = ({navigation}: any) => {
         rightBtnPress={sendEmailPress}
         rightBtnStyle={{width: '100%', height: hp(6)}}
       />
-      {/* )} */}
     </>
   );
 };
@@ -361,33 +322,18 @@ const LoginScreen = ({navigation}: any) => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  headerImg: {
-    width: '100%',
-    height: hp(36),
-  },
   middleContainer: {
     flex: 1,
-    marginHorizontal: wp(6),
+    marginHorizontal: wp(4),
   },
   inputText: {
-    borderRadius: 10,
-    paddingLeft: wp(12),
-    color: colors.black2,
-    fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
-    backgroundColor: colors.gray2,
-  },
-  input: {
-    width: '100%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    height: hp(6),
+    color: colors.darkGray,
+    fontSize: mediumFont,
+    fontFamily: 'Montserrat-Medium',
+    backgroundColor: 'transparent',
+    paddingLeft: wp(5),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
-    marginTop: hp(15),
-  },
-  marginTopView: {
-    marginTop: hp(1.5),
+    borderRadius: normalize(25),
   },
 });

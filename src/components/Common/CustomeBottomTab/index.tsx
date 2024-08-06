@@ -3,8 +3,10 @@ import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import {colors, SvgIcons} from '../../../assets';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
-import {tabIcon} from '../../../styles';
+import {smallFont, tabIcon} from '../../../styles';
 import FontText from '../FontText';
+import {FloatingAction} from 'react-native-floating-action';
+import {FLOATING_BTN_ACTION} from '../../../helper/data';
 
 // create a component
 const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
@@ -19,73 +21,73 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
         if (route.name === 'Home') {
           iconName = (
             <View style={styles.icon}>
-              {isFocused && <View style={[styles.border, styles.topBorder]} />}
-              <SvgIcons.Home height={tabIcon} width={tabIcon} />
+              <SvgIcons.TabHome
+                height={tabIcon}
+                width={tabIcon}
+                fill={isFocused ? colors.orange : colors.tabGray}
+              />
               <FontText
-                name={'lexend-regular'}
-                size={normalize(10)}
-                color={'orange'}
-                pTop={wp(1)}
+                name={'mont-medium'}
+                size={smallFont}
+                color={isFocused ? 'orange' : 'tabGray'}
+                pTop={wp(2)}
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && (
-                <View style={[styles.border, styles.bottomBorder]} />
-              )}
             </View>
           );
         } else if (route.name === 'Supplier') {
           iconName = (
             <View style={styles.icon}>
-              {isFocused && <View style={[styles.border, styles.topBorder]} />}
-              <SvgIcons.Supplier height={tabIcon} width={tabIcon} />
+              <SvgIcons.TabSupplier
+                height={tabIcon}
+                width={tabIcon}
+                fill={isFocused ? colors.orange : colors.tabGray}
+              />
               <FontText
-                name={'lexend-regular'}
-                size={normalize(10)}
-                color={'orange'}
-                pTop={wp(1)}
+                name={'mont-medium'}
+                size={smallFont}
+                color={isFocused ? 'orange' : 'tabGray'}
+                pTop={wp(2)}
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && (
-                <View style={[styles.border, styles.bottomBorder]} />
-              )}
             </View>
           );
         } else if (route.name === 'Order') {
           iconName = (
             <View style={styles.icon}>
-              {isFocused && <View style={[styles.border, styles.topBorder]} />}
-              <SvgIcons.Order height={tabIcon} width={tabIcon} />
+              <SvgIcons.TabOrder
+                height={tabIcon}
+                width={tabIcon}
+                fill={isFocused ? colors.orange : colors.tabGray}
+              />
               <FontText
-                name={'lexend-regular'}
-                size={normalize(10)}
-                color={'orange'}
-                pTop={wp(1)}
+                name={'mont-medium'}
+                size={smallFont}
+                color={isFocused ? 'orange' : 'tabGray'}
+                pTop={wp(2)}
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && (
-                <View style={[styles.border, styles.bottomBorder]} />
-              )}
             </View>
           );
         } else if (route.name === 'Profile') {
           iconName = (
             <View style={styles.icon}>
-              {isFocused && <View style={[styles.border, styles.topBorder]} />}
-              <SvgIcons.Setting height={tabIcon} width={tabIcon} />
+              <SvgIcons.TabProfile
+                height={tabIcon}
+                width={tabIcon}
+                fill={isFocused ? colors.orange : colors.tabGray}
+              />
               <FontText
-                name={'lexend-regular'}
-                size={normalize(10)}
-                color={'orange'}
-                pTop={wp(1)}
+                name={'mont-medium'}
+                size={smallFont}
+                color={isFocused ? 'orange' : 'tabGray'}
+                pTop={wp(2)}
                 textAlign={'center'}>
                 {route.name}
               </FontText>
-              {isFocused && (
-                <View style={[styles.border, styles.bottomBorder]} />
-              )}
             </View>
           );
         }
@@ -101,18 +103,40 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
             navigation.navigate(route.name);
           }
         };
-
+        console.log('index////', typeof index, iconName);
         return (
-          <TouchableOpacity
-            key={index.toString()}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? {selected: true} : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarTestID}
-            onPress={onPress}
-            style={{flex: 1}}>
-            {iconName}
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              key={index.toString()}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? {selected: true} : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarTestID}
+              onPress={onPress}
+              style={{flex: 1}}>
+              {iconName}
+            </TouchableOpacity>
+            {index === 2 ? (
+              <FloatingAction
+                actions={FLOATING_BTN_ACTION}
+                // onPressItem={name => {
+                //   if (name === 'bt_supplier') {
+                //     onAddCodePress();
+                //   } else {
+                //     navigation.navigate(RootScreens.Supplier);
+                //   }
+                // }}
+                onPressMain={() => console.log('main...')}
+                showBackground={false}
+                overlayColor="rgba(52, 52, 52, 0.5)"
+                color={colors.orange}
+                buttonSize={hp(7)}
+                iconHeight={hp(2.2)}
+                iconWidth={hp(2.2)}
+                position="center"
+              />
+            ) : null}
+          </>
         );
       })}
     </View>
@@ -125,8 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.white,
     alignItems: 'center',
-    borderTopLeftRadius: normalize(10),
-    borderTopRightRadius: normalize(10),
+    justifyContent: 'space-between',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -135,23 +158,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 8,
-  },
-  border: {
-    borderColor: colors.orange,
-    width: wp(16),
-    borderWidth: 2,
-    backgroundColor: colors.orange,
-    marginVertical: hp(0.8),
-  },
-  bottomBorder: {
-    borderTopLeftRadius: normalize(20),
-    borderTopRightRadius: normalize(20),
-    bottom: hp(-0.4),
-  },
-  topBorder: {
-    borderBottomLeftRadius: normalize(20),
-    borderBottomRightRadius: normalize(20),
-    top: hp(-0.4),
+    paddingVertical: hp(1.5),
   },
   icon: {alignSelf: 'center', alignItems: 'center'},
 });

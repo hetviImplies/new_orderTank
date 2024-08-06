@@ -1,26 +1,33 @@
-import {ImageBackground, Keyboard, StyleSheet, View} from 'react-native';
+import {Keyboard, StyleSheet, View} from 'react-native';
 import React, {useState} from 'react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader, Popup} from '../../components';
-import commonStyle, {
-  fontSize,
-  iconSize,
-  mediumFont,
-  mediumLarge2Font,
-} from '../../styles';
-import {colors, Images, SvgIcons} from '../../assets';
+import {Button, FontText, Loader, Popup} from '../../components';
+import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
+import {colors, SvgIcons} from '../../assets';
 import {useForgotPasswordMutation} from '../../api/auth';
 import utils from '../../helper/utils';
 import {RootScreens} from '../../types/type';
 import {resetNavigateTo} from '../../helper/navigationHelper';
 import {emailRegx} from '../../helper/regex';
+import {DefaultTheme, TextInput} from 'react-native-paper';
 
 const ForgotPasswordScreen = ({navigation}: any) => {
   const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
   const [email, setEmail] = useState('');
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const theme = {
+    ...DefaultTheme,
+    fontSize: mediumFont,
+    roundness: 15,
+    fonts: {
+      medium: {
+        fontFamily: 'mont-medium',
+        fontSize: mediumFont,
+      },
+    },
+  };
 
   const validationEmail = (val: any) => {
     const result = emailRegx.test(val.trim());
@@ -41,7 +48,9 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         // utils.showSuccessToast(data.message);
         setIsOpen(true);
       } else {
-        utils.showErrorToast(data?.message ? data?.message : error?.data?.message);
+        utils.showErrorToast(
+          data?.message ? data?.message : error?.data?.message,
+        );
       }
     }
   };
@@ -49,68 +58,52 @@ const ForgotPasswordScreen = ({navigation}: any) => {
   return (
     <View style={commonStyle.container}>
       <Loader loading={isLoading} />
-      <ImageBackground
-        source={Images.bgImg}
-        style={styles.headerImg}
-        resizeMode="cover">
-        <SvgIcons.Logo
-          style={{
-            alignSelf: 'center',
-            marginVertical: hp(11.5),
-          }}
-        />
-        <FontText
-          name={'lexend-bold'}
-          size={mediumLarge2Font}
-          color={'orange'}
-          textAlign={'center'}>
-          {'Forgot Password'}
-        </FontText>
-      </ImageBackground>
+      <SvgIcons.LogoBg
+        width={wp(100)}
+        height={wp(41)}
+        style={{alignSelf: 'center'}}
+      />
       <View style={styles.middleContainer}>
-        {/* <TouchableOpacity onPress={() => navigation.goBack()}>
-          <SvgIcons.BackRound
-            width={tabIcon}
-            height={tabIcon}
-            style={commonStyle.marginT2}
-          />
-        </TouchableOpacity> */}
+        <FontText
+          name={'mont-bold'}
+          size={largeFont}
+          color={'black2'}
+          pTop={wp(7)}
+          textAlign={'left'}>
+          {'Forgot Password?'}
+        </FontText>
+        <FontText
+          name={'mont-medium'}
+          size={mediumFont}
+          color={'darkGray'}
+          pTop={wp(2)}
+          textAlign={'left'}>
+          {
+            "Enter the email associated with your account and we'll send an email with instructions to reset your password."
+          }
+        </FontText>
         <KeyboardAwareScrollView>
           <View style={{marginTop: hp(3)}}>
-            <View
-              style={[
-                commonStyle.rowAC,
-                {
-                  marginBottom: hp(1),
-                },
-              ]}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Email:'}
-              </FontText>
-            </View>
-            <Input
+            <TextInput
+              label="Email"
               value={email}
-              onChangeText={(text: string) => setEmail(text.trim())}
-              placeholder={'Enter Email'}
+              blurOnSubmit={false}
+              onChangeText={value => setEmail(value.trimStart())}
+              mode="outlined"
               autoCapitalize="none"
-              placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
-              inputStyle={styles.inputText}
-              style={styles.input}
-              color={'black'}
+              outlineColor={isValidEmail ? colors.red : colors.lightGray}
+              activeOutlineColor={isValidEmail ? colors.red : colors.black2}
+              outlineStyle={{borderWidth: 1, borderRadius: 25}}
               returnKeyType={'next'}
-              blurOnSubmit
-              onSubmit={() => Keyboard.dismiss()}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.Email width={iconSize} height={iconSize} />
-                </View>
-              }
+              keyboardType={'email-address'}
+              onSubmitEditing={() => {
+                Keyboard.dismiss();
+              }}
+              style={{backgroundColor: colors.white}}
+              textColor={colors.black4}
+              contentStyle={styles.inputText}
+              cursorColor={colors.darkGray}
+              theme={theme}
             />
             {isValidEmail && (
               <FontText
@@ -120,20 +113,20 @@ const ForgotPasswordScreen = ({navigation}: any) => {
                 textAlign="right"
                 name="regular">
                 {checkValid && email.length === 0
-                  ? 'Email is required.'
+                  ? `Email is required.`
                   : 'Invalid Email.'}
               </FontText>
             )}
           </View>
-          <Button
-            onPress={onContinuePress}
-            bgColor={'orange'}
-            style={styles.buttonContainer}>
-            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-              {'Submit'}
-            </FontText>
-          </Button>
         </KeyboardAwareScrollView>
+        <Button
+          onPress={onContinuePress}
+          bgColor={'orange'}
+          style={styles.buttonContainer}>
+          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            {'Send Instructions'}
+          </FontText>
+        </Button>
       </View>
       <Popup
         visible={isOpen}
@@ -156,30 +149,19 @@ const ForgotPasswordScreen = ({navigation}: any) => {
 export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
-  headerImg: {
-    width: '100%',
-    height: hp(36),
-  },
   middleContainer: {
     flex: 1,
-    marginHorizontal: wp(6),
+    marginHorizontal: wp(4),
   },
   inputText: {
-    borderRadius: 10,
-    paddingLeft: wp(12),
-    color: colors.black2,
-    fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
-    backgroundColor: colors.gray2,
-  },
-  input: {
-    width: '100%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    height: hp(6),
+    color: colors.darkGray,
+    fontSize: mediumFont,
+    fontFamily: 'Montserrat-Medium',
+    backgroundColor: 'transparent',
+    paddingLeft: wp(5),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
-    marginTop: hp(15),
+    borderRadius: normalize(25),
+    marginBottom: hp(6),
   },
 });
