@@ -7,6 +7,7 @@ const Images = {
   companyImg: require('./images/Company.png'),
   productImg: require('./images/product.png'),
   logoImg: require('./images/group.png'),
+  _productImg: require('./images/Product-new.png'),
 };
 
 export default Images;

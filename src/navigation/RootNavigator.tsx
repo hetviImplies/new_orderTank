@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StatusBar, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 // import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -30,6 +30,7 @@ import {useGetCurrentUserQuery} from '../api/auth';
 import {setCurrentUser} from '../redux/slices/authSlice';
 import {hp, isIOS, normalize, wp} from '../styles/responsiveScreen';
 import colors from '../assets/colors';
+import { fonts } from '../assets';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
 
@@ -51,19 +52,20 @@ function TabNavigator({route}: any) {
         name={RootScreens.Home}
         component={HomeScreen}
         options={{
-          title: 'Welcome to OrderTank',
-          headerTitleAlign: 'left',
-          headerStyle: {height: isIOS ? hp(13) : hp(7)},
-          headerTitleStyle: styles.title,
+          title: '',
+
+          // headerTitleAlign: 'left',
+          headerStyle: {height: isIOS ? hp(13) : hp(7),
+            // backgroundColor: colors.orange,
+          },
+          // headerTitleStyle: styles.title,
         }}
       />
       <TabStack.Screen
         name={RootScreens.Supplier}
         component={SupplierScreen}
         options={{
-          title: 'Supplier',
-          headerTitleAlign: 'left',
-          headerTitleStyle: styles.title,
+          title: '',
         }}
       />
        <TabStack.Screen
@@ -74,7 +76,7 @@ function TabNavigator({route}: any) {
         name={RootScreens.Order}
         component={OrderScreen}
         options={{
-          title: 'Order',
+          title: '',
           headerTitleAlign: 'left',
           headerTitleStyle: styles.title,
         }}
@@ -83,7 +85,7 @@ function TabNavigator({route}: any) {
         name={RootScreens.Profile}
         component={ProfileScreen}
         options={{
-          title: 'My Profile',
+          title: '',
           headerTitleAlign: 'left',
           headerTitleStyle: styles.title,
         }}
@@ -111,6 +113,8 @@ const RootNavigator = () => {
   }, [data, isFetching]);
 
   return (
+    <>
+    <StatusBar backgroundColor={colors.orange}/>
     <RootStack.Navigator
       initialRouteName={RootScreens.Splash}
       screenOptions={{
@@ -153,20 +157,21 @@ const RootNavigator = () => {
         name={RootScreens.ProductListing}
         component={ProductListingScreen}
         options={({route}: any) => ({
-          title: route.params.company,
+          // title: route.params.company,
+          title:'',
           headerTitleStyle: styles.title1,
         })}
       />
       <RootStack.Screen
         name={RootScreens.PersonalDetail}
         component={PersonalDetailScreen}
-        options={{title: 'Personal Detail', headerTitleStyle: styles.title}}
+        options={{title: '', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.CompanyDetail}
         component={CompanyDetailScreen}
         options={({route}: any) => ({
-          title: route.params.name,
+          title: '',
           gestureEnabled: route.params.name === 'Profile' ? true : false,
           headerTitleStyle: styles.title,
           headerTitleAlign: 'center',
@@ -175,7 +180,7 @@ const RootNavigator = () => {
       <RootStack.Screen
         name={RootScreens.Cart}
         component={CartScreen}
-        options={{title: 'Selected Items', headerTitleStyle: styles.title}}
+        options={{title: '', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.CartList}
@@ -185,7 +190,7 @@ const RootNavigator = () => {
         name={RootScreens.SecureCheckout}
         component={SecureCheckoutScreen}
         options={({route}: any) => ({
-          title: route.params.name,
+          title: '',
           headerBackTitleVisible: false,
           headerTitleStyle: styles.title,
         })}
@@ -194,26 +199,27 @@ const RootNavigator = () => {
         name={RootScreens.ProductDetail}
         component={ProductDetailScreen}
         options={({route}: any) => ({
-          title: route.params.name,
+          title: '',
           headerBackTitleVisible: false,
           headerTitleStyle: styles.title,
+
         })}
       />
       <RootStack.Screen
         name={RootScreens.Notification}
         component={NotificationScreen}
-        options={{headerTitleStyle: styles.title}}
+        options={{headerTitleStyle: styles.title,title: '',}}
       />
       <RootStack.Screen
         name={RootScreens.Address}
         component={AddressScreen}
-        options={{title: 'My Address', headerTitleStyle: styles.title}}
+        options={{title: '', headerTitleStyle: styles.title}}
       />
       <RootStack.Screen
         name={RootScreens.AddAddress}
         component={AddAddressScreen}
         options={({route}: any) => ({
-          title: route.params.name,
+          title: '',
           headerTitleStyle: styles.title,
         })}
       />
@@ -223,6 +229,7 @@ const RootNavigator = () => {
         options={{headerShown: false}}
       />
     </RootStack.Navigator>
+    </>
   );
 };
 
@@ -232,12 +239,12 @@ const styles = StyleSheet.create({
   title: {
     color: colors.black2,
     fontSize: normalize(18),
-    fontFamily: 'Lexend-Medium',
+    fontFamily: fonts['mont-semibold'],
   },
   title1: {
     width: wp(60),
     color: colors.black2,
     fontSize: normalize(18),
-    fontFamily: 'Lexend-Medium',
+    fontFamily: fonts['mont-semibold'],
   },
 });

@@ -6,8 +6,8 @@ export default {
   'lexend-semibold': 'Lexend-SemiBold',
   'lexend-bold': 'Lexend-Bold',
   'lexend-extrabold': 'Lexend-ExtraBold',
-  'mont-regular': 'Montserrat-Regular',
-  'mont-medium': 'Montserrat-Medium',
-  'mont-semibold': 'Montserrat-SemiBold',
-  'mont-bold': 'Montserrat-Bold',
+  'mont-regular': 'Montserrat-Regular', // regular 400
+  'mont-medium': 'Montserrat-Medium', // Medium 500
+  'mont-semibold': 'Montserrat-SemiBold', // SemiBold 600
+  'mont-bold': 'Montserrat-Bold', // bold 700
 } as any;

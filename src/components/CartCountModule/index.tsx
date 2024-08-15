@@ -28,54 +28,73 @@ const CartCountModule = (props: any) => {
       {cartData && cartData?.length !== 0 && (
         <>
           <View style={[styles.totalContainer]}>
-            {/* <View style={{padding: wp(3)}}>
+            <View style={{padding: wp(3)}}>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
                 <FontText
-                  color="black2"
-                  name="lexend-regular"
+                  color="darkGray"
+                  name="mont-medium"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {`Sub Total (${cartData?.length} items)`}
+                  {`Sub Total`}
                 </FontText>
                 <FontText
                   color="black2"
-                  name="lexend-regular"
+                  name="mont-semibold"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {'₹'}
+                  {'₹ '}
                   {`${total}`}
+                </FontText>
+              </View>
+              <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
+              <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
+                <FontText
+                  color="darkGray"
+                  name="mont-medium"
+                  size={mediumFont}
+                  textAlign={'left'}>
+                  {`Tax`}
+                </FontText>
+                <FontText
+                  color="black2"
+                  name="mont-semibold"
+                  size={mediumFont}
+                  textAlign={'left'}>
+                  {'₹ '}
+                  {`0.00`}
                 </FontText>
               </View>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
               <View style={[commonStyle.rowJB]}>
                 <FontText
-                  color="black2"
-                  name="lexend-regular"
+                  color="darkGray"
+                  name="mont-medium"
                   size={mediumFont}
                   textAlign={'left'}>
-                  {'Shipping Charge'}
+                  {'Shipping Fee'}
                 </FontText>
                 <FontText
                   color="black2"
-                  name="lexend-regular"
+                  name="mont-semibold"
                   size={mediumFont}
                   textAlign={'left'}>
                   {'₹'}
-                  {`0`}
+                  {`0.00`}
                 </FontText>
               </View>
-            </View> */}
+            </View>
+            <View style={[styles.dashedLine]} />
             <View style={[commonStyle.rowJB, styles.totalSubContainer]}>
               <FontText
-                color="white"
-                name="lexend-regular"
+                color="black2"
+                name="mont-medium"
                 size={mediumFont}
                 textAlign={'left'}>
-                {`Total Amount (${cartData?.length} items)`}
+                {`Total (${cartData?.length} items)`}
               </FontText>
               <FontText
-                color="white"
-                name="lexend-regular"
+                color="orange"
+                name="mont-bold"
                 size={mediumFont}
                 textAlign={'left'}>
                 {'₹'}
@@ -90,9 +109,9 @@ const CartCountModule = (props: any) => {
                   bgColor={btnColor1}
                   style={[styles.buttonContainer]}>
                   <FontText
-                    name={'lexend-medium'}
+                    name={'mont-semibold'}
                     size={fontSize}
-                    color={'white'}>
+                    color={'orange'}>
                     {btnText1}
                   </FontText>
                 </Button>
@@ -101,7 +120,7 @@ const CartCountModule = (props: any) => {
                   bgColor={btnColor2}
                   style={[styles.buttonContainer]}>
                   <FontText
-                    name={'lexend-medium'}
+                    name={'mont-semibold'}
                     size={fontSize}
                     color={'white'}>
                     {btnText2}
@@ -116,10 +135,10 @@ const CartCountModule = (props: any) => {
                 disabled={clickDisable}
                 style={[
                   styles.buttonContainer,
-                  {width: '54%', marginVertical:hp(3)},
+                  {width: '90%', marginVertical:hp(3),borderRadius:normalize(100)},
                 ]}>
                 <FontText
-                  name={'lexend-medium'}
+                  name={'mont-semibold'}
                   size={fontSize}
                   color={'white'}>
                   {btnText}
@@ -137,23 +156,27 @@ export default CartCountModule;
 
 const styles = StyleSheet.create({
   totalContainer: {
-    backgroundColor: colors.white2,
     marginTop: hp(1),
     width: '100%',
   },
   totalSubContainer: {
-    backgroundColor: colors.orange,
     padding: wp(3),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
-    width: '45%',
+    borderRadius: normalize(100),
+    width: '48%',
     alignSelf: 'center',
   },
   rowConatiner: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: hp(4),
+    marginHorizontal: hp(2),
     marginVertical: hp(3),
+  },
+  dashedLine: {
+    marginTop: wp(1),
+    borderTopWidth: 1,
+    borderColor: colors.gray6,
+    marginHorizontal: wp(3),
   },
 });

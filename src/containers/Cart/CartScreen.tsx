@@ -9,16 +9,23 @@ import {
 import React, {useEffect, useState} from 'react';
 import commonStyle, {
   fontSize,
+  iconSize,
   mediumFont,
   mediumLarge1Font,
+  mediumLargeFont,
+  smallest,
+  smallFont,
+  tabIcon,
 } from '../../styles';
 import {
   FontText,
   Popup,
   CartCountModule,
   NavigationBar,
+  CountNumberModule,
+  Modal,
 } from '../../components';
-import {colors, SvgIcons, Images} from '../../assets';
+import {colors, SvgIcons, Images, fonts} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import {
@@ -28,6 +35,8 @@ import {
   incrementCartItem,
   removeCartItem,
 } from './Carthelper';
+import {useFocusEffect} from '@react-navigation/native';
+import utils from '../../helper/utils';
 
 const CartScreen = ({navigation, route}: any) => {
   const [cartData, setCartData] = useState<any>([]);
@@ -45,6 +54,98 @@ const CartScreen = ({navigation, route}: any) => {
   const deliveryAdd = route?.params?.deliveryAdd;
   const billingAdd = route?.params?.billingAdd;
   const nav = route?.params?.nav;
+
+  const [cartItems, setCartItems] = useState<any>([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        const items = await getCartItems('MyCart');
+        setCartItems(items);
+      };
+      fetchCartItems();
+    }, []),
+  );
+
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.goBack()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Cart
+          </FontText>
+        </View>
+      ),
+      headerRight: () => (
+        <View
+          style={[
+            commonStyle.row,
+            {
+              marginRight: wp(4),
+              width: wp(10),
+              justifyContent: 'space-between',
+            },
+          ]}>
+          {/* <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => setIsOpen(true)}>
+            <SvgIcons.Icon_code width={tabIcon} height={tabIcon} />
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
+            {cartItems?.length ? (
+              <View style={commonStyle.cartCountView}>
+                <FontText
+                  color="orange"
+                  name="mont-semibold"
+                  size={normalize(10)}
+                  textAlign={'center'}>
+                  {cartItems?.length}
+                </FontText>
+              </View>
+            ) : null}
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, cartItems]);
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -79,7 +180,7 @@ const CartScreen = ({navigation, route}: any) => {
                 })
               }>
               <FontText
-                name={'lexend-regular'}
+                name={'mont-medium'}
                 size={mediumFont}
                 color={'black2'}
                 textAlign={'left'}>
@@ -155,27 +256,62 @@ const CartScreen = ({navigation, route}: any) => {
     setIsOpen(false);
   };
 
+  // <TouchableOpacity
+  //           style={{
+  //             padding:wp(2),
+  //             alignSelf: 'flex-end',
+  //             backgroundColor:colors.red3,borderRadius:normalize(100),justifyContent:"center",marginRight:wp(2)
+  //           }}
+  //           onPress={() => {
+  //             setIsOpen(true);
+  //             setSelectedItem(item.id);
+  //             // handleRemoveItem(item.id);
+  //           }}>
+  //           <SvgIcons._Trash width={wp(4)} height={wp(4)} />
+  //         </TouchableOpacity>
+
   const _renderItem = ({item, index}: any) => {
     return (
-      <View style={[styles.itemContainer, commonStyle.shadowContainer]}>
+      <View style={[styles.itemContainer]}>
         <View style={[commonStyle.rowAC, commonStyle.flex]}>
-          {item?.product?.image ? (
-            <Image source={{uri: item?.product?.image}} style={styles.logo} />
-          ) : (
-            <Image source={Images.productImg} style={styles.logo} />
-          )}
+          <View
+            style={{
+              borderWidth: 0,
+              borderRadius: normalize(8),
+              backgroundColor: colors.orange3,
+              padding: item?.product?.image ? null : '3%',
+            }}>
+            {item?.product?.image ? (
+              <Image source={{uri: item?.product?.image}} style={styles.logo} />
+            ) : (
+              <Image
+                source={Images.productImg}
+                style={[styles.logo, {width: hp(5), height: hp(5)}]}
+              />
+            )}
+          </View>
           <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
-              name={'lexend-regular'}
-              size={mediumFont}
-              color={'gray4'}
+              name={'mont-semibold'}
+              size={smallFont}
+              color={'black2'}
               textAlign={'left'}>
               {item?.product?.productName}
             </FontText>
+            {item?.product?.minOrderQuantity == 0 &&
+            item?.product?.maxOrderQuantity == 0 ? null : (
+              <FontText
+                name={'mont-medium'}
+                size={smallest}
+                color={'gray4'}
+                textAlign={'left'}>
+                {`Range : ${item?.product?.minOrderQuantity} - ${item?.product?.maxOrderQuantity}`}
+              </FontText>
+            )}
             <FontText
-              name={'lexend-regular'}
-              size={fontSize}
-              color={'black2'}
+              name={'mont-bold'}
+              size={smallFont}
+              color={'orange'}
               pTop={wp(1)}
               pBottom={wp(1)}
               textAlign={'left'}>
@@ -183,20 +319,10 @@ const CartScreen = ({navigation, route}: any) => {
               {item?.price}
               {item?.product?.unit && `${'/'}${item?.product?.unit}`}
             </FontText>
-            {item?.product?.minOrderQuantity == 0 &&
-            item?.product?.maxOrderQuantity == 0 ? null : (
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray4'}
-                textAlign={'left'}>
-                {`Range : ${item?.product?.minOrderQuantity} - ${item?.product?.maxOrderQuantity}`}
-              </FontText>
-            )}
           </View>
         </View>
         <View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               alignSelf: 'flex-end',
               paddingTop: hp(1),
@@ -208,8 +334,8 @@ const CartScreen = ({navigation, route}: any) => {
               // handleRemoveItem(item.id);
             }}>
             <SvgIcons.Trash width={wp(4)} height={wp(4)} />
-          </TouchableOpacity>
-          <View
+          </TouchableOpacity> */}
+          {/* <View
             style={[commonStyle.rowAC, styles.countContainer, {width: wp(25)}]}>
             <TouchableOpacity
               style={{flex: 0.3}}
@@ -237,10 +363,48 @@ const CartScreen = ({navigation, route}: any) => {
                 />
               </View>
             </TouchableOpacity>
+          </View> */}
+          <View style={{alignItems: 'center'}}>
+            <CountNumberModule
+              from={'cart'}
+              cartItems={item}
+              handleDecrement={handleDecrement}
+              handleIncrement={handleIncrement}
+              productDetail={item}
+            />
+            <TouchableOpacity
+              style={{
+                padding: wp(2),
+                alignSelf: 'flex-end',
+                backgroundColor: colors.red3,
+                borderRadius: normalize(100),
+                justifyContent: 'center',
+                marginRight: wp(2),
+              }}
+              onPress={() => {
+                setIsOpen(true);
+                setSelectedItem(item.id);
+                // handleRemoveItem(item.id);
+              }}>
+              <SvgIcons._Trash width={wp(4)} height={wp(4)} />
+            </TouchableOpacity>
           </View>
+          {/* <CountNumberModule from={'cart'} cartItems={item} handleDecrement={handleDecrement} handleIncrement={handleIncrement} productDetail={item} /> */}
         </View>
       </View>
     );
+  };
+  const cancelOrder = async () => {
+    setIsOpen(false);
+    const {data, error}: any = await cancelOrder(orderDetails.id);
+    if (!error && data?.statusCode === 200) {
+      utils.showSuccessToast('Order Cancel Successfully.');
+      navigation.goBack();
+    } else {
+      utils.showErrorToast(
+        data?.message ? data?.message : error?.data?.message,
+      );
+    }
   };
 
   return (
@@ -281,7 +445,7 @@ const CartScreen = ({navigation, route}: any) => {
             <SvgIcons.EmptyCart width={wp(40)} height={wp(40)} />
             <FontText
               color="black2"
-              name="lexend-medium"
+              name="mont-semibold"
               size={mediumLarge1Font}
               pTop={wp(4)}
               pBottom={wp(2.5)}
@@ -290,7 +454,7 @@ const CartScreen = ({navigation, route}: any) => {
             </FontText>
             <FontText
               color="gray"
-              name="lexend-regular"
+              name="mont-medium"
               size={fontSize}
               textAlign={'center'}>
               {`Looks like you haven’t added\n anything to your cart yet`}
@@ -298,7 +462,7 @@ const CartScreen = ({navigation, route}: any) => {
           </View>
         )}
         <CartCountModule
-          btnText={'Continue'}
+          btnText={'Checkout'}
           btnColor={'orange'}
           cartData={cartData}
           onPress={placeOrderPress}
@@ -347,17 +511,23 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: hp(1.5),
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(3),
     backgroundColor: colors.white,
-    borderRadius: normalize(10),
-    marginBottom: hp(1),
+    borderRadius: normalize(15),
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: colors.orange,
+    marginBottom: hp(1.5),
+    width: '100%',
   },
   logo: {
-    width: hp(7),
-    height: hp(7),
     resizeMode: 'cover',
     borderRadius: normalize(6),
+    width: hp(6.5),
+    height: hp(6.5),
   },
   iconContainer: {
     width: hp(2.5),

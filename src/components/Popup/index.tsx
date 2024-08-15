@@ -68,7 +68,7 @@ const Popup = (props: any) => {
           {title ? (
             <FontText
               color="black"
-              name="lexend-semibold"
+              name="mont-bold"
               size={mediumLarge1Font}
               pTop={wp(1)}
               pBottom={wp(4)}
@@ -80,7 +80,7 @@ const Popup = (props: any) => {
           {description ? (
             <FontText
               color="black"
-              name="lexend-regular"
+              name="mont-medium"
               size={smallFont}
               textAlign={'center'}>
               {description}
@@ -94,7 +94,7 @@ const Popup = (props: any) => {
                 bgColor={'transparent'}
                 style={[styles.leftBtn, leftBtnStyle]}>
                 <FontText
-                  name={'lexend-semibold'}
+                  name={'mont-bold'}
                   size={fontSize}
                   style={leftBtnTextStyle}
                   color={'orange'}>
@@ -109,7 +109,7 @@ const Popup = (props: any) => {
                 disabled={disabled}
                 style={[styles.rightBtn, rightBtnStyle]}>
                 <FontText
-                  name={'lexend-semibold'}
+                  name={'mont-bold'}
                   size={fontSize}
                   style={rightBtnTextStyle}
                   color={'white'}>

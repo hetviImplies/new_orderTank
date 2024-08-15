@@ -1,21 +1,38 @@
 import {
   FlatList,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import moment from 'moment';
 import {useFocusEffect} from '@react-navigation/native';
-import {NavigationBar, FontText, Loader} from '../../components';
-import commonStyle, {mediumFont, smallFont} from '../../styles';
+import {
+  NavigationBar,
+  FontText,
+  Loader,
+  PendingOrderComponent,
+  TabBar_,
+} from '../../components';
+import commonStyle, {
+  iconSize,
+  mediumFont,
+  mediumLargeFont,
+  smallFont,
+  tabIcon,
+} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {ORDERTYPE} from '../../helper/data';
 import colors from '../../assets/colors';
 import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import AddressComponent from '../../components/AddressComponent';
+import {SvgIcons} from '../../assets';
+import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import { getCartItems } from '../Cart/Carthelper';
 
 const OrderScreen = ({navigation, route}: any) => {
   const selectedType = route?.params?.type;
@@ -23,6 +40,98 @@ const OrderScreen = ({navigation, route}: any) => {
   const [selectOrder, setSelectOrder] = useState<any>({});
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [cartItems, setCartItems] = useState<any>([]);
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        const items = await getCartItems('MyCart');
+        setCartItems(items);
+      };
+      fetchCartItems();
+    }, []),
+  );
+
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Home)}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Order
+          </FontText>
+        </View>
+      ),
+      headerRight: () => (
+        <View
+          style={[
+            commonStyle.row,
+            {
+              marginRight: wp(4),
+              width: wp(10),
+              justifyContent: 'space-between',
+            },
+          ]}>
+          {/* <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => setIsOpen(true)}>
+            <SvgIcons.Icon_code width={tabIcon} height={tabIcon} />
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
+            {cartItems?.length ? (
+              <View style={commonStyle.cartCountView}>
+                <FontText
+                  color="orange"
+                  name="mont-semibold"
+                  size={normalize(10)}
+                  textAlign={'center'}>
+                  {cartItems?.length}
+                </FontText>
+              </View>
+            ) : null}
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation,cartItems]);
 
   const {
     data: orderList,
@@ -51,7 +160,7 @@ const OrderScreen = ({navigation, route}: any) => {
         setSelectOrder(selectedType);
       } else {
         setSelectOrder({
-          label: 'All Order',
+          label: 'All',
           value: 'all',
         });
       }
@@ -68,108 +177,50 @@ const OrderScreen = ({navigation, route}: any) => {
     setRefreshing(false);
   };
 
-  const onViewDetail = (item: any) => {
-    navigation.navigate(RootScreens.SecureCheckout, {
-      from: RootScreens.Order,
-      deliveryAdd: item?.deliveryAddress,
-      billingAdd: item?.billingAddress,
-      orderDetails: item,
-      notes: item?.notes,
-      name: 'Order Details',
-      nav: 'Order'
-    });
-  };
+  // const onViewDetail = (item: any) => {
+  //   navigation.navigate(RootScreens.SecureCheckout, {
+  //     from: RootScreens.Order,
+  //     deliveryAdd: item?.deliveryAddress,
+  //     billingAdd: item?.billingAddress,
+  //     orderDetails: item,
+  //     notes: item?.notes,
+  //     name: 'Order Details',
+  //     nav: 'Order',
+  //   });
+  // };
 
   const _renderItem = ({item, index}: any) => {
-    return (
-      <View
-        style={[
-          commonStyle.marginT2,
-          commonStyle.shadowContainer,
-          {
-            backgroundColor: colors.white,
-            borderRadius: normalize(10),
-            paddingVertical: hp(1.5),
-          },
-        ]}>
-        <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
-          <View>
-            <FontText
-              color={'black2'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {item?.orderId}
-            </FontText>
-            <FontText
-              color={'black2'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {item?.company?.companyName}
-            </FontText>
-          </View>
-          <View>
-            <FontText
-              color={'gray'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {moment(item?.orderDate).format('DD-MM-YYYY')}
-            </FontText>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'right'}
-              name={'lexend-medium'}>
-              {'₹'}
-              {Number(item?.totalAmount).toFixed(2)}
-            </FontText>
-          </View>
-        </View>
-        <View style={[styles.dashedLine]} />
-        <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>
-          <AddressComponent
-            item={item?.deliveryAddress}
-            from={RootScreens.SecureCheckout}
-          />
-        </View>
-        <View style={[styles.dashedLine]} />
-        <View
-          style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
-          <FontText
-            color={
-              item?.status === 'pending'
-                ? 'gray3'
-                : item?.status === 'cancelled'
-                ? 'red'
-                : item?.status === 'delivered'
-                ? 'green'
-                : item?.status === 'partialDelivered'
-                ? 'lightblue'
-                : item?.status === 'inProcess'
-                ? 'yellow'
-                : 'black'
-            }
-            size={smallFont}
-            textAlign={'left'}
-            name={'lexend-medium'}>
-            {item?.status}
-          </FontText>
-          <TouchableOpacity onPress={() => onViewDetail(item)}>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'left'}
-              style={{textDecorationLine: 'underline'}}
-              name={'lexend-medium'}>
-              {'View detail'}
-            </FontText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+    return <PendingOrderComponent item={item} navigation={navigation} />;
   };
+
+  // const FirstRoute = () => (
+  //   <View style={{flex: 1, backgroundColor: '#ff4081'}} />
+  // );
+
+  // const SecondRoute = () => (
+  //   <View style={{flex: 1, backgroundColor: '#673ab7'}} />
+  // );
+
+  // const renderScene = SceneMap({
+  //   All: FirstRoute,
+  //   Pending: SecondRoute,
+  //   Inprocess: FirstRoute,
+  //   PartialDelivered: SecondRoute,
+  //   Delivered: FirstRoute,
+  //   Cancelled: SecondRoute,
+  // });
+
+  // const layout = useWindowDimensions();
+
+  // const [index, setIndex] = React.useState(0);
+  // const [routes] = React.useState([
+  //   {key: 'All', title: `All (${orderList?.result?.data?.length})`},
+  //   {key: 'Pending', title: 'Pending'},
+  //   {key: 'Inprocess', title: 'In process'},
+  //   {key: 'PartialDelivered', title: 'Partial Delivered'},
+  //   {key: 'Delivered', title: 'Delivered'},
+  //   {key: 'Cancelled', title: 'Cancelled'},
+  // ]);
 
   return (
     <View style={commonStyle.container}>
@@ -190,8 +241,10 @@ const OrderScreen = ({navigation, route}: any) => {
         }
       /> */}
       <Loader loading={isProcess} />
-      <View style={commonStyle.paddingH4}>
+      <View style={{
+    marginBottom:wp(4)}}>
         <FlatList
+        style={{borderWidth:0}}
           horizontal
           ref={flatListRef}
           data={ORDERTYPE}
@@ -215,11 +268,11 @@ const OrderScreen = ({navigation, route}: any) => {
                   }>
                   <FontText
                     color={
-                      selectOrder?.label === item?.label ? 'white' : 'black2'
+                      selectOrder?.label === item?.label ? 'orange' : 'tabGray'
                     }
                     size={mediumFont}
                     textAlign={'center'}
-                    name={'lexend-regular'}>
+                    name={'mont-semibold'}>
                     {item?.label}{' '}
                     {selectOrder?.label === item?.label
                       ? orderList?.result?.data?.length === undefined ||
@@ -234,15 +287,29 @@ const OrderScreen = ({navigation, route}: any) => {
           }}
         />
       </View>
+      {/* <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: layout.width}}
+        renderTabBar={props => (
+            <TabBar_
+              props={props}
+              style={{backgroundColor: colors.white, width: wp(170),borderWidth:1}}
+              indicatorStyle={{backgroundColor: colors.orange}}
+            />
+        )}
+      /> */}
+
       {orderData && orderData.length === 0 ? (
         <View style={[commonStyle.allCenter, {flex: 1}]}>
           <FontText
             color="gray"
-            name="lexend-regular"
+            name="mont-medium"
             size={mediumFont}
             textAlign={'center'}>
             {`${
-              selectOrder?.label === 'All Order' ? '' : selectOrder?.label
+              selectOrder?.label === 'All' ? '' : selectOrder?.label
             } Orders are not available.`}
             {/* {'There are no orders at the moment.'} */}
           </FontText>
@@ -269,25 +336,24 @@ export default OrderScreen;
 const styles = StyleSheet.create({
   talkBubble: {
     backgroundColor: 'transparent',
-    marginHorizontal: wp(1.5),
   },
   talkBubbleSquare: {
     paddingHorizontal: wp(4),
-    paddingVertical: wp(3.2),
-    backgroundColor: colors.orange,
-    borderRadius: normalize(10),
+    paddingVertical: wp(3),
+    backgroundColor: colors.white,
+    borderBottomColor:colors.orange,
+    borderBottomWidth:2,
   },
   blankSquare: {
     paddingHorizontal: wp(4),
     paddingVertical: wp(3),
-    borderWidth: 1,
-    borderColor: colors.black2,
-    borderRadius: normalize(10),
+    borderBottomWidth:2,
+    borderBottomColor:colors.tabGray1
   },
   dashedLine: {
     marginTop: wp(1.5),
     borderWidth: 1,
-    borderColor: colors.line,
+    borderBottomColor:colors.orange,
     borderStyle: 'dashed',
   },
   paddingT1: {

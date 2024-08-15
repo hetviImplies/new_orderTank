@@ -7,10 +7,11 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import commonStyle, {mediumFont, smallFont} from '../../styles';
-import {Button, FontText} from '..';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import commonStyle, {mediumFont, smallest, smallFont} from '../../styles';
+import {Button, CountNumberModule, FontText} from '..';
+import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
 import {colors, SvgIcons, Images} from '../../assets';
+import { Video } from 'react-native-compressor';
 
 const ProductSection = ({
   section,
@@ -24,7 +25,7 @@ const ProductSection = ({
   return (
     <View style={isHorizontal ? {width: '100%'} : {}}>
       <FontText
-        name={'lexend-regular'}
+        name={'mont-semibold'}
         size={mediumFont}
         color={'gray4'}
         pTop={wp(1.5)}
@@ -63,41 +64,55 @@ const ProductItem = ({
     cartItems?.filter(
       (itm: any) => itm?.product?.id.toString() === item.id.toString(),
     ).length > 0;
-
   return (
     <View
       style={[
         isHorizontal ? styles.itemContainer : styles.itemVerticalContainer,
-        commonStyle.shadowContainer,
       ]}>
       <TouchableOpacity
         onPress={() => productPress(item)}
         style={[
           isHorizontal ? null : commonStyle.rowAC,
-          {width: isHorizontal ? '100%' : '70%', alignItems: 'center'},
+          {width: wp(40), alignItems: isHorizontal ? "flex-start" : "center"},
         ]}>
+          <View style={{borderWidth:0,borderRadius:normalize(8),backgroundColor:colors.orange3,padding:item?.image ? null : wp(1.5) ,paddingHorizontal:isHorizontal ? item.image ? null : isIOS ? wp(12.8) : wp(12.1) : null,bottom:isHorizontal ? wp(1) : null}}>
         {item?.image ? (
-          <Image source={{uri: item.image}} style={styles.productImg} />
+          <Image source={{uri: item.image}} style={[styles.productImg,{
+            width: isHorizontal ? wp(40) : isIOS ? wp(12) : wp(13),
+            height: isHorizontal ? hp(9) : isIOS ? hp(6.5) : hp(6.3)}]} />
         ) : (
-          <Image source={Images.productImg} style={styles.productImg} />
+          <Image source={Images._productImg} style={[styles.productImg,{
+            width: isHorizontal ? hp(8) : hp(5),
+            height: isHorizontal ? hp(8) : hp(5)}]} />
         )}
+        </View>
         <View
-          style={{
+          style={{borderWidth:0,
             marginLeft: isHorizontal ? 0 : wp(4),
             marginTop: isHorizontal ? hp(1) : 0,
-            alignItems: isHorizontal ? 'center' : 'flex-start',
+            alignItems: isHorizontal ? 'flex-start' : 'flex-start',
           }}>
           <FontText
-            name={'lexend-regular'}
+            name={'mont-semibold'}
             size={smallFont}
-            color={'gray4'}
+            color={'black2'}
             textAlign={'left'}>
             {item?.productName}
           </FontText>
+          {item?.minOrderQuantity == 0 && item?.maxOrderQuantity == 0 ? null : (
+            <FontText
+            pTop={wp(1)}
+            name={'mont-semibold'}
+            size={smallest}
+            color={'gray5'}
+            textAlign={'left'}>
+              {`Range : ${item?.minOrderQuantity} - ${item?.maxOrderQuantity}`}
+            </FontText>
+          )}
           <FontText
-            name={'lexend-regular'}
+            name={'mont-bold'}
             size={smallFont}
-            color={'black2'}
+            color={'orange'}
             pTop={wp(1)}
             pBottom={wp(1)}
             textAlign={'left'}>
@@ -105,56 +120,13 @@ const ProductItem = ({
             {item?.price}
             {item?.unit && `${'/'}${item?.unit}`}
           </FontText>
-          {item?.minOrderQuantity == 0 && item?.maxOrderQuantity == 0 ? null : (
-            <FontText
-              name={'lexend-regular'}
-              size={smallFont}
-              color={'gray4'}
-              textAlign={'left'}>
-              {`Range : ${item?.minOrderQuantity} - ${item?.maxOrderQuantity}`}
-            </FontText>
-          )}
+
         </View>
       </TouchableOpacity>
+
       {isItemInCart ? (
-        <View
-          style={[
-            commonStyle.rowAC,
-            styles.countContainer,
-            {marginTop: isHorizontal ? hp(1) : 0},
-          ]}>
-          <TouchableOpacity
-            style={{flex: 0.3}}
-            onPress={() => quantityDecrement(item.id)}>
-            <View style={[styles.iconContainer]}>
-              <SvgIcons.Remove width={wp(4)} height={wp(4)} />
-            </View>
-          </TouchableOpacity>
-          <FontText
-            color="white"
-            name="lexend-medium"
-            size={mediumFont}
-            style={{flex: 0.45}}
-            textAlign={'center'}>
-            {
-              cartItems?.find(
-                (itm: any) =>
-                  itm?.product?.id.toString() === item.id.toString(),
-              )?.quantity
-            }
-          </FontText>
-          <TouchableOpacity
-            style={{flex: 0.3, alignItems: 'flex-end'}}
-            onPress={() => quantityIncrement(item.id)}>
-            <View style={[styles.iconContainer]}>
-              <SvgIcons.Plus
-                width={wp(4)}
-                height={wp(4)}
-                fill={colors.orange}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
+
+    <CountNumberModule cartItems={cartItems} handleDecrement={quantityDecrement} handleIncrement={quantityIncrement} productDetail={item} />
       ) : (
         <Button
           bgColor={'orange'}
@@ -163,11 +135,12 @@ const ProductItem = ({
             styles.buttonContainer,
             {marginTop: isHorizontal ? hp(1) : 0},
           ]}>
-          <FontText name={'lexend-medium'} size={smallFont} color={'white'}>
+          <FontText name={'mont-semibold'} size={smallest} color={'white'}>
             {'Add to Cart'}
           </FontText>
         </Button>
       )}
+
     </View>
   );
 };
@@ -256,12 +229,14 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     alignItems: 'center',
-    paddingVertical: hp(1.5),
+    paddingVertical: isIOS ? hp(1.5) :hp(1.3),
     paddingHorizontal: hp(1),
     backgroundColor: colors.white,
     borderRadius: normalize(10),
     width: '48%',
-    marginBottom: hp(1.5),
+    marginBottom: hp(1.5),borderStyle:"dashed",
+    borderWidth:1,
+    borderColor:colors.orange,
   },
   itemVerticalContainer: {
     flexDirection: 'row',
@@ -270,32 +245,31 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1.5),
     paddingHorizontal: wp(3),
     backgroundColor: colors.white,
-    borderRadius: normalize(10),
+    borderRadius: normalize(15),
+    borderStyle:"dashed",
+    borderWidth:1,
+    borderColor:colors.orange,
     marginBottom: hp(1.5),
     width: '100%',
   },
   productImg: {
-    width: hp(7),
-    height: hp(7),
     resizeMode: 'cover',
     borderRadius: normalize(6),
   },
   buttonContainer: {
-    borderRadius: normalize(5),
+    borderRadius: normalize(50),
     height: hp(4),
     width: wp(25),
   },
   iconContainer: {
-    width: hp(2.8),
-    height: hp(2.8),
-    borderRadius: normalize(3),
-    backgroundColor: colors.white2,
+    width: hp(2.6) ,
+    height: hp(2.6),
+    borderRadius: normalize(50),
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth:1
   },
   countContainer: {
-    backgroundColor: colors.orange,
-    borderRadius: normalize(4),
     justifyContent: 'space-between',
     width: wp(25),
     padding: wp(1.2),

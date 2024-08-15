@@ -46,7 +46,7 @@ export default () => {
       });
       return unsubscribe;
     } catch (error) {
-      console.error(error);
+      console.error(error,'================================================');
     }
   }, []);
 

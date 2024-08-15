@@ -9,6 +9,7 @@ export const mediumLargeFont = normalize(18);
 export const mediumLarge1Font = normalize(20);
 export const mediumLarge2Font = normalize(22);
 export const largeFont = normalize(24);
+export const smallest = normalize(10)
 // export const marginVer = wp(3) : wp(3.5);
 // export const bottomPad = wp(4) : wp(7);
 export const iconSize = wp(4.5);
@@ -123,9 +124,9 @@ export default StyleSheet.create({
   },
   iconView: {
     backgroundColor: colors.white,
-    borderRadius: 12,
-    width: hp(6),
-    height: hp(6),
+    borderRadius: 100,
+    width: hp(6.5),
+    height: hp(6.5),
     alignItems: 'center',
     justifyContent: 'center',
     shadowOffset: {
@@ -198,4 +199,17 @@ export default StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
   },
+  cartCountView:{
+    width: hp(1.9),
+    height: hp(1.9),
+    backgroundColor: colors.white,
+    borderRadius: hp(1.5),
+    position: 'absolute',
+    left: wp(4.8),
+    bottom: wp(6.3),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor:colors.white,
+    borderWidth:1
+  }
 });

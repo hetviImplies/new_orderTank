@@ -7,6 +7,7 @@ import React, {
 import {View, TextInput, StyleSheet, findNodeHandle} from 'react-native';
 import {colors, fonts} from '../../../assets';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
+import { mediumFont } from '../../../styles';
 
 const Input = forwardRef(
   (
@@ -82,7 +83,7 @@ const Input = forwardRef(
       if (willCheckPosition && typeof checkPosition === 'function') {
         checkPosition(findNodeHandle(inputRef));
       }
-    };
+    }
 
     const _inputStyle = {
       height: multiline ? multilineHeight : height,
@@ -141,7 +142,7 @@ const Input = forwardRef(
             styles.input,
             _inputStyle,
             inputStyle,
-          ]}
+          {backgroundColor:color.white,fontSize:mediumFont,paddingRight:wp(13)}]}
         />
         {children}
       </View>
@@ -161,7 +162,7 @@ Input.defaultProps = {
   blurOnSubmit: false,
   returnKeyType: 'default',
   multiline: false,
-  multilineHeight: hp(10),
+  multilineHeight: wp(20),
   autoCapitalize: null,
   editable: true,
   keyboardType: 'default',
@@ -188,9 +189,12 @@ const styles = StyleSheet.create({
     // marginLeft: 0,
     // marginRight: 0,
     width: '100%',
+    borderWidth:1,
+    borderColor:colors.lightGray
   },
   inputMultiline: {
     textAlignVertical: 'top',
+
   },
   wrapper: {
     width: '100%',

@@ -11,7 +11,7 @@ import {
   Loader,
   NavigationBar,
 } from '../../components';
-import commonStyle, {iconSize, fontSize, mediumFont} from '../../styles';
+import commonStyle, {iconSize, fontSize, mediumFont, mediumLargeFont, smallFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {colors, SvgIcons} from '../../assets';
 import {STATES_DATA} from '../../helper/data';
@@ -27,11 +27,13 @@ import {
   updateAddressList,
 } from '../Cart/Carthelper';
 import {numRegx} from '../../helper/regex';
+import { RootScreens } from '../../types/type';
 
 const AddAddressScreen = (props: any) => {
   const {navigation, route} = props;
   const item = route?.params?.data;
   const addressType = route?.params?.addressType;
+  const from = route.name
 
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
@@ -64,6 +66,42 @@ const AddAddressScreen = (props: any) => {
     const result = numRegx.test(val?.trim());
     return result;
   };
+
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.goBack()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            {from==='AddAddress' ? "Add Address" : "Edit Address"}
+          </FontText>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
 
   const isValidAddressName = checkValid && addressName.length === 0;
   const isValidAddress = checkValid && address.length === 0;
@@ -209,35 +247,21 @@ const AddAddressScreen = (props: any) => {
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.marginTopView}>
-            <View style={[commonStyle.rowACMB1]}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Address Name:'}
-              </FontText>
-            </View>
             <Input
               ref={addressNameRef}
               value={addressName}
               onChangeText={(text: string) => setAddressName(text.trimStart())}
               placeholder={'Enter Address Name'}
               placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
+              fontSize={smallFont}
+              color={'darkGray'}
+              fontName={"mont-medium"}
               inputStyle={styles.inputText}
               style={styles.input}
-              color={'black'}
               returnKeyType={'next'}
               onSubmit={() => {
                 addressRef?.current.focus();
               }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.Location width={iconSize} height={iconSize} />
-                </View>
-              }
             />
             {/* <TouchableOpacity
               onPress={() => addressNameRef?.current?.open()}
@@ -267,31 +291,16 @@ const AddAddressScreen = (props: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View
-              style={[
-                commonStyle.rowAC,
-                {
-                  marginBottom: hp(1),
-                },
-              ]}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Address Line:'}
-              </FontText>
-            </View>
             <Input
+            fontName={"mont-medium"}
               ref={addressRef}
               value={address}
               onChangeText={(text: string) => setAddress(text.trimStart())}
               placeholder={'Enter Address'}
               placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
-              color={'black'}
-              inputStyle={[styles.inputText, {paddingTop: hp(2)}]}
+              fontSize={smallFont}
+              color={'darkGray'}
+              inputStyle={[styles.inputText, {paddingTop: hp(2),borderRadius:normalize(15)}]}
               style={[styles.input, {marginVertical: hp(2)}]}
               returnKeyType={'next'}
               multiline
@@ -299,11 +308,6 @@ const AddAddressScreen = (props: any) => {
               onSubmit={() => {
                 localityRef?.current.focus();
               }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4), top: 0}]}>
-                  <SvgIcons.Location width={iconSize} height={iconSize} />
-                </View>
-              }
             />
             {isValidAddress && (
               <FontText
@@ -317,35 +321,21 @@ const AddAddressScreen = (props: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View style={commonStyle.rowACMB1}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Locality:'}
-              </FontText>
-            </View>
             <Input
               ref={localityRef}
               value={locality}
               onChangeText={(text: string) => setLocality(text.trimStart())}
               placeholder={'Enter Locality'}
               placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
               inputStyle={styles.inputText}
               style={styles.input}
-              color={'black'}
+              fontSize={smallFont}
+              color={'darkGray'}
+              fontName={"mont-medium"}
               returnKeyType={'next'}
               onSubmit={() => {
                 pinCodeRef?.current.focus();
               }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.Location width={iconSize} height={iconSize} />
-                </View>
-              }
             />
             {isValidLocality && (
               <FontText
@@ -359,16 +349,6 @@ const AddAddressScreen = (props: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View style={commonStyle.rowACMB1}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Pin Code:'}
-              </FontText>
-            </View>
             <Input
               ref={pinCodeRef}
               value={pinCode}
@@ -386,11 +366,6 @@ const AddAddressScreen = (props: any) => {
               onSubmit={() => {
                 cityRef?.current.focus();
               }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.PinCode width={iconSize} height={iconSize} />
-                </View>
-              }
             />
             {isValidPinCode && (
               <FontText
@@ -406,33 +381,20 @@ const AddAddressScreen = (props: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View style={commonStyle.rowACMB1}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'City:'}
-              </FontText>
-            </View>
             <Input
               ref={cityRef}
               value={city}
               onChangeText={(text: string) => setCity(text.trimStart())}
               placeholder={'Enter City'}
               placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
+              fontSize={smallFont}
+              color={'darkGray'}
+              fontName={"mont-medium"}
               inputStyle={styles.inputText}
               style={styles.input}
-              color={'black'}
+
               returnKeyType={'done'}
               blurOnSubmit
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.City width={iconSize} height={iconSize} />
-                </View>
-              }
             />
             {isValidCity && (
               <FontText
@@ -446,31 +408,21 @@ const AddAddressScreen = (props: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View style={[commonStyle.rowACMB1]}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'State:'}
-              </FontText>
-            </View>
             <TouchableOpacity
               onPress={() => stateRef?.current?.open()}
               style={styles.dropdownView}>
-              <View style={[commonStyle.abs, {left: wp(4)}]}>
+              {/* <View style={[commonStyle.abs, {left: wp(4)}]}>
                 <SvgIcons.State width={iconSize} height={iconSize} />
-              </View>
+              </View> */}
               <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={state ? 'black' : 'gray'}
-                pLeft={wp(9)}
+                name={'mont-medium'}
+                size={smallFont}
+                color={state ? 'darkGray' : 'gray'}
+                pLeft={wp(3)}
                 textAlign={'left'}>
                 {state ? state : 'Select State'}
               </FontText>
-              <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
+              <SvgIcons._DownArrow height={wp(3.5)} width={wp(3.5)} />
             </TouchableOpacity>
             {isValidState && (
               <FontText
@@ -526,7 +478,7 @@ const AddAddressScreen = (props: any) => {
           onPress={submitPress}
           bgColor={'orange'}
           style={styles.buttonContainer}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+          <FontText name={'mont-bold'} size={fontSize} color={'white'}>
             {item ? 'Update' : 'Add Address'}
           </FontText>
         </Button>
@@ -565,11 +517,11 @@ export default AddAddressScreen;
 
 const styles = StyleSheet.create({
   inputText: {
-    borderRadius: 10,
-    paddingLeft: wp(12),
-    color: colors.black,
-    fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
+    borderRadius: normalize(100),
+    paddingLeft: wp(6),
+    color: colors.darkGray,
+    fontSize: smallFont,
+    fontFamily: 'mont-medium',
     backgroundColor: colors.gray2,
   },
   input: {
@@ -579,19 +531,21 @@ const styles = StyleSheet.create({
     height: hp(6),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
+    borderRadius: normalize(100),
     marginVertical: hp(2),
   },
   marginTopView: {
-    marginTop: hp(1.5),
+    marginTop: hp(2),
   },
   dropdownView: {
-    borderRadius: 10,
+    borderRadius: normalize(100),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     height: hp(6),
-    backgroundColor: colors.gray2,
+    backgroundColor: colors.white,
     paddingHorizontal: wp(3),
+    borderWidth:1,
+    borderColor:colors.lightGray
   },
 });

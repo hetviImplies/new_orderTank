@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
-import {colors} from '../../assets';
+import {colors, fonts} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Loader, Popup} from '../../components';
 import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
@@ -36,7 +36,7 @@ const LoginScreen = ({navigation}: any) => {
     roundness: 15,
     fonts: {
       medium: {
-        fontFamily: 'mont-medium',
+        fontFamily: fonts['mont-medium'],
         fontSize: mediumFont,
       },
     },

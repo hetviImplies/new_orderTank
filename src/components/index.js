@@ -16,6 +16,14 @@ import _IconHeader from './IconHeader';
 import _ImageCarousel from './ImageCarousel';
 import _ListHeader from './ListHeader';
 import _ProductComponent from './ProductComponent';
+import ModalComponente from './Modal';
+import CountModule from './Common/CountCard.js';
+import TabBarView from './Common/TabView/TabBar.js';
+import PendingOrder from './PendingOrderComponent/index.js';
+import PendingSuppliers from './PendingSuppliers/index.js';
+import DrawerModal from './DrawerModal/index.js';
+import _IncrementDecrementModule from './IncrementDecrementComponent/index.js';
+import OutLine_TextInput from './Common/Input/OutLine_TextInput.js';
 
 export const Button = _Button;
 export const FontText = _FontText;
@@ -35,3 +43,11 @@ export const IconHeader = _IconHeader;
 export const ImageCarousel = _ImageCarousel;
 export const ListHeader = _ListHeader;
 export const ProductComponent = _ProductComponent;
+export const Modal = ModalComponente
+export const CountCard = CountModule
+export const TabBar_ = TabBarView
+export const PendingOrderComponent = PendingOrder
+export const PendingSuppliersComponent = PendingSuppliers
+export const DrawerComponent = DrawerModal
+export const CountNumberModule = _IncrementDecrementModule
+export const OutLine_Input = OutLine_TextInput

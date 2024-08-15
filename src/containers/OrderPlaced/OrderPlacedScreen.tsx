@@ -42,7 +42,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
       ]}>
       <FontText
         color="black2"
-        name="lexend-regular"
+        name="mont-medium"
         size={mediumLargeFont}
         pBottom={wp(25)}
         textAlign={'center'}>
@@ -51,7 +51,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
       <SvgIcons.Purchase />
       <FontText
         color="black"
-        name="lexend-medium"
+        name="mont-semibold"
         size={mediumLarge1Font}
         pTop={wp(5)}
         pBottom={wp(3)}
@@ -60,7 +60,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
       </FontText>
       <FontText
         color="black2"
-        name="lexend-medium"
+        name="mont-semibold"
         size={mediumFont}
         pBottom={wp(20)}
         textAlign={'center'}>
@@ -69,7 +69,7 @@ const OrderPlacedScreen = ({navigation, route}: any) => {
       <TouchableOpacity style={styles.buttonContainer} onPress={backAction}>
         <FontText
           color="orange"
-          name="lexend-bold"
+          name="mont-bold"
           size={mediumLargeFont}
           style={{textDecorationLine: 'underline'}}
           textAlign={'center'}>

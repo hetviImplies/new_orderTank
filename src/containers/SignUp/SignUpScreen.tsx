@@ -18,7 +18,7 @@ import commonStyle, {
   mediumLarge2Font,
   smallFont,
 } from '../../styles';
-import {colors, SvgIcons, Images} from '../../assets';
+import {colors, SvgIcons, Images, fonts} from '../../assets';
 import {RootScreens} from '../../types/type';
 import utils from '../../helper/utils';
 import {resetNavigateTo} from '../../helper/navigationHelper';
@@ -45,7 +45,7 @@ const SignUpScreen = ({navigation}: any) => {
     roundness: 15,
     fonts: {
       medium: {
-        fontFamily: 'mont-medium',
+        fontFamily: fonts['mont-medium'],
         fontSize: mediumFont,
       },
     },

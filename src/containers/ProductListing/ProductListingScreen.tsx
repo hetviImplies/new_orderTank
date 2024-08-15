@@ -1,8 +1,8 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Alert, Keyboard, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {colors, SvgIcons} from '../../assets';
+import {colors, fonts, SvgIcons} from '../../assets';
 import {
   NavigationBar,
   FontText,
@@ -11,8 +11,9 @@ import {
   Popup,
   FilterModal,
   ProductComponent,
+  DrawerComponent,
 } from '../../components';
-import commonStyle, {tabIcon, fontSize, mediumFont} from '../../styles';
+import commonStyle, {tabIcon, fontSize, mediumFont, iconSize, mediumLargeFont, smallFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
 import {useGetAllProductsQuery} from '../../api/product';
@@ -24,7 +25,7 @@ import {
   updateCartItems,
 } from '../Cart/Carthelper';
 import {useGetCategoryQuery} from '../../api/category';
-
+import MenuDrawer from 'react-native-side-drawer';
 const ProductListingScreen = ({navigation, route}: any) => {
   const cartType = route?.params?.cartType;
   const id = route?.params?.id;
@@ -46,6 +47,12 @@ const ProductListingScreen = ({navigation, route}: any) => {
   const [cartItems, setCartItems] = useState<any>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<any>({});
+  const [isModalVisible, setModalVisible] = useState(false);
+
+
+
+
+
 
   const {data: category, isFetching} = useGetCategoryQuery(
     {company: id},
@@ -76,36 +83,130 @@ const ProductListingScreen = ({navigation, route}: any) => {
     }, [refetch]),
   );
 
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <View style={[commonStyle.rowAC, {marginRight: wp(3)}]}>
+  //         <TouchableOpacity
+  //           style={[{marginRight: wp(5)}]}
+  //           onPress={() => setIsHorizontal(!isHorizontal)}>
+  //           <SvgIcons.Category width={tabIcon} height={tabIcon} />
+  //         </TouchableOpacity>
+  //         <TouchableOpacity
+  //           // style={commonStyle.iconView}
+  //           onPress={() => {
+  //             let params = {
+  //               from: RootScreens.SecureCheckout,
+  //               deliveryAdd: deliveryAdd,
+  //               billingAdd: billingAdd,
+  //               orderDetails: orderDetails,
+  //               notes: notes,
+  //               expectedDate: expectedDate,
+  //               cartType: cartType,
+  //               nav: nav,
+  //             };
+  //             navigation.navigate(RootScreens.Cart, params);
+  //           }}>
+  //           <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
+  //           {cartItems?.length ? (
+  //             <View style={styles.countView}>
+  //               <FontText
+  //                 color="white"
+  //                 name="lexend-medium"
+  //                 size={normalize(10)}
+  //                 textAlign={'center'}>
+  //                 {cartItems?.length}
+  //               </FontText>
+  //             </View>
+  //           ) : null}
+  //         </TouchableOpacity>
+  //       </View>
+  //     ),
+  //   });
+  // }, [navigation, isHorizontal, cartItems]);
+
   React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
     navigation.setOptions({
-      headerRight: () => (
-        <View style={[commonStyle.rowAC, {marginRight: wp(3)}]}>
+      headerStyle: {
+        backgroundColor: colors.orange,
+        zIndex:-100
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
           <TouchableOpacity
-            style={[{marginRight: wp(5)}]}
-            onPress={() => setIsHorizontal(!isHorizontal)}>
-            <SvgIcons.Category width={tabIcon} height={tabIcon} />
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.goBack()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
           </TouchableOpacity>
+          <FontText
+          style={{width:wp(30)}}
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            {route?.params.company}
+          </FontText>
+        </View>
+      ),
+      headerRight: () => (
+        <View
+          style={[
+            commonStyle.row,
+            {
+              marginRight: wp(4),
+              width: wp(10),
+              justifyContent: 'space-between',
+            },
+          ]}>
+          {/* <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => setIsOpen(true)}>
+            <SvgIcons.Icon_code width={tabIcon} height={tabIcon} />
+          </TouchableOpacity> */}
           <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
             // style={commonStyle.iconView}
             onPress={() => {
-              let params = {
-                from: RootScreens.SecureCheckout,
-                deliveryAdd: deliveryAdd,
-                billingAdd: billingAdd,
-                orderDetails: orderDetails,
-                notes: notes,
-                expectedDate: expectedDate,
-                cartType: cartType,
-                nav: nav,
-              };
-              navigation.navigate(RootScreens.Cart, params);
-            }}>
-            <SvgIcons.Buy width={wp(7)} height={wp(7)} fill={colors.orange} />
+                          let params = {
+                            from: RootScreens.SecureCheckout,
+                            deliveryAdd: deliveryAdd,
+                            billingAdd: billingAdd,
+                            orderDetails: orderDetails,
+                            notes: notes,
+                            expectedDate: expectedDate,
+                            cartType: cartType,
+                            nav: nav,
+                          };
+                          navigation.navigate(RootScreens.Cart, params);
+                        }}>
+            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
             {cartItems?.length ? (
-              <View style={styles.countView}>
+              <View style={commonStyle.cartCountView}>
                 <FontText
-                  color="white"
-                  name="lexend-medium"
+                  color="orange"
+                  name="mont-semibold"
                   size={normalize(10)}
                   textAlign={'center'}>
                   {cartItems?.length}
@@ -117,6 +218,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
       ),
     });
   }, [navigation, isHorizontal, cartItems]);
+
 
   useEffect(() => {
     const filterData = productList?.result?.filter(
@@ -232,7 +334,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const onSearch = (selectedItems: any) => {
-    filterRef.current.close();
+    togglCloseModal()
     setTimeout(() => {
       setSelectedItems(selectedItems);
       setSearch('');
@@ -240,7 +342,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
   };
 
   const onRefreshing = () => {
-    searchRef.current.blur();
+    searchRef?.current?.blur();
     setSearch('');
     setRefreshing(true);
     refetch();
@@ -260,6 +362,17 @@ const ProductListingScreen = ({navigation, route}: any) => {
       setIsOpen(false);
     }
   };
+
+
+  const togglOpeneModal = () => {
+    setModalVisible(true);
+  };
+  const togglCloseModal = () => {
+    setModalVisible(false);
+  };
+  const toggleModal = () =>{
+    setModalVisible(!isModalVisible);
+  }
 
   return (
     <View style={commonStyle.container}>
@@ -317,37 +430,50 @@ const ProductListingScreen = ({navigation, route}: any) => {
         style={[
           commonStyle.paddingH4,
           commonStyle.flex,
-          {marginTop: hp(1), flexWrap: 'wrap'},
+          {marginTop: hp(2), flexWrap: 'wrap'},
         ]}>
         <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
           <Input
-            ref={searchRef}
-            value={search}
-            onChangeText={(text: any) => setSearch(text.trimStart())}
-            // onSubmit={(text: any) => setSearchText(text.trimStart())}
-            blurOnSubmit
-            autoCapitalize="none"
-            placeholder={'Search a product'}
-            placeholderTextColor={'gray3'}
-            fontSize={fontSize}
-            inputStyle={styles.inputText}
-            color={'black'}
-            returnKeyType={'done'}
-            style={[styles.input]}
-            children={
-              <View
-                style={{
-                  ...commonStyle.abs,
-                  left: wp(3),
-                }}>
-                <SvgIcons.Search width={wp(4)} height={wp(4)} />
-              </View>
-            }
-          />
+        value={search}
+        onChangeText={(text: any) => setSearch(text.trimStart())}
+        onSubmit={(text: any) => Keyboard.dismiss()}
+        blurOnSubmit={false}
+        autoCapitalize="none"
+        placeholder={'Search a Products'}
+        placeholderTextColor={'darkGray'}
+        fontSize={fontSize}
+        inputStyle={styles.inputText}
+        color={'black'}
+        returnKeyType={'done'}
+        style={[styles.input]}
+        children={
+          <View
+            style={{
+              ...commonStyle.abs,
+              right: wp(6),
+            }}>
+            <SvgIcons.Search width={iconSize} height={iconSize} />
+          </View>
+        }
+      />
           <TouchableOpacity
-            style={[commonStyle.iconView]}
-            onPress={() => filterRef.current.open()}>
-            <SvgIcons.Filter width={tabIcon} height={tabIcon} />
+            style={[commonStyle.iconView,{backgroundColor:colors.orange}]}
+            onPress={() => togglOpeneModal()}>
+            <SvgIcons.Filter_ width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={{marginVertical:wp(2),flexDirection:"row",justifyContent:"space-between"}}>
+          <FontText
+          style={{right:wp(1)}}
+          name={'mont-semibold'}
+          size={fontSize}
+          pLeft={wp(1)}
+          color={'black2'}
+          >Products</FontText>
+          <TouchableOpacity
+            onPress={() => setIsHorizontal(!isHorizontal)}>
+            {isHorizontal ? <SvgIcons.List_View width={tabIcon} height={tabIcon} /> : <SvgIcons.Card_View width={tabIcon} height={tabIcon} />}
           </TouchableOpacity>
         </View>
         {productListData && productListData.length !== 0 ? (
@@ -380,7 +506,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           <View style={[commonStyle.allCenter, commonStyle.flex]}>
             <FontText
               color="gray"
-              name="lexend-regular"
+              name="mont-medium"
               size={mediumFont}
               textAlign={'center'}>
               {'No products available.'}
@@ -411,7 +537,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
         rightBtnTextStyle={{fontSize: mediumFont}}
         style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
       />
-      <RBSheet
+      {/* <RBSheet
         ref={filterRef}
         height={hp(50)}
         closeOnPressMask
@@ -433,7 +559,21 @@ const ProductListingScreen = ({navigation, route}: any) => {
           filterItems={selectedItems}
           category={category?.result}
         />
-      </RBSheet>
+      </RBSheet> */}
+      <DrawerComponent isModalVisible={isModalVisible} toggleModal={toggleModal}>
+      <FilterModal
+          onApplyPress={() => {
+            togglCloseModal();
+            setSearch('');
+          }}
+          navigation={navigation}
+          id={id}
+          onApply={onSearch}
+          setSearch={setSearch}
+          filterItems={selectedItems}
+          category={category?.result}
+        />
+      </DrawerComponent>
     </View>
   );
 };
@@ -443,10 +583,10 @@ export default ProductListingScreen;
 const styles = StyleSheet.create({
   inputText: {
     borderRadius: normalize(10),
-    paddingLeft: wp(10),
+    paddingLeft: wp(6),
     color: colors.black2,
     fontSize: normalize(12),
-    fontFamily: 'Lexend-Regular',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.white2,
     height: hp(6.5),
   },
@@ -460,15 +600,23 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: normalize(30),
     borderTopRightRadius: normalize(30),
   },
-  countView: {
-    width: hp(2.2),
-    height: hp(2.2),
-    backgroundColor: colors.orange,
-    borderRadius: hp(1.5),
-    position: 'absolute',
-    left: wp(3.5),
-    bottom: wp(3),
-    justifyContent: 'center',
-    alignItems: 'center',
+container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 30,
+    zIndex: 0
   },
+  animatedBox: {
+    flex: 1,
+    backgroundColor: "#38C8EC",
+    padding: 10
+  },
+  body: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F04812'
+  }
 });

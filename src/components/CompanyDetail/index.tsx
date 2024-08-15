@@ -5,13 +5,23 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import imageCompress, {getImageMetaData} from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {colors, Images, SvgIcons} from '../../assets';
-import {Button, FontText, Input, Loader, RadioButton, BottomSheet} from '..';
+import {colors, fonts, Images, SvgIcons} from '../../assets';
+import {
+  Button,
+  FontText,
+  Input,
+  Loader,
+  RadioButton,
+  BottomSheet,
+  OutLine_Input,
+} from '..';
 import commonStyle, {
   iconSize,
   fontSize,
   mediumFont,
   tabIcon,
+  mediumLargeFont,
+  smallFont,
 } from '../../styles';
 import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
 import {NUMBER_TYPE, STATES_DATA} from '../../helper/data';
@@ -38,6 +48,41 @@ const CompanyDetail = (props: any) => {
     refetchOnMountOrArgChange: true,
   });
 
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.goBack()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Company Detail
+          </FontText>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   const {data, isFetching} = useGetCompanyQuery(
     loginData ? loginData?.company?.id : userData?.result?.company?.id,
     {
@@ -59,18 +104,18 @@ const CompanyDetail = (props: any) => {
     return result;
   };
 
-  const regRef: any = useRef();
-  const nameRef: any = useRef();
-  const phoneRef: any = useRef();
-  const companyRef: any = useRef();
-  const addressNameRef: any = useRef();
-  const addressRef: any = useRef();
-  const localityRef: any = useRef();
-  const pinCodeRef: any = useRef();
-  const cityRef: any = useRef();
-  const stateRef: any = useRef();
-  const countryRef: any = useRef();
-  const imageRef: any = useRef();
+  let regRef = useRef(null);
+  let nameRef = useRef(null);
+  let phoneRef = useRef(null);
+  let companyRef = useRef(null);
+  let addressNameRef = useRef(null);
+  let addressRef: any = useRef();
+  let localityRef: any = useRef();
+  let pinCodeRef: any = useRef();
+  let cityRef: any = useRef();
+  let stateRef: any = useRef();
+  let countryRef: any = useRef();
+  let imageRef: any = useRef();
 
   const [checkValid, setCheckValid] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
@@ -349,6 +394,8 @@ const CompanyDetail = (props: any) => {
     }
   };
 
+
+
   return (
     <View style={commonStyle.container}>
       {/* {from !== 'Profile' ? (
@@ -387,21 +434,34 @@ const CompanyDetail = (props: any) => {
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View>
             {imageUrl ? (
-              <TouchableOpacity
+              <View
                 style={{
-                  marginBottom: hp(2),
+                  marginBottom: hp(2), //2
                   alignSelf: 'center',
-                }}
-                disabled={from === 'Profile' ? !editInformation : false}
-                onPress={imagePress}>
+                }}>
                 <Image source={{uri: imageUrl}} style={styles.avatar} />
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => setImageUrl('')}
                   disabled={from === 'Profile' ? !editInformation : false}
                   style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
                   <SvgIcons.Close width={tabIcon} height={tabIcon} />
+                </TouchableOpacity> */}
+                <TouchableOpacity
+                  onPress={imagePress}
+                  disabled={from === 'Profile' ? !editInformation : false}
+                  style={[
+                    commonStyle.abs,
+                    {
+                      top: hp(10),
+                      right: wp(0),
+                      borderRadius: normalize(100),
+                      backgroundColor: colors.orange3,
+                      padding: wp(2),
+                    },
+                  ]}>
+                  <SvgIcons._Camera_Profile width={tabIcon} height={tabIcon} />
                 </TouchableOpacity>
-              </TouchableOpacity>
+              </View>
             ) : (
               <>
                 {from !== 'Profile' ? (
@@ -411,7 +471,7 @@ const CompanyDetail = (props: any) => {
                     onPress={imagePress}>
                     <SvgIcons.Upload width={wp(8)} height={wp(8)} />
                     <FontText
-                      name={'lexend-regular'}
+                      name={'mont-medium'}
                       size={mediumFont}
                       color={'gray3'}
                       pTop={wp(2)}
@@ -420,21 +480,37 @@ const CompanyDetail = (props: any) => {
                     </FontText>
                   </TouchableOpacity>
                 ) : (
-                  <TouchableOpacity
+                  <View
                     style={{
                       marginBottom: hp(2),
                       alignSelf: 'center',
-                    }}
-                    disabled={from === 'Profile' ? !editInformation : false}
-                    onPress={imagePress}>
+                    }}>
                     <Image source={Images.companyImg} style={styles.avatar} />
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => setImageUrl('')}
                       disabled={from === 'Profile' ? !editInformation : false}
                       style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
                       <SvgIcons.Close width={tabIcon} height={tabIcon} />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity
+                      onPress={imagePress}
+                      disabled={from === 'Profile' ? !editInformation : false}
+                      style={[
+                        commonStyle.abs,
+                        {
+                          top: hp(10),
+                          right: wp(0),
+                          borderRadius: normalize(100),
+                          backgroundColor: colors.orange3,
+                          padding: wp(2),
+                        },
+                      ]}>
+                      <SvgIcons._Camera_Profile
+                        width={tabIcon}
+                        height={tabIcon}
+                      />
                     </TouchableOpacity>
-                  </TouchableOpacity>
+                  </View>
                 )}
               </>
             )}
@@ -450,7 +526,7 @@ const CompanyDetail = (props: any) => {
               />
             ) : null}
 
-            <View
+            {/* <View
               style={[
                 commonStyle.rowAC,
                 {
@@ -467,8 +543,8 @@ const CompanyDetail = (props: any) => {
                   {numberType === 1 ? 'GST Number:' : 'PAN Number:'}
                 </FontText>
               )}
-            </View>
-            <Input
+            </View> */}
+            {/* <Input
               editable={from === 'Profile' ? false : true}
               ref={regRef}
               value={numberType === 1 ? gstNo : panNo}
@@ -498,31 +574,62 @@ const CompanyDetail = (props: any) => {
                   <SvgIcons.PinCode width={iconSize} height={iconSize} />
                 </View>
               }
-            />
-            {(isValidGstNo || isValidPanNo) && (
-              <FontText
-                size={normalize(12)}
-                color={'red'}
-                pTop={wp(1)}
-                textAlign="right"
-                name="regular">
-                {numberType === 1 ? (
-                  <>
-                    {checkValid && gstNo?.length === 0
-                      ? `GST Number is required.`
-                      : !validationGstNo(gstNo) && 'Invalid GST Number.'}
-                  </>
-                ) : (
-                  <>
-                    {checkValid && panNo?.length === 0
-                      ? `PAN Number is required.`
-                      : !validationPanNo(panNo) && 'Invalid PAN Number.'}
-                  </>
-                )}
-              </FontText>
-            )}
+            /> */}
+
+            <View
+              style={{
+                height: checkValid ? numberType === 1 ? !validationGstNo(gstNo) ? wp(16) : wp(12) : !validationGstNo(panNo) ? wp(16) : wp(12) : wp(12)
+              }}>
+              <OutLine_Input
+                setValue={(text: string) => {
+                  numberType === 1
+                    ? setGstNo(text.trim())
+                    : setPanNo(text.trim());
+                }}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (regRef = i)}
+                onSubmitEditing={() => nameRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={
+                  numberType === 1
+                    ? 'Enter your GST Number'
+                    : 'Enter your PAN Number'
+                }
+                editable={false}
+                value={numberType === 1 ? gstNo : panNo}
+                label={numberType === 1 ? 'GST Number' : 'PAN Number'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
+              />
+              {(isValidGstNo || isValidPanNo) && (
+                <FontText
+                  size={normalize(12)}
+                  color={'red'}
+                  pTop={wp(1)}
+                  textAlign="right"
+                  name="regular">
+                  {numberType === 1 ? (
+                    <>
+                      {checkValid && gstNo?.length === 0
+                        ? `GST Number is required.`
+                        : !validationGstNo(gstNo) && 'Invalid GST Number.'}
+                    </>
+                  ) : (
+                    <>
+                      {checkValid && panNo?.length === 0
+                        ? `PAN Number is required.`
+                        : !validationPanNo(panNo) && 'Invalid PAN Number.'}
+                    </>
+                  )}
+                </FontText>
+              )}
+            </View>
             <View style={styles.marginTopView}>
-              <View
+              {/* <View
                 style={[
                   commonStyle.rowAC,
                   {
@@ -537,8 +644,8 @@ const CompanyDetail = (props: any) => {
                   textAlign={'left'}>
                   {'Full name:'}
                 </FontText>
-              </View>
-              <Input
+              </View> */}
+              {/* <Input
                 ref={nameRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={name}
@@ -561,6 +668,25 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.User width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => {
+                  setName(text.trimStart()), setNameTemp(text.trimStart());
+                }}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (nameRef = i)}
+                onSubmitEditing={() => phoneRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Name'}
+                editable={editInformation}
+                value={name}
+                label={'Full Name'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidName && (
                 <FontText
@@ -572,7 +698,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View
+              {/* <View
                 style={[
                   commonStyle.rowAC,
                   {
@@ -587,8 +713,8 @@ const CompanyDetail = (props: any) => {
                   textAlign={'left'}>
                   {'Mobile Number:'}
                 </FontText>
-              </View>
-              <Input
+              </View> */}
+              {/* <Input
                 ref={phoneRef}
                 editable={from === 'Profile' ? editInformation : true}
                 value={phone}
@@ -622,6 +748,25 @@ const CompanyDetail = (props: any) => {
                     </FontText>
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => {
+                  setPhone(text.trim()), setPhoneTemp(text.trim());
+                }}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (phoneRef = i)}
+                onSubmitEditing={() => companyRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Mobile Number'}
+                editable={editInformation}
+                value={phone}
+                label={'Mobile Number'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidPhone && (
                 <FontText
@@ -637,7 +782,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View
+              {/* <View
                 style={[
                   commonStyle.rowAC,
                   {
@@ -652,8 +797,8 @@ const CompanyDetail = (props: any) => {
                   textAlign={'left'}>
                   {'Company name:'}
                 </FontText>
-              </View>
-              <Input
+              </View> */}
+              {/* <Input
                 editable={from === 'Profile' ? editInformation : true}
                 ref={companyRef}
                 value={company}
@@ -674,6 +819,23 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.Company width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => setCompany(text.trimStart())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (companyRef = i)}
+                onSubmitEditing={() => addressRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Company name'}
+                editable={editInformation}
+                value={company}
+                label={'Company name'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidCompanyName && (
                 <FontText
@@ -739,7 +901,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View> */}
             <View style={styles.marginTopView}>
-              <View
+              {/* <View
                 style={[
                   commonStyle.rowAC,
                   {
@@ -777,7 +939,26 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.Location width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                style={{borderRadius: normalize(15)}}
+                setValue={(text: string) => setAddress(text.trimStart())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (addressRef = i)}
+                onSubmitEditing={() => localityRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Address'}
+                editable={editInformation}
+                value={address}
+                label={'Address'}
+                fontName={'mont-medium'}
+                multiline={true}
+                height={undefined}
+                multilineHeight={wp(0)}
               />
+
               {isValidAddress && (
                 <FontText
                   size={normalize(12)}
@@ -790,7 +971,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View style={commonStyle.rowACMB1}>
+              {/* <View style={commonStyle.rowACMB1}>
                 <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
@@ -821,6 +1002,23 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.Location width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => setLocality(text.trimStart())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (localityRef = i)}
+                onSubmitEditing={() => pinCodeRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Locality'}
+                editable={editInformation}
+                value={locality}
+                label={'Locality'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidLocality && (
                 <FontText
@@ -834,7 +1032,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View style={commonStyle.rowACMB1}>
+              {/* <View style={commonStyle.rowACMB1}>
                 <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
@@ -867,6 +1065,23 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.PinCode width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => setPinCode(text.trim())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (pinCodeRef = i)}
+                onSubmitEditing={() => cityRef.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                placeholder={'Enter Your Pin Code'}
+                editable={editInformation}
+                value={pinCode}
+                label={'Pin Code'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidPinCode && (
                 <FontText
@@ -882,7 +1097,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View style={commonStyle.rowACMB1}>
+              {/* <View style={commonStyle.rowACMB1}>
                 <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
@@ -911,6 +1126,23 @@ const CompanyDetail = (props: any) => {
                     <SvgIcons.City width={iconSize} height={iconSize} />
                   </View>
                 }
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) => setCity(text.trimStart())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (cityRef = i)}
+                onSubmitEditing={() => console.log('done...')}
+                returnKeyType={'done'}
+                returnKeyLabel="done"
+                placeholder={'Enter Your City'}
+                editable={editInformation}
+                value={city}
+                label={'City'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidCity && (
                 <FontText
@@ -924,7 +1156,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              <View style={[commonStyle.rowACMB1]}>
+              {/* <View style={[commonStyle.rowACMB1]}>
                 <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
@@ -933,23 +1165,36 @@ const CompanyDetail = (props: any) => {
                   textAlign={'left'}>
                   {'State:'}
                 </FontText>
-              </View>
+              </View> */}
               <TouchableOpacity
                 onPress={() => stateRef?.current?.open()}
                 disabled={from === 'Profile' ? !editInformation : false}
                 style={styles.dropdownView}>
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.State width={iconSize} height={iconSize} />
-                </View>
-                <FontText
+                {/* <FontText
                   name={'lexend-regular'}
                   size={mediumFont}
                   color={state ? 'black' : 'gray'}
                   pLeft={wp(9)}
                   textAlign={'left'}>
                   {state ? state : 'Select State'}
-                </FontText>
-                <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
+                </FontText> */}
+                <OutLine_Input
+                  editable={false}
+                  fontSize={smallFont}
+                  color={'darkGray'}
+                  placeholder={'Enter Your City'}
+                  value={state ? state : 'Select State'}
+                  label={'State'}
+                  fontName={'mont-medium'}
+                  multiline={undefined}
+                  height={undefined}
+                  multilineHeight={undefined}
+                />
+
+                <View
+                  style={{position: 'absolute', right: wp(5), bottom: wp(3.3)}}>
+                  <SvgIcons._DownArrow height={wp(3.5)} width={wp(3.5)} />
+                </View>
               </TouchableOpacity>
               {isValidState && (
                 <FontText
@@ -1010,7 +1255,7 @@ const CompanyDetail = (props: any) => {
             }}
             bgColor={'orange'}
             style={styles.buttonContainer}>
-            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            <FontText name={'mont-bold'} size={fontSize} color={'white'}>
               {btnText}
             </FontText>
           </Button>
@@ -1019,7 +1264,7 @@ const CompanyDetail = (props: any) => {
             onPress={submitPress}
             bgColor={'orange'}
             style={styles.buttonContainer}>
-            <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+            <FontText name={'mont-bold'} size={fontSize} color={'white'}>
               {'Submit'}
             </FontText>
           </Button>
@@ -1049,7 +1294,7 @@ const CompanyDetail = (props: any) => {
             <TouchableOpacity onPress={openCamera}>
               <SvgIcons.Camera width={wp(15)} height={wp(15)} />
               <FontText
-                name={'lexend-regular'}
+                name={'mont-medium'}
                 size={fontSize}
                 color={'orange'}>
                 {'camera'}
@@ -1060,7 +1305,7 @@ const CompanyDetail = (props: any) => {
               onPress={openPhotoBrowser}>
               <SvgIcons.Gallery width={wp(15)} height={wp(15)} />
               <FontText
-                name={'lexend-regular'}
+                name={'mont-medium'}
                 size={fontSize}
                 color={'orange'}>
                 {'Gallery'}
@@ -1081,7 +1326,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(12),
     color: colors.black,
     fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.gray2,
   },
   input: {
@@ -1091,20 +1336,20 @@ const styles = StyleSheet.create({
     height: hp(6),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
+    borderRadius: normalize(100),
     marginVertical: hp(2),
   },
   marginTopView: {
     marginTop: hp(1.5),
   },
   dropdownView: {
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: hp(6),
-    backgroundColor: colors.gray2,
-    paddingHorizontal: wp(3),
+    // borderRadius: 10,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // justifyContent: 'space-between',
+    // height: hp(6),
+    // backgroundColor: colors.gray2,
+    // paddingHorizontal: wp(3),
   },
   uploadImgContainer: {
     backgroundColor: colors.white2,

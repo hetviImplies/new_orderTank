@@ -11,12 +11,13 @@ import React, {useEffect, useState} from 'react';
 import moment from 'moment';
 import {colors, SvgIcons} from '../../assets';
 import {NavigationBar, FontText, Loader} from '../../components';
-import commonStyle, {mediumFont, smallFont} from '../../styles';
+import commonStyle, {iconSize, mediumFont, mediumLargeFont, smallFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {
   useGetNotificationQuery,
   useReadNotificationMutation,
 } from '../../api/notification';
+import { RootScreens } from '../../types/type';
 
 const NotificationScreen = ({navigation}: any) => {
   const {
@@ -32,40 +33,83 @@ const NotificationScreen = ({navigation}: any) => {
   const [refreshing, setRefreshing] = useState(false);
 
   React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
     navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
       headerLeft: () => (
-        <TouchableOpacity
+        <View
           style={[
-            // commonStyle.iconView,
-            {marginLeft: wp(1)},
-          ]}
-          onPress={() => {
-            if (noitification?.result?.length !== 0) {
-              const data = noitification?.result?.map((item: any) => item?.id);
-              seenNotification(data);
-              navigation.goBack();
-            } else {
-              navigation.goBack();
-            }
-          }}>
-          {Platform.OS === 'android' ? (
-            <SvgIcons.AndroidBack
-              width={wp(6)}
-              height={wp(6)}
-              style={{marginLeft: wp(2)}}
-            />
-          ) : (
-            <SvgIcons.BackArrow
-              width={wp(5)}
-              height={wp(5)}
-              fill={colors.blue2}
-              stroke={colors.blue2}
-            />
-          )}
-        </TouchableOpacity>
-      ),
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => {
+                        if (noitification?.result?.length !== 0) {
+                          const data = noitification?.result?.map((item: any) => item?.id);
+                          seenNotification(data);
+                          navigation.goBack();
+                        } else {
+                          navigation.goBack();
+                        }
+                      }}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Notifications
+          </FontText>
+        </View>
+      )
     });
   }, [navigation]);
+
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerLeft: () => (
+  //       <TouchableOpacity
+  //         style={[
+  //           // commonStyle.iconView,
+  //           {marginLeft: wp(1)},
+  //         ]}
+  //         onPress={() => {
+  //           if (noitification?.result?.length !== 0) {
+  //             const data = noitification?.result?.map((item: any) => item?.id);
+  //             seenNotification(data);
+  //             navigation.goBack();
+  //           } else {
+  //             navigation.goBack();
+  //           }
+  //         }}>
+  //         {Platform.OS === 'android' ? (
+  //           <SvgIcons.AndroidBack
+  //             width={wp(6)}
+  //             height={wp(6)}
+  //             style={{marginLeft: wp(2)}}
+  //           />
+  //         ) : (
+  //           <SvgIcons.BackArrow
+  //             width={wp(5)}
+  //             height={wp(5)}
+  //             fill={colors.blue2}
+  //             stroke={colors.blue2}
+  //           />
+  //         )}
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation]);
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -99,9 +143,9 @@ const NotificationScreen = ({navigation}: any) => {
   const _renderItem = ({item, index}: any) => {
     const originalTimestamp = item?.createdAt;
     const convertedTimestamp = moment(originalTimestamp).format(
-      'DD/MM/YYYY | hh:mm A',
+      'DD-MM-YYYY, hh:mm A',
     );
-    const notiRead = item?.isSeen ? colors.white : colors.orangeOpacity;
+    const notiRead = item?.isSeen ? 'rgba(200, 207, 209, 0.3)' : colors.orangeOpacity;
     const shadow = item?.isSeen && commonStyle.shadowContainer;
     return (
       // <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>
@@ -125,48 +169,52 @@ const NotificationScreen = ({navigation}: any) => {
       //   </View>
       // </View>
       <View
-        style={{
-          padding: wp(4),
+        style={[{
+          marginHorizontal:wp(4),
+          marginVertical:wp(1),
           backgroundColor: notiRead,
-        }}>
+          borderWidth:1,
+          padding: wp(3),
+          borderColor:colors.orange,
+          borderStyle:"dashed",
+          borderRadius:normalize(15)
+        }]}>
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}>
-          <View style={{flex: 0.9}}>
+          <View style={{flex: 1}}>
+            <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
             <FontText
-              name="lexend-medium"
+              name="mont-semibold"
               color={'black2'}
               style={{textTransform: 'capitalize'}}
-              size={mediumFont}>
+              size={smallFont}>
               {item?.title}
             </FontText>
             <FontText
-              name="lexend-regular"
-              color={'black2'}
+                pTop={wp(0.5)}
+                color={'darkGray'}
+                name="mont-medium"
+                size={smallFont}
+                pLeft={wp(2)}>
+                {convertedTimestamp}
+              </FontText>
+            </View>
+            <FontText
+              name="mont-medium"
+              color={'gray7'}
               style={{textTransform: 'capitalize'}}
               pTop={wp(1)}
               size={smallFont}>
               {item?.description}
             </FontText>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: wp(2),
-              }}>
-              <SvgIcons.Calender width={wp(4)} height={wp(4)} />
-              <FontText
-                pTop={wp(0.5)}
-                color={'black2'}
-                name="lexend-regular"
-                size={normalize(12)}
-                pLeft={wp(2)}>
-                {convertedTimestamp}
-              </FontText>
-            </View>
           </View>
         </View>
       </View>
@@ -211,10 +259,10 @@ const NotificationScreen = ({navigation}: any) => {
       /> */}
       {notifiedData && notifiedData.length !== 0 ? (
         <FlatList
+        style={{marginVertical:wp(1)}}
           showsVerticalScrollIndicator={false}
           data={notifiedData}
           renderItem={_renderItem}
-          ItemSeparatorComponent={_sepratorView}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
           }
@@ -223,7 +271,7 @@ const NotificationScreen = ({navigation}: any) => {
         <View style={[commonStyle.allCenter, {flex: 1}]}>
           <FontText
             color="gray"
-            name="lexend-regular"
+            name="mont-medium"
             size={mediumFont}
             textAlign={'center'}>
             {'You don’t have any notifications yet.'}
@@ -261,3 +309,4 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+

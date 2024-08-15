@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Text,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import moment from 'moment';
@@ -13,7 +14,7 @@ import messaging from '@react-native-firebase/messaging';
 import {FloatingAction} from 'react-native-floating-action';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
-import {colors, SvgIcons, Images} from '../../assets';
+import {colors, SvgIcons, Images, fonts} from '../../assets';
 import {
   FontText,
   Input,
@@ -22,10 +23,15 @@ import {
   AddressComponent,
   ListHeader,
   Button,
+  CountCard,
+  PendingOrderComponent,
+  PendingSuppliersComponent,
 } from '../../components';
 import commonStyle, {
   fontSize,
+  iconSize,
   mediumFont,
+  mediumLarge1Font,
   smallFont,
   tabIcon,
 } from '../../styles';
@@ -37,7 +43,7 @@ import {useGetOrdersQuery} from '../../api/order';
 import {withInAppNotification} from '../../components/Common/InAppNotification';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {useGetCurrentUserQuery} from '../../api/auth';
-import {mergeArrays, updateAddressList} from '../Cart/Carthelper';
+import {getCartItems, mergeArrays, updateAddressList} from '../Cart/Carthelper';
 import {useGetNotificationQuery} from '../../api/notification';
 import {FLOATING_BTN_ACTION} from '../../helper/data';
 import {
@@ -103,6 +109,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const [code, setCode] = useState('');
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [cartItems, setCartItems] = useState<any>([]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -157,8 +164,15 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
       headerLeft: () => (
-        <View style={[commonStyle.rowAC, {marginLeft: wp(4)}]}>
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
           {data?.result?.logo ? (
             <Image
               source={{
@@ -170,18 +184,63 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             // <View style={styles.avatar} />
             <Image source={Images.companyImg} style={styles.avatar} />
           )}
+          <View style={{marginLeft: '5%'}}>
+            <FontText name={'mont-semibold'} size={smallFont} color={'white'}>
+              {'Welcome to OrderTank'}
+            </FontText>
+            <FontText name={'mont-semibold'} size={mediumFont} color={'white'}>
+              {userInfo?.name}
+            </FontText>
+          </View>
         </View>
       ),
       headerRight: () => (
-        <View style={[commonStyle.row, {marginRight: wp(4)}]}>
+        <View
+          style={[
+            commonStyle.row,
+            {
+              marginRight: wp(4),
+              width: wp(21),
+              justifyContent: 'space-between',
+            },
+          ]}>
           <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
             // style={commonStyle.iconView}
             onPress={() => navigation.navigate(RootScreens.Notification)}>
-            <SvgIcons.Bell width={tabIcon} height={tabIcon} />
+            <SvgIcons.Bell_ width={tabIcon} height={tabIcon} />
             {Object.keys(notification)?.length !== 0 &&
               notification?.isSeen === false && (
                 <View style={styles.countView} />
               )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
+              {cartItems?.length ? (
+              <View style={commonStyle.cartCountView}>
+                <FontText
+                  color="orange"
+                  name="mont-semibold"
+                  size={normalize(10)}
+                  textAlign={'center'}>
+                  {cartItems?.length}
+                </FontText>
+              </View>
+            ) : null}
+
           </TouchableOpacity>
         </View>
       ),
@@ -193,6 +252,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     isNotiFetch,
     notificationData,
     notification,
+    cartItems
   ]);
 
   useEffect(() => {
@@ -239,142 +299,25 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
     };
   };
 
-  const onViewDetail = (item: any) => {
-    navigation.navigate(RootScreens.SecureCheckout, {
-      from: RootScreens.Order,
-      deliveryAdd: item?.deliveryAddress,
-      billingAdd: item?.billingAddress,
-      orderDetails: item,
-      notes: item?.notes,
-      name: 'Order Details',
-      expectedDate: item?.approxDeliveryDate,
-      nav: 'Home',
-    });
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        const items = await getCartItems('MyCart');
+        setCartItems(items);
+      };
+      fetchCartItems();
+    }, []),
+  );
 
   const _renderItem = ({item, index}: any) => {
     return (
-      <View
-        key={item?.orderId}
-        style={[
-          commonStyle.shadowContainer,
-          {
-            backgroundColor: colors.white,
-            borderRadius: normalize(10),
-            paddingVertical: hp(1.5),
-            marginBottom: hp(1.5),
-          },
-        ]}>
-        <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
-          <View>
-            <FontText
-              color={'black2'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {item?.orderId}
-            </FontText>
-            <FontText
-              color={'black2'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {item?.company?.companyName}
-            </FontText>
-          </View>
-          <View>
-            <FontText
-              color={'gray'}
-              size={smallFont}
-              textAlign={'left'}
-              name={'lexend-regular'}>
-              {moment(item?.orderDate).format('DD-MM-YYYY')}
-            </FontText>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'right'}
-              name={'lexend-medium'}>
-              {'₹'}
-              {Number(item?.totalAmount).toFixed(2)}
-            </FontText>
-          </View>
-        </View>
-        <View style={[styles.dashedLine]} />
-        <View style={[{marginTop: hp(1), paddingHorizontal: wp(2)}]}>
-          <AddressComponent
-            item={item?.deliveryAddress}
-            from={RootScreens.SecureCheckout}
-          />
-        </View>
-        <View style={[styles.dashedLine]} />
-        <View
-          style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
-          <FontText
-            color={
-              item?.status === 'pending'
-                ? 'gray3'
-                : item?.status === 'cancelled'
-                ? 'red'
-                : item?.status === 'delivered'
-                ? 'green'
-                : item?.status === 'processing'
-                ? 'yellow'
-                : 'black'
-            }
-            size={smallFont}
-            textAlign={'left'}
-            name={'lexend-medium'}>
-            {item?.status}
-          </FontText>
-          <TouchableOpacity onPress={() => onViewDetail(item)}>
-            <FontText
-              color={'orange'}
-              size={smallFont}
-              textAlign={'left'}
-              style={{textDecorationLine: 'underline'}}
-              name={'lexend-medium'}>
-              {'View detail'}
-            </FontText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+      <PendingOrderComponent item={item} navigation={navigation}/>
+    )
   };
 
   const _reqRenderItem = ({item, index}: any) => {
     return (
-      <View key={item?.id} style={[styles.itemContainer, commonStyle.shadowContainer]}>
-        <View style={commonStyle.rowAC}>
-          {item?.company?.logo ? (
-            <Image source={{uri: item?.company?.logo}} style={styles.logo} />
-          ) : (
-            <Image source={Images.supplierImg} style={styles.logo} />
-          )}
-          <View style={{width: wp(45)}}>
-            <FontText
-              name={'lexend-regular'}
-              size={fontSize}
-              color={'black'}
-              textAlign={'left'}>
-              {item?.company?.companyName}
-            </FontText>
-            <FontText
-              name={'lexend-regular'}
-              size={smallFont}
-              color={'gray'}
-              pTop={wp(2)}
-              textAlign={'left'}>
-              {item?.company?.companyCode}
-            </FontText>
-          </View>
-        </View>
-        <Button disabled bgColor={'green'} style={styles.buttonContainer}>
-          <FontText name={'lexend-regular'} size={smallFont} color={'white'}>
-            {'Pending'}
-          </FontText>
-        </Button>
-      </View>
+      <PendingSuppliersComponent navigation={navigation} disable={true} item={item}/>
     );
   };
 
@@ -415,6 +358,21 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
         }
         showsVerticalScrollIndicator={false}>
+        <View
+          style={{
+            flexDirection: 'row',
+            borderWidth: 0,
+            justifyContent: 'space-between',
+            width: wp(92),
+            alignSelf: 'center',
+          }}>
+          <CountCard
+            title={'Total Suppliers'}
+            count={supplierList?.result?.data.length}
+            func={()=> navigation.navigate(RootScreens.Supplier)}
+          />
+          <CountCard title={'Total Orders'} count={orderData?.length} func={()=> navigation.navigate(RootScreens.Order)}/>
+        </View>
         {/* <NavigationBar
         hasLeft
         hasRight
@@ -459,11 +417,12 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           loading={
             isProcessing ||
             isProcess ||
-            // isFetch ||
+            isFetch ||
             isNotiFetch ||
             isReqProcessing
           }
         />
+
         {supplierList?.result?.data?.length !== 0 || orderData?.length !== 0 ? (
           <View style={{marginTop: hp(1)}}>
             {supplierList &&
@@ -511,7 +470,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           <View style={[commonStyle.allCenter, {flex: 1}]}>
             <FontText
               color="gray"
-              name="lexend-regular"
+              name="mont-medium"
               size={mediumFont}
               textAlign={'center'}>
               {'No Data found.'}
@@ -546,7 +505,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           rightBtnStyle={{width: '100%'}}
         />
       </ScrollView>
-      <FloatingAction
+      {/* <FloatingAction
         actions={FLOATING_BTN_ACTION}
         onPressItem={name => {
           if (name === 'bt_supplier') {
@@ -567,7 +526,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
           shadowColor: 'trasparent',
           shadowRadius: 3,
         }}
-      />
+      /> */}
     </>
   );
 };
@@ -579,14 +538,16 @@ const styles = StyleSheet.create({
   avatar: {
     width: hp(5),
     height: hp(5),
-    borderRadius: 10,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.white,
   },
   inputText: {
     borderRadius: 10,
-    paddingLeft: wp(3),
+    paddingLeft: wp(6),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.white,
     borderStyle: 'dashed',
     borderWidth: 1,
@@ -610,19 +571,19 @@ const styles = StyleSheet.create({
   countView: {
     width: wp(2.6),
     height: wp(2.6),
-    backgroundColor: colors.orange,
+    backgroundColor: colors.white,
     borderRadius: wp(10),
     position: 'absolute',
-    left: wp(3.5),
-    top: wp(0.2),
+    left: wp(5),
+    bottom:wp(7),
     justifyContent: 'center',
     alignItems: 'center',
   },
   dashedLine: {
     marginTop: wp(1),
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderStyle: 'dashed',
+    borderTopWidth: 1,
+    borderColor: colors.orange3,
+    marginHorizontal: wp(3),
   },
   paddingT1: {
     paddingTop: hp(1),
@@ -650,9 +611,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: wp(3),
     paddingVertical: hp(1.5),
-    backgroundColor: colors.white,
-    borderRadius: normalize(6),
+    backgroundColor: colors.orange2,
+    borderRadius: normalize(10),
     marginBottom: hp(1.5),
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.orange,
   },
   logo: {
     width: hp(6.5),
@@ -664,9 +628,9 @@ const styles = StyleSheet.create({
     borderColor: colors.black2,
   },
   buttonContainer: {
-    borderRadius: normalize(10),
+    borderRadius: 5,
     height: hp(3.5),
-    width: '25%',
+    width: wp(20),
   },
   containerContent: {
     paddingTop: hp(0.5),

@@ -1,6 +1,6 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import commonStyle, {fontSize, mediumFont} from '../../styles';
+import commonStyle, {fontSize, mediumFont, smallFont} from '../../styles';
 import {FontText} from '..';
 
 const ListHeader = (props: any) => {
@@ -9,7 +9,7 @@ const ListHeader = (props: any) => {
     <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
       <FontText
         color="black2"
-        name="lexend-medium"
+        name="mont-semibold"
         size={fontSize}
         textAlign={'left'}>
         {leftName}
@@ -17,8 +17,8 @@ const ListHeader = (props: any) => {
       <TouchableOpacity onPress={rightPress}>
         <FontText
           color="orange"
-          name="lexend-regular"
-          size={mediumFont}
+          name="mont-semibold"
+          size={smallFont}
           textAlign={'right'}>
           {rightName}
         </FontText>

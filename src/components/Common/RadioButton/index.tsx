@@ -28,7 +28,7 @@ const RadioButton = (props: any) => {
               {item.value === userOption && <View style={style.dot} />}
             </View>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={mediumFont}
               color={'gray3'}
               pLeft={wp(1)}

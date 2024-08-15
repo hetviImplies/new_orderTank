@@ -66,7 +66,7 @@ const CartListScreen = ({navigation}: any) => {
           <Image source={{uri: item?.companyId?.logo}} style={styles.logo} />
           <View style={{marginLeft: wp(4), width: '66%'}}>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={mediumFont}
               color={'gray4'}
               // pTop={wp(2)}
@@ -74,7 +74,7 @@ const CartListScreen = ({navigation}: any) => {
               {item?.companyId?.companyName}
             </FontText>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={smallFont}
               color={'gray4'}
               pTop={wp(1)}
@@ -82,7 +82,7 @@ const CartListScreen = ({navigation}: any) => {
               {item?.companyId?.companyCode}
             </FontText>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={mediumFont}
               color={'black2'}
               pTop={wp(1)}
@@ -138,7 +138,7 @@ const CartListScreen = ({navigation}: any) => {
           <SvgIcons.EmptyCart width={wp(40)} height={wp(40)} />
           <FontText
             color="black2"
-            name="lexend-medium"
+            name="mont-semibold"
             size={mediumLarge1Font}
             pTop={wp(4)}
             pBottom={wp(2.5)}

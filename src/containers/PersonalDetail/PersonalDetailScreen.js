@@ -1,34 +1,89 @@
-import {BackHandler, StyleSheet, View} from 'react-native';
+import {BackHandler, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {colors, SvgIcons} from '../../assets';
-import {NavigationBar, FontText, Input, Button, Loader} from '../../components';
-import commonStyle, {fontSize, iconSize, mediumFont} from '../../styles';
+import {colors, fonts, SvgIcons} from '../../assets';
+import {
+  NavigationBar,
+  FontText,
+  Input,
+  Button,
+  Loader,
+  OutLine_Input,
+} from '../../components';
+import commonStyle, {
+  fontSize,
+  iconSize,
+  mediumFont,
+  mediumLargeFont,
+  smallFont,
+} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {useGetCurrentUserQuery, useUpdateCurrentUserMutation} from '../../api/auth';
+import {
+  useGetCurrentUserQuery,
+  useUpdateCurrentUserMutation,
+} from '../../api/auth';
 import {useUpdateProfileMutation} from '../../api/profile';
 import utils from '../../helper/utils';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {emailRegx} from '../../helper/regex';
+import {RootScreens} from '../../types/type';
 
-const PersonalDetailScreen = ({navigation}: any) => {
+const PersonalDetailScreen = ({navigation}) => {
   const {data, isFetching} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
 
-  const [updateProfile, {isLoading: isProcess}] = useUpdateCurrentUserMutation();
+  const [updateProfile, {isLoading: isProcess}] =
+    useUpdateCurrentUserMutation();
+
   const dispatch = useDispatch();
-  const emailRef: any = useRef();
-  const phonNoRef: any = useRef();
+
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNo, setPhoneNo] = useState('');
   const [checkValid, setCheckValid] = useState(false);
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Profile');
+  let emailRef = useRef(null);
+  let nameRef = useRef(null);
+  let phonNoRef = useRef(null);
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.goBack()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Personal Detail
+          </FontText>
+        </View>
+      ),
+    });
+  }, [navigation]);
 
-  const validationEmail = (val: any) => {
+  const validationEmail = (val) => {
     const result = emailRegx.test(val.trim());
     return result;
   };
@@ -88,7 +143,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
         name: userName,
         phone: phoneNo,
       };
-      const {data, error}: any = await updateProfile(params);
+      const {data, error} = await updateProfile(params);
       if (!error) {
         setBtnText('Edit Profile');
         setEditInformation(false);
@@ -98,6 +153,8 @@ const PersonalDetailScreen = ({navigation}: any) => {
       }
     }
   };
+  console.log('phonNoRef',phonNoRef);
+  console.log('nameRef',nameRef);
 
   return (
     <View style={commonStyle.container}>
@@ -128,7 +185,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
       <Loader loading={isFetching || isProcess} />
       <KeyboardAwareScrollView>
         <View style={[commonStyle.marginT2, {marginHorizontal: wp(4)}]}>
-          <View style={commonStyle.rowACMB1}>
+          {/* <View style={commonStyle.rowACMB1}>
             <FontText
               name={'lexend-regular'}
               size={mediumFont}
@@ -137,8 +194,8 @@ const PersonalDetailScreen = ({navigation}: any) => {
               textAlign={'left'}>
               {'Name:'}
             </FontText>
-          </View>
-          <Input
+          </View> */}
+          {/* <Input
             editable={editInformation}
             value={userName}
             onChangeText={(text: string) => {
@@ -160,6 +217,22 @@ const PersonalDetailScreen = ({navigation}: any) => {
                 <SvgIcons.User width={iconSize} height={iconSize} />
               </View>
             }
+          /> */}
+          <OutLine_Input
+          fontSize={smallFont}
+          color={'darkGray'}
+          func={i => (nameRef = i)}
+          onSubmitEditing={() => phonNoRef.focus()}
+          returnKeyType={'next'}
+          returnKeyLabel="next"
+          placeholder={'Enter Your Name'}
+          editable={editInformation}
+          value={userName}
+          label={'Name'}
+            setValue={(text) => {
+              setUserName(text.trimStart());
+            }}
+            fontName={'mont-medium'}
           />
           {isValidUserName && (
             <FontText
@@ -170,17 +243,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
               name="regular">{`Name is Required.`}</FontText>
           )}
           <View style={styles.marginTopView}>
-            <View style={commonStyle.rowACMB1}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Mobile Number:'}
-              </FontText>
-            </View>
-            <Input
+            {/* <Input
               editable={editInformation}
               ref={phonNoRef}
               value={phoneNo}
@@ -201,7 +264,21 @@ const PersonalDetailScreen = ({navigation}: any) => {
                   <SvgIcons.Phone width={iconSize} height={iconSize} />
                 </View>
               }
-            />
+            /> */}
+            <OutLine_Input
+            func={(i) => (phonNoRef = i)}
+            onSubmitEditing={()=>console.log('done...')}
+          fontSize={smallFont}
+          color={'darkGray'}
+          fontName={'mont-medium'}
+          returnKeyType={'done'}
+          returnKeyLabel="done"
+          placeholder={'Enter Your PhoneNumber'}
+          editable={editInformation}
+          value={phoneNo}
+          label={'Mobile Number'}
+          setValue={(text)=>setPhoneNo(text.trim())}
+          />
             {isValidPhoneNo && (
               <FontText
                 size={normalize(12)}
@@ -216,21 +293,11 @@ const PersonalDetailScreen = ({navigation}: any) => {
             )}
           </View>
           <View style={styles.marginTopView}>
-            <View style={commonStyle.rowACMB1}>
-              <FontText
-                name={'lexend-regular'}
-                size={mediumFont}
-                color={'gray3'}
-                pLeft={wp(1)}
-                textAlign={'left'}>
-                {'Email:'}
-              </FontText>
-            </View>
-            <Input
+            {/* <Input
               editable={false}
               ref={emailRef}
               value={email}
-              onChangeText={(text: string) => setEmail(text.trim())}
+              onChangeText={(text) => setEmail(text.trim())}
               placeholder={'Enter Your Email'}
               autoCapitalize="none"
               placeholderTextColor={'placeholder'}
@@ -245,7 +312,21 @@ const PersonalDetailScreen = ({navigation}: any) => {
                   <SvgIcons.Email width={iconSize} height={iconSize} />
                 </View>
               }
-            />
+            /> */}
+             <OutLine_Input
+             editable={false}
+            func={(i) => (emailRef = i)}
+            onSubmitEditing={()=>console.log('done...')}
+          fontSize={smallFont}
+          color={'darkGray'}
+          returnKeyType={'done'}
+          returnKeyLabel="done"
+          placeholder={'Enter Your PhoneNumber'}
+          value={email}
+          label={'Email'}
+          fontName={'mont-medium'}
+          setValue={(text)=>setEmail(text.trim())}
+          />
             {isValidEmail && (
               <FontText
                 size={normalize(12)}
@@ -268,7 +349,7 @@ const PersonalDetailScreen = ({navigation}: any) => {
         bgColor={'orange'}
         // disabled={!isCheck}
         style={styles.buttonContainer}>
-        <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+        <FontText name={'mont-bold'} size={fontSize} color={'white'}>
           {btnText}
         </FontText>
       </Button>
@@ -284,7 +365,7 @@ const styles = StyleSheet.create({
     paddingLeft: wp(13),
     color: colors.black2,
     fontSize: normalize(14),
-    fontFamily: 'Lexend-Regular',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.gray2,
   },
   input: {
@@ -294,7 +375,7 @@ const styles = StyleSheet.create({
     height: hp(6),
   },
   buttonContainer: {
-    borderRadius: normalize(6),
+    borderRadius: normalize(100),
     marginTop: hp(2),
     marginBottom: hp(3),
     marginHorizontal: wp(4),

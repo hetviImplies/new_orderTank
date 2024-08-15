@@ -1,30 +1,47 @@
 import {
   FlatList,
   Image,
+  Keyboard,
   RefreshControl,
   StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import commonStyle, {
   fontSize,
+  iconSize,
   mediumFont,
+  mediumLargeFont,
   smallFont,
   tabIcon,
 } from '../../styles';
-import {NavigationBar, FontText, Input, Loader, Popup} from '../../components';
+import {
+  NavigationBar,
+  FontText,
+  Input,
+  Loader,
+  Popup,
+  Button,
+  TabBar_,
+  Modal,
+  PendingSuppliersComponent,
+} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
-import {colors, SvgIcons, Images} from '../../assets';
+import {colors, SvgIcons, Images, fonts} from '../../assets';
 import utils from '../../helper/utils';
 import {
   useCompanyRequestMutation,
   useGetSupplierQuery,
 } from '../../api/companyRelation';
-
-const SupplierScreen = ({navigation}: any) => {
+import {TabView, SceneMap,TabBar} from 'react-native-tab-view';
+import { getCartItems } from '../Cart/Carthelper';
+const SupplierScreen = ({navigation,route}: any) => {
   // const {
   //   data: supplierList,
   //   isFetching: isProcessing,
@@ -36,6 +53,17 @@ const SupplierScreen = ({navigation}: any) => {
   //     refetchOnMountOrArgChange: true,
   //   },
   // );
+
+  const {
+    data: PendingsupplierList,
+    isFetching: isPendingProcessing,
+    refetch: reqRefetch,
+  } = useGetSupplierQuery(
+    {isRequested: true, sellerLists: true},
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   const {
     data: supplierList,
@@ -55,14 +83,18 @@ const SupplierScreen = ({navigation}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState('');
   const [suppplierData, setSupplierData] = useState([]);
+  const [pendingSuppplierData, setPendingSupplierData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [cartItems, setCartItems] = useState<any>([]);
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
       refetch();
+
     }, [refetch]),
   );
+
+
 
   const onRefreshing = () => {
     setRefreshing(true);
@@ -71,28 +103,118 @@ const SupplierScreen = ({navigation}: any) => {
     setRefreshing(false);
   };
 
+
   React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
     navigation.setOptions({
-      headerRight: () => (
-        <View style={[commonStyle.row, {marginRight: wp(4)}]}>
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
           <TouchableOpacity
-            style={[{marginRight: wp(5)}]}
-            onPress={() => navigation.navigate(RootScreens.PendingRequest)}>
-            <SvgIcons.Timer width={tabIcon} height={tabIcon} />
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Home)}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
           </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Supplier
+          </FontText>
+        </View>
+      ),
+      headerRight: () => (
+        <View
+          style={[
+            commonStyle.row,
+            {
+              marginRight: wp(4),
+              width: wp(21),
+              justifyContent: 'space-between',
+            },
+          ]}>
           <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
             // style={commonStyle.iconView}
             onPress={() => setIsOpen(true)}>
-            <SvgIcons.Code width={tabIcon} height={tabIcon} />
+            <SvgIcons.Icon_code width={tabIcon} height={tabIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 5,
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => navigation.navigate(RootScreens.Cart)}>
+            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
+            {cartItems?.length ? (
+              <View style={commonStyle.cartCountView}>
+                <FontText
+                  color="orange"
+                  name="mont-semibold"
+                  size={normalize(10)}
+                  textAlign={'center'}>
+                  {cartItems?.length}
+                </FontText>
+              </View>
+            ) : null}
           </TouchableOpacity>
         </View>
       ),
+      // headerRight: () => (
+      //   <View style={[commonStyle.row, {marginRight: wp(4)}]}>
+      //     <TouchableOpacity
+      //       style={[{marginRight: wp(5)}]}
+      //       onPress={() => navigation.navigate(RootScreens.PendingRequest)}>
+      //       <SvgIcons.Timer width={tabIcon} height={tabIcon} />
+      //     </TouchableOpacity>
+      //     <TouchableOpacity
+      //       // style={commonStyle.iconView}
+      //       onPress={() => setIsOpen(true)}>
+      //       <SvgIcons.Code width={tabIcon} height={tabIcon} />
+      //     </TouchableOpacity>
+      //   </View>
+      // ),
     });
-  }, [navigation]);
+  }, [navigation,cartItems]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCartItems = async () => {
+        const items = await getCartItems('MyCart');
+        setCartItems(items);
+      };
+      fetchCartItems();
+    }, []),
+  );
 
   useEffect(() => {
     setSupplierData(supplierList?.result?.data);
   }, [isProcessing]);
+
+  useEffect(() => {
+    setPendingSupplierData(PendingsupplierList?.result?.data);
+  }, [isPendingProcessing]);
 
   useEffect(() => {
     if (!search) {
@@ -107,40 +229,15 @@ const SupplierScreen = ({navigation}: any) => {
     }
   }, [search]);
 
+  const _reqRenderItem = ({item, index}: any) => {
+    return (
+      <PendingSuppliersComponent navigation={navigation} disable={true} item={item}/>
+    );
+  };
+
   const _renderItem = ({item, index}: any) => {
     return (
-      <TouchableOpacity
-        style={[styles.itemContainer, commonStyle.shadowContainer]}
-        onPress={() =>
-          navigation.navigate(RootScreens.ProductListing, {
-            id: item?.company?.id,
-            company: item?.company?.companyName,
-          })
-        }>
-        {item?.company?.logo ? (
-          <Image source={{uri: item?.company?.logo}} style={styles.logo} />
-        ) : (
-          <Image source={Images.supplierImg} style={styles.logo} />
-        )}
-        <View style={{width: '80%'}}>
-          <FontText
-            name={'lexend-regular'}
-            size={fontSize}
-            color={'black'}
-            // pTop={wp(2)}
-            textAlign={'left'}>
-            {item?.company?.companyName}
-          </FontText>
-          <FontText
-            name={'lexend-regular'}
-            size={smallFont}
-            color={'gray'}
-            pTop={wp(2)}
-            textAlign={'left'}>
-            {item?.company?.companyCode}
-          </FontText>
-        </View>
-      </TouchableOpacity>
+      <PendingSuppliersComponent navigation={navigation} disable={false} item={item}/>
     );
   };
 
@@ -160,10 +257,198 @@ const SupplierScreen = ({navigation}: any) => {
       );
     }
   };
+  const selectedType = route?.params?.type;
+  const flatListRef: any = useRef(null);
+  const [selectOrder, setSelectOrder] = useState<any>({});
+
+  useFocusEffect(
+    useCallback(() => {
+      flatListRef.current.scrollToIndex({animated: true, index: 0});
+      if (selectedType !== undefined) {
+        setSelectOrder(selectedType);
+      } else {
+        setSelectOrder({label: 'Suppliers', value: 'Suppliers'});
+      }
+    }, [selectedType]),
+  );
+
+   const ORDERTYPE = [
+    {label: 'Suppliers', value: 'Suppliers'},
+    {label: 'Pending Requests', value: 'Pending Requests'},
+  ];
+  const _renderSupplierFunction = () => {
+    return (
+    <View style={[ {marginTop: hp(2), flex: 1}]}>
+      <Input
+        value={search}
+        onChangeText={(text: any) => setSearch(text.trimStart())}
+        onSubmit={(text: any) => Keyboard.dismiss()}
+        blurOnSubmit={false}
+        autoCapitalize="none"
+        placeholder={'Search a seller'}
+        placeholderTextColor={'darkGray'}
+        fontSize={fontSize}
+        inputStyle={styles.inputText}
+        color={'black'}
+        returnKeyType={'done'}
+        style={[styles.input]}
+        children={
+          <View
+            style={{
+              ...commonStyle.abs,
+              right: wp(6),
+            }}>
+            <SvgIcons.Search width={iconSize} height={iconSize} />
+          </View>
+        }
+      />
+      {suppplierData && suppplierData?.length === 0 ? (
+        <View style={[commonStyle.flexJC,commonStyle.paddingH4]}>
+          <FontText
+            name={'mont-medium'}
+            size={mediumFont}
+            color={'gray'}
+            textAlign={'center'}>
+            {'No Supplier are available.'}
+          </FontText>
+        </View>
+      ) : (
+        <FlatList
+          data={suppplierData}
+          renderItem={_renderItem}
+          contentContainerStyle={styles.containerContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+          }
+        />
+      )}
+    </View>
+    )
+    }
+
+  const _renderPendingSupplierFunction = () => (
+    <View style={[commonStyle.paddingH4, {marginTop: hp(1), flex: 1}]}>
+      {/* <Input
+          value={search}
+          onChangeText={(text: any) => setSearch(text.trimStart())}
+          // onSubmit={(text: any) => setSearchText(text.trimStart())}
+          blurOnSubmit
+          autoCapitalize="none"
+          placeholder={'Search a seller'}
+          placeholderTextColor={'darkGray'}
+          fontSize={fontSize}
+          inputStyle={styles.inputText}
+          color={'black'}
+          returnKeyType={'done'}
+          style={[styles.input]}
+          children={
+            <View
+              style={{
+                ...commonStyle.abs,
+                right: wp(6),
+              }}>
+              <SvgIcons.Search width={iconSize} height={iconSize} />
+            </View>
+          }
+        /> */}
+      {pendingSuppplierData && pendingSuppplierData?.length === 0 ? (
+        <View style={[commonStyle.flexJC,commonStyle.paddingH4,]}>
+          <FontText
+            name={'mont-medium'}
+            size={mediumFont}
+            color={'gray'}
+            textAlign={'center'}>
+            {'No Supplier are available.'}
+          </FontText>
+        </View>
+      ) : (
+        <FlatList
+          data={pendingSuppplierData}
+          renderItem={_reqRenderItem}
+          contentContainerStyle={styles.containerContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefreshing} />
+          }
+        />
+      )}
+    </View>
+  );
+
+  // const renderScene = SceneMap({
+  //   first: _renderSupplierFunction,
+  //   second: _renderPendingSupplierFunction,
+  // });
+
+  // const layout = useWindowDimensions();
+
+  // const [index, setIndex] = React.useState(0);
+  // const [routes] = React.useState([
+  //   {key: 'first', title: 'Suppliers'},
+  //   {key: 'second', title: 'Pending Requests'},
+  // ]);
+
 
   return (
     <View style={commonStyle.container}>
-      {/* <NavigationBar
+      {/* <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: layout.width}}
+        renderTabBar={props => (
+          <TabBar_
+            props={props}
+            style={{backgroundColor: colors.white, elevation: 0}}
+            indicatorStyle={{backgroundColor: colors.orange}}
+          />
+        )}
+      /> */}
+       <View>
+        <FlatList
+        style={{borderWidth:0}}
+          horizontal
+          ref={flatListRef}
+          data={ORDERTYPE}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{marginHorizontal: wp(-1), paddingTop: hp(1)}}
+          renderItem={({item, index}) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectOrder(item);
+                  // getorderData(item);
+                }}
+                key={index}
+                activeOpacity={0.7}
+                style={styles.talkBubble}>
+                <View
+                  style={
+                    selectOrder?.label === item?.label
+                      ? styles.talkBubbleSquare
+                      : styles.blankSquare
+                  }>
+                  <FontText
+                    color={
+                      selectOrder?.label === item?.label ? 'orange' : 'tabGray'
+                    }
+                    size={mediumFont}
+                    textAlign={'center'}
+                    name={'mont-semibold'}>
+                    {item?.label}
+                  </FontText>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+      <>
+      <View style={[commonStyle.paddingH4, {marginTop: hp(0), flex: 1}]}>
+        {
+          selectOrder.label==='Suppliers' ? _renderSupplierFunction() : _renderPendingSupplierFunction()
+        }
+      </View>
+        {/* <NavigationBar
         hasLeft
         hasRight
         hasCenter
@@ -194,78 +479,34 @@ const SupplierScreen = ({navigation}: any) => {
           </View>
         }
       /> */}
+      </>
       <Loader loading={isProcessing || isProcess} />
-      <View style={[commonStyle.paddingH4, {marginTop: hp(1), flex: 1}]}>
-        <Input
-          value={search}
-          onChangeText={(text: any) => setSearch(text.trimStart())}
-          // onSubmit={(text: any) => setSearchText(text.trimStart())}
-          blurOnSubmit
-          autoCapitalize="none"
-          placeholder={'Search a seller'}
-          placeholderTextColor={'placeholder'}
-          fontSize={fontSize}
-          inputStyle={styles.inputText}
-          color={'black'}
-          returnKeyType={'done'}
-          style={[styles.input]}
-          children={
-            <View
-              style={{
-                ...commonStyle.abs,
-                left: wp(3),
-              }}>
-              <SvgIcons.Search width={wp(4)} height={wp(4)} />
-            </View>
-          }
-        />
-        {suppplierData && suppplierData?.length === 0 ? (
-          <View style={commonStyle.flexJC}>
-            <FontText
-              name={'lexend-regular'}
-              size={mediumFont}
-              color={'gray'}
-              textAlign={'center'}>
-              {'No Supplier are available.'}
-            </FontText>
-          </View>
-        ) : (
-          <FlatList
-            data={suppplierData}
-            renderItem={_renderItem}
-            contentContainerStyle={styles.containerContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefreshing}
-              />
-            }
-          />
-        )}
-      </View>
-      <Popup
+
+      <Modal
         visible={isOpen}
         onBackPress={() => {
           setIsOpen(false);
           setCode('');
         }}
-        title={'Enter Supplier Code'}
-        titleStyle={{textAlign: 'left'}}
+        title={'Supplier Code'}
+        titleStyle={{}}
         children={
+          <View style={{flex:1,marginBottom:hp(8)}}>
           <Input
             value={code}
             onChangeText={(text: string) => setCode(text.trimStart())}
-            placeholder={''}
+            placeholder={'Enter Supplier Code'}
             autoCapitalize="none"
-            placeholderTextColor={'placeholder'}
+            placeholderTextColor={'darkGray'}
             fontSize={fontSize}
-            inputStyle={[styles.inputText, styles.dashInput]}
+            inputStyle={[styles.inputText, ]}
             style={styles.input}
             color={'black'}
             returnKeyType={'next'}
             keyboardType={'numeric'}
             blurOnSubmit
           />
+      </View>
         }
         disabled={code !== '' ? false : true}
         rightBtnText={'Apply'}
@@ -281,28 +522,33 @@ export default SupplierScreen;
 
 const styles = StyleSheet.create({
   inputText: {
-    borderRadius: normalize(10),
-    paddingLeft: wp(10),
+    borderRadius: normalize(100),
+    paddingLeft: wp(6),
     color: colors.black2,
-    fontSize: normalize(12),
-    fontFamily: 'Lexend-Regular',
+    fontSize: mediumFont,
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.white2,
     height: hp(6.5),
+    borderColor:colors.lightGray
   },
   input: {
     width: '100%',
     borderRadius: 10,
     justifyContent: 'center',
     height: hp(6.5),
+    marginBottom:hp(1)
   },
   itemContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(3),
     paddingVertical: hp(1.5),
-    backgroundColor: colors.white,
-    borderRadius: normalize(6),
     marginBottom: wp(3),
     alignItems: 'center',
+    backgroundColor: colors.orange2,
+    borderRadius: normalize(10),
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.orange,
   },
   logo: {
     width: hp(6.5),
@@ -324,4 +570,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(0.5),
     marginTop: hp(1),
   },
+  activeTabText: {
+    color: colors.orange,
+    fontSize: mediumFont,
+    fontFamily: fonts['mont-semibold'],
+  },
+  tabText: {
+    color: colors.tabGray,
+    fontSize: mediumFont,
+    fontFamily: fonts['mont-semibold'],
+  },
+  buttonContainer: {
+    borderRadius: 5,
+    height: hp(3.5),
+    width: wp(20),
+  },
+  talkBubble: {
+    backgroundColor: 'transparent',
+  },
+  talkBubbleSquare: {
+    width: wp(50),
+    paddingVertical: wp(3),
+    backgroundColor: colors.white,
+    borderBottomColor:colors.orange,
+    borderBottomWidth:2,
+  },
+  blankSquare: {
+    width: wp(50),
+    paddingVertical: wp(3),
+    borderBottomWidth:2,
+    borderBottomColor:colors.tabGray1
+  },
 });
+

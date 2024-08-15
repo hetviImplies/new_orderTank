@@ -21,6 +21,7 @@ const FontText = ({
   textDecoration,
   onLayout,
 }: any) => {
+  
   const fontSize = size;
   const textStyle = {
     fontSize,

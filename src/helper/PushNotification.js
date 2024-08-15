@@ -15,7 +15,7 @@ const saveToken = async token => {
 
 const getToken = async () => {
   try {
-    const token = await messaging().getToken();
+    const token = await messaging().getToken()
     saveToken(token);
     console.log('Token:', token);
   } catch (error) {

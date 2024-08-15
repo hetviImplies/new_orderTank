@@ -11,7 +11,7 @@ import {
 import {useFocusEffect} from '@react-navigation/native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {colors, SvgIcons} from '../../assets';
+import {colors, fonts, SvgIcons} from '../../assets';
 import {FontText, Input, Button} from '..';
 import commonStyle, {fontSize, tabIcon} from '../../styles';
 
@@ -70,7 +70,7 @@ const BottomSheet = (props: any) => {
     <View style={[styles.container, style]}>
       <View style={styles.itemTitleView}>
         <FontText
-          name={'lexend-regular'}
+          name={'mont-medium'}
           size={fontSize}
           color={'black'}
           textAlign={'left'}>
@@ -83,7 +83,7 @@ const BottomSheet = (props: any) => {
             style={styles.fiterButton}
             buttonHeight={wp(8)}>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={normalize(12)}
               color={'black2'}>
               {multiple ? 'Done' : 'Reset'}
@@ -107,7 +107,7 @@ const BottomSheet = (props: any) => {
             autoCapitalize="none"
             placeholder={'Search'}
             placeholderTextColor={'placeholder'}
-            inputStyle={styles.inputText}
+            inputStyle={[styles.inputText]}
             color={'black'}
             returnKeyType={'done'}
             style={[styles.input]}
@@ -140,7 +140,7 @@ const BottomSheet = (props: any) => {
               <FontText
                 size={normalize(14)}
                 color={'orange'}
-                name="lexend-regular">
+                name="mont-medium">
                 {'No Data found.'}
               </FontText>
             </View>
@@ -158,7 +158,7 @@ const BottomSheet = (props: any) => {
                     style={styles.itemContainer}>
                     <FontText
                       size={normalize(14)}
-                      name={'lexend-regular'}
+                      name={'mont-medium'}
                       color={'black2'}>
                       {item?.name}
                     </FontText>
@@ -177,7 +177,7 @@ const BottomSheet = (props: any) => {
                     style={styles.itemContainer}>
                     <FontText
                       size={normalize(14)}
-                      name={'lexend-regular'}
+                      name={'mont-medium'}
                       color={'black2'}>
                       {item?.label ? item?.label : item?.name}
                       {item.name !== undefined ? ` - ${item?.name}` : ''}
@@ -270,16 +270,18 @@ const styles = StyleSheet.create({
     paddingLeft: wp(10),
     color: colors.black2,
     fontSize: normalize(12),
-    fontFamily: 'Lexend-Regular',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.white2,
-    height: hp(6.5),
+    height: hp(6.5)
+
   },
   input: {
     borderRadius: normalize(10),
     justifyContent: 'center',
     alignItems: 'center',
     height: hp(6.5),
-    paddingHorizontal: wp(2),
+    paddingHorizontal: wp(2)
+
   },
   fiterButton: {
     marginHorizontal: wp(4),

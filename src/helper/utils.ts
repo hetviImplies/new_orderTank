@@ -1,5 +1,6 @@
 import {showMessage} from 'react-native-flash-message';
 import {wp, normalize} from '../styles/responsiveScreen';
+import { fonts } from '../assets';
 
 const showToast = (title = 'Error!', message: any, type: any = 'error') => {
   showMessage({
@@ -8,7 +9,7 @@ const showToast = (title = 'Error!', message: any, type: any = 'error') => {
     type,
     duration: 3000,
     textStyle: {
-      fontFamily: 'Lexend-Medium',
+      fontFamily: fonts['mont-semibold'],
       fontSize: normalize(14),
     },
     backgroundColor:

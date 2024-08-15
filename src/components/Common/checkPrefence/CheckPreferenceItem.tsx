@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import Checkbox from './Checkbox';
 import {hp, wp} from '../../../styles/responsiveScreen';
 
@@ -26,8 +26,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: hp(2),
-    paddingHorizontal: wp(3),
+    paddingVertical: wp(0.2),
+    // paddingHorizontal: wp(3),
   },
   newBorder: {
     borderWidth: 0.5,

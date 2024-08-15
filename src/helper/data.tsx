@@ -5,45 +5,45 @@ import {hp, wp} from '../styles/responsiveScreen';
 
 export const PROFILE_LIST = [
   {
-    name: 'Personal Detail',
-    icon: <SvgIcons.Profile width={iconSize} height={iconSize} />,
-  },
-  {
     name: 'Company Detail',
-    icon: <SvgIcons.CompanyDetail width={iconSize} height={iconSize} />,
+    icon: <SvgIcons.Company_Profile width={iconSize} height={iconSize} />,
   },
   {
     name: 'My Address',
-    icon: <SvgIcons.Pin width={iconSize} height={iconSize} />,
-  },
-  // {
-  //   name: 'Privacy Policy',
-  //   icon: <SvgIcons.Policy width={iconSize} height={iconSize} />,
-  // },
-  // {
-  //   name: 'Terms & Condition',
-  //   icon: <SvgIcons.Term width={iconSize} height={iconSize} />,
-  // },
-  // {
-  //   name: 'About us',
-  //   icon: <SvgIcons.AboutUs width={iconSize} height={iconSize} />,
-  // },
-  // {
-  //   name: 'Contact us',
-  //   icon: <SvgIcons.ContactUs width={iconSize} height={iconSize} />,
-  // },
-  {
-    name: 'Log out',
-    icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,
+    icon: <SvgIcons.Address_Profile width={iconSize} height={iconSize} />,
   },
   {
-    name: 'Delete Account',
-    icon: <SvgIcons.Trash width={wp(5)} height={wp(5)} />,
+    name: 'Notification',
+    icon: <SvgIcons.Notification_Profile width={iconSize} height={iconSize} />,
   },
+  {
+    name: 'Privacy Policy',
+    icon: <SvgIcons.Privacy_Profile width={iconSize} height={iconSize} />,
+  },
+  {
+    name: 'Terms & Condition',
+    icon: <SvgIcons.Terms_Profile width={iconSize} height={iconSize} />,
+  },
+  {
+    name: 'About us',
+    icon: <SvgIcons.AboutUs_Profile width={iconSize} height={iconSize} />,
+  },
+  {
+    name: 'Contact us',
+    icon: <SvgIcons.Contact_Profile width={iconSize} height={iconSize} />,
+  },
+  // {
+  //   name: 'Log out',
+  //   icon: <SvgIcons.Logout width={iconSize} height={iconSize} />,
+  // },
+  // {
+  //   name: 'Delete Account',
+  //   icon: <SvgIcons.Trash width={wp(5)} height={wp(5)} />,
+  // },
 ];
 
 export const ORDERTYPE = [
-  {label: 'All Order', value: 'all'},
+  {label: 'All', value: 'all'},
   {label: 'Pending', value: 'pending'},
   {label: 'In Process', value: 'inProcess'},
   {label: 'Partial Delivered', value: 'partialDelivered'},
@@ -461,21 +461,21 @@ export const COUNTRY_LIST = [
 export const FLOATING_BTN_ACTION = [
   {
     text: 'Add Supplier',
-    icon: <SvgIcons.AddSupplier width={tabIcon} height={tabIcon} />,
+    icon: <SvgIcons.Supplier_icon width={tabIcon} height={tabIcon} />,
     name: 'bt_supplier',
     color: '#EEEEEE',
     position: 2,
-    buttonSize: hp(5.5),
+    buttonSize: hp(6.4),
     textBackground: colors.orange,
     textColor: 'white',
   },
   {
     text: 'Add Order',
-    icon: <SvgIcons.AddOrder width={tabIcon} height={tabIcon} />,
+    icon: <SvgIcons.Order_icon width={tabIcon} height={tabIcon} />,
     name: 'bt_order',
     color: '#EEEEEE',
     position: 1,
-    buttonSize: hp(5.5),
+    buttonSize: hp(6.4),
     textBackground: colors.orange,
     textColor: 'white',
   },

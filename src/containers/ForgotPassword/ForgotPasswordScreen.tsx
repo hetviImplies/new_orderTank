@@ -4,7 +4,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {Button, FontText, Loader, Popup} from '../../components';
 import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
-import {colors, SvgIcons} from '../../assets';
+import {colors, fonts, SvgIcons} from '../../assets';
 import {useForgotPasswordMutation} from '../../api/auth';
 import utils from '../../helper/utils';
 import {RootScreens} from '../../types/type';
@@ -23,7 +23,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
     roundness: 15,
     fonts: {
       medium: {
-        fontFamily: 'mont-medium',
+        fontFamily: fonts['mont-medium'],
         fontSize: mediumFont,
       },
     },
@@ -123,7 +123,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
           onPress={onContinuePress}
           bgColor={'orange'}
           style={styles.buttonContainer}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+          <FontText name={'mont-bold'} size={fontSize} color={'white'}>
             {'Send Instructions'}
           </FontText>
         </Button>

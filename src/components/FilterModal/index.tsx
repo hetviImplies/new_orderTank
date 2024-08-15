@@ -5,12 +5,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FontText, Button} from '..';
 import commonStyle, {
   fontSize,
+  iconSize,
   mediumFont,
   mediumLargeFont,
+  smallFont,
   tabIcon,
 } from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
@@ -25,6 +27,10 @@ const FilterModal = (props: any) => {
     setSelectedItems([]);
     setSearch('');
   };
+
+  useEffect(()=>{
+    setCategoryData(category)
+  },[category])
 
   const toggleSelection = (item: any) => {
     const itemId = item.id;
@@ -47,15 +53,15 @@ const FilterModal = (props: any) => {
         style={[
           styles.itemContainer,
           {
-            borderColor: isSelected ? 'transparent' : colors.line,
+            borderColor: isSelected ? 'transparent' : colors.gray6,
             backgroundColor: isSelected ? colors.orange : colors.white,
           },
         ]}
         onPress={() => toggleSelection(item)}>
         <FontText
           color={isSelected ? 'white' : 'black2'}
-          name="lexend-regular"
-          size={mediumFont}
+          name="mont-medium"
+          size={smallFont}
           pLeft={wp(2)}
           pRight={wp(1)}
           textAlign={'center'}>
@@ -66,38 +72,48 @@ const FilterModal = (props: any) => {
   };
 
   return (
-    <View style={[commonStyle.container, commonStyle.paddingH4]}>
-      <View style={[commonStyle.rowJB]}>
+    <View style={[commonStyle.container,{borderTopLeftRadius:30,borderBottomLeftRadius:30,width:wp(85)}]}>
+      <View style={[commonStyle.rowJB,{marginTop:wp(6)}, commonStyle.paddingH4]}>
+      <FontText
+          color="black2"
+          name="mont-bold"
+          size={mediumLargeFont}
+          textAlign={'center'}>
+          {'Filter'}
+        </FontText>
+        <TouchableOpacity onPress={onApplyPress}>
+          <SvgIcons.New_Close width={iconSize} height={iconSize} />
+        </TouchableOpacity>
+      </View>
+      <View style={[styles.dashedLine,{marginVertical:wp(3)}]} />
+      <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
         <FontText
           color="black2"
-          name="lexend-medium"
-          size={mediumLargeFont}
+          name="mont-semibold"
+          size={mediumFont}
           textAlign={'center'}>
           {'Select Category'}
         </FontText>
-        <TouchableOpacity onPress={onApplyPress}>
-          <SvgIcons.Close width={tabIcon} height={tabIcon} />
-        </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={styles.contentStyle} showsVerticalScrollIndicator={false}>
-        {categoryData.map((item: any, index: any) => {
+      <ScrollView contentContainerStyle={[styles.contentStyle, commonStyle.paddingH4]} showsVerticalScrollIndicator={false}>
+        {categoryData?.map((item: any, index: any) => {
           return _renderItem({item, index});
         })}
       </ScrollView>
-      <View style={commonStyle.rowJB}>
+      <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
         <Button
           onPress={onReset}
-          bgColor={'orange'}
+          bgColor={'orange4'}
           style={styles.buttonContainer}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
-            {'Reset'}
+          <FontText name={'mont-bold'} size={mediumFont} color={'orange'}>
+            {'Reset All'}
           </FontText>
         </Button>
         <Button
           onPress={() => onApply(selectedItems)}
           bgColor={'orange'}
           style={styles.buttonContainer}>
-          <FontText name={'lexend-semibold'} size={fontSize} color={'white'}>
+          <FontText name={'mont-bold'} size={mediumFont} color={'white'}>
             {'Apply'}
           </FontText>
         </Button>
@@ -122,19 +138,16 @@ const styles = StyleSheet.create({
     marginRight: wp(4),
     marginBottom: hp(1.5),
     borderRadius: 12,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowColor: colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
     borderWidth: 1,
   },
   buttonContainer: {
-    borderRadius: normalize(6),
+    borderRadius: normalize(100),
     width: '47%',
     marginBottom: hp(3),
+  },
+  dashedLine: {
+    borderTopWidth: 1,
+    borderColor: colors.gray6,
+    width:wp(100)
   },
 });

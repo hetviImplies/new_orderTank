@@ -3,6 +3,7 @@ import {Pressable, View, Text} from 'react-native';
 import SvgIcons from '../../../assets/SvgIcons';
 import {normalize, wp} from '../../../styles/responsiveScreen';
 import commonStyle from '../../../styles';
+import { fonts } from '../../../assets';
 
 const Checkbox = (props: any) => {
   return (
@@ -12,7 +13,7 @@ const Checkbox = (props: any) => {
       style={[
         commonStyle.rowAC,
         // props.disabled ? {opacity: 0.4} : null,
-        props.style,
+        props.listStyle,
       ]}>
       {props.radio ? (
         props.checked ? (
@@ -26,14 +27,14 @@ const Checkbox = (props: any) => {
         <SvgIcons.EmptyBox /> && null
       )}
 
-      <View style={{}}>
+      <View style={{marginLeft:props.radio ? wp(3) : wp(0)}}>
         {props.children ? (
           <>{props.children}</>
         ) : (
           <Text
             style={{
               fontSize: normalize(16),
-              fontFamily: 'Lexend-Medium',
+              fontFamily: fonts['mont-semibold'],
               paddingHorizontal: wp(4),
               color: 'black',
             }}>

@@ -69,8 +69,38 @@ import TabHome from './svgs/new/new-home.svg';
 import TabSupplier from './svgs/new/new-supplier.svg';
 import TabProfile from './svgs/new/new-profile.svg';
 import TabOrder from './svgs/new/new-order.svg';
+import Bell_ from "./svgs/new/bell_.svg"
+import Cart from "./svgs/new/new-cart.svg"
+import Next from "./svgs/new/next.svg"
+import Caledar_1 from "./svgs/new/icon_calender1.svg"
+import Caledar_2 from "./svgs/new/icon_calender2.svg"
+import Order_icon from "./svgs/new/icon_order.svg"
+import Supplier_icon from "./svgs/new/icon_supplier.svg"
+import Icon_code from "./svgs/new/icon code.svg"
+import Back_Arrow from "./svgs/new/Back_arrow.svg"
+import New_Close from "./svgs/new/Close.svg"
+import Filter_ from './svgs/new/filter.svg'
+import Card_View from "./svgs/new/icon_card view.svg"
+import List_View from "./svgs/new/icon_list view.svg"
+import _Trash from "./svgs/new/new_Trash.svg"
+import new_Home from "./svgs/new/icon_home.svg"
+import new_Company from "./svgs/new/icon_company.svg"
+import _Edit from "./svgs/new/Edit_Pen Green.svg"
+import _Edit_Yellow from "./svgs/new/Edit_Pen Yellow.svg"
+import _DownArrow from "./svgs/new/_new_DownArrow.svg"
+import OrderConfirm from "./svgs/new/order confirm 1.svg"
+import _RightArrow from "./svgs/new/_new_RightArrow.svg"
+import Company_Profile from "./svgs/new/icon_company (1).svg"
+import Address_Profile from "./svgs/new/icon_address.svg"
+import Notification_Profile from "./svgs/new/icon_notification (1).svg"
+import Terms_Profile from "./svgs/new/icon_terms&Condition.svg"
+import AboutUs_Profile from "./svgs/new/icon_about us.svg"
+import Contact_Profile from "./svgs/new/icon_contact us.svg"
+import Privacy_Profile from "./svgs/new/icon_privacy.svg"
+import _Camera_Profile from "./svgs/new/icon_camera.svg"
 
 export default {
+
   BackRound,
   BackArrow,
   Bell,
@@ -140,4 +170,25 @@ export default {
   TabOrder,
   TabSupplier,
   TabProfile,
+  Bell_,
+  Cart,
+  Next,
+  Caledar_1,
+  Caledar_2,
+  Order_icon,
+  Supplier_icon,
+  Icon_code,
+  Back_Arrow,
+  New_Close,
+  Filter_,
+  Card_View,
+  List_View,
+  _Trash,
+  new_Home,
+  new_Company,
+  _Edit,
+  _DownArrow,
+  OrderConfirm,
+  _RightArrow,
+  _Edit_Yellow,Company_Profile,Address_Profile,Notification_Profile,Terms_Profile,AboutUs_Profile,Contact_Profile,Privacy_Profile,_Camera_Profile
 };

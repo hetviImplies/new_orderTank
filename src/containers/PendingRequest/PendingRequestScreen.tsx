@@ -30,14 +30,14 @@ const PendingRequestScreen = ({navigation}: any) => {
           )}
            <View style={{width: wp(45)}}>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={fontSize}
               color={'black'}
               textAlign={'left'}>
               {item?.company?.companyName}
             </FontText>
             <FontText
-              name={'lexend-regular'}
+              name={'mont-medium'}
               size={smallFont}
               color={'gray'}
               pTop={wp(2)}
@@ -47,7 +47,7 @@ const PendingRequestScreen = ({navigation}: any) => {
           </View>
         </View>
         <Button disabled bgColor={'green'} style={styles.buttonContainer}>
-          <FontText name={'lexend-regular'} size={smallFont} color={'white'}>
+          <FontText name={'mont-medium'} size={smallFont} color={'white'}>
             {'Pending'}
           </FontText>
         </Button>
@@ -93,7 +93,7 @@ const PendingRequestScreen = ({navigation}: any) => {
       supplierList?.result?.data?.length === 0 ? (
         <View style={commonStyle.flexJC}>
           <FontText
-            name={'lexend-regular'}
+            name={'mont-medium'}
             size={mediumFont}
             color={'gray'}
             textAlign={'center'}>

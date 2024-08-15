@@ -19,7 +19,7 @@ import {
   AddressComponent,
   NavigationBar,
 } from '../../components';
-import commonStyle, {fontSize, mediumFont} from '../../styles';
+import commonStyle, {fontSize, iconSize, mediumFont, mediumLargeFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {SvgIcons, colors} from '../../assets';
 import {RootScreens} from '../../types/type';
@@ -53,33 +53,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
   const [selectedItem, setSelectedItem] = useState({});
   const [updateAdd, setUpdateAdd] = useState([]);
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity
-          style={[
-            // commonStyle.iconView,
-            {marginLeft: wp(1)},
-          ]}
-          onPress={() => backAction()}>
-          {Platform.OS === 'android' ? (
-            <SvgIcons.AndroidBack
-              width={wp(6)}
-              height={wp(6)}
-              style={{marginLeft: wp(2)}}
-            />
-          ) : (
-            <SvgIcons.BackArrow
-              width={wp(5)}
-              height={wp(5)}
-              fill={colors.blue2}
-              stroke={colors.blue2}
-            />
-          )}
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, addressData, checkedData]);
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -115,6 +88,40 @@ const AddressScreen = ({navigation, route, props}: any) => {
     }, []),
   );
 
+  React.useLayoutEffect(() => {
+    // *******************************  Hetvi ********************************
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: colors.orange,
+      },
+      headerLeft: () => (
+        <View
+          style={[
+            commonStyle.rowAC,
+            {marginLeft: wp(4), flexDirection: 'row'},
+          ]}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              borderRadius: 50,
+              padding: 7,
+              marginRight: wp(4),
+              borderColor: colors.yellow3,
+            }}
+            // style={commonStyle.iconView}
+            onPress={() => backAction()}>
+            <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
+          </TouchableOpacity>
+          <FontText
+            name={'mont-semibold'}
+            size={mediumLargeFont}
+            color={'white'}>
+            Address
+          </FontText>
+        </View>
+      ),
+    });
+  }, [navigation, addressData, checkedData]);
   const fetchAddressItems = async () => {
     const items = await getAddressList(addressType);
     setAddressData(items);
@@ -209,15 +216,16 @@ const AddressScreen = ({navigation, route, props}: any) => {
       <CheckPreferenceItem
         radio={from === RootScreens.SecureCheckout ? true : false}
         listStyle={{
-          ...commonStyle.shadowContainer,
+          // ...commonStyle.shadowContainer,
           backgroundColor: colors.white,
           borderRadius: 10,
-          marginVertical: hp(1),
-          marginHorizontal: wp(0.5),
+          // marginVertical: hp(1),
+          // marginHorizontal: wp(0.5),
         }}
         key={index}
         children={
           <AddressComponent
+          type={type}
             item={item}
             from={from}
             onEditPress={() =>
@@ -274,29 +282,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
           data={addressData}
           renderItem={_renderItem}
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={
-            <Button
-              onPress={() => {
-                navigation.navigate(RootScreens.AddAddress, {
-                  address: data?.result?.address,
-                  name: 'Add Address',
-                  addressType: addressType
-                });
-              }}
-              bgColor={'orange'}
-              flex={null}
-              style={[
-                styles.buttonStyle,
-                {marginBottom: hp(3), marginTop: wp(2), width: '60%'},
-              ]}>
-              <FontText
-                name={'lexend-semibold'}
-                size={fontSize}
-                color={'white'}>
-                {'Add New Address'}
-              </FontText>
-            </Button>
-          }
         />
         {/* <TouchableOpacity
           onPress={() => {
@@ -310,6 +295,25 @@ const AddressScreen = ({navigation, route, props}: any) => {
         </TouchableOpacity> */}
       </View>
       {from === RootScreens.SecureCheckout ? (
+        <>
+        <Button
+        onPress={() => {
+          navigation.navigate(RootScreens.AddAddress, {
+            address: data?.result?.address,
+            name: 'Add Address',
+            addressType: addressType
+          });
+        }}
+        bgColor={'orange'}
+        flex={null}
+        style={[styles.buttonStyle]}>
+        <FontText
+          name={'mont-bold'}
+          size={fontSize}
+          color={'white'}>
+          {'Add New Address'}
+        </FontText>
+      </Button>
         <Button
           onPress={continuePress}
           bgColor={'orange'}
@@ -318,6 +322,7 @@ const AddressScreen = ({navigation, route, props}: any) => {
             {'Continue'}
           </FontText>
         </Button>
+        </>
       ) : null}
       <Popup
         visible={isOpen}
@@ -350,7 +355,7 @@ export default AddressScreen;
 
 const styles = StyleSheet.create({
   buttonStyle: {
-    borderRadius: 12,
+    borderRadius: 100,
     width: '90%',
     alignSelf: 'center',
     marginBottom: hp(3),
