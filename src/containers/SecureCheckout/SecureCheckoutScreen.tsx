@@ -128,7 +128,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               borderColor: colors.yellow3,
             }}
             // style={commonStyle.iconView}
-            onPress={onBackPress}>
+            onPress={()=>navigation.goBack()}>
             <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
           </TouchableOpacity>
           <FontText
@@ -418,7 +418,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               <Image source={{uri: item?.product?.image}} style={styles.logo} />
             ) : (
               <Image
-                source={Images.productImg}
+                source={Images._productImg}
                 style={[styles.logo, {width: hp(5), height: hp(5)}]}
               />
             )}
