@@ -26,6 +26,7 @@ const PendingSuppliers = ({item,disable,navigation}) => {
           <View style={{width: wp(45)}}>
             <FontText
               name={'mont-semibold'}
+              style={{maxWidth:wp(50)}}
               size={smallFont}
               color={'black2'}
               textAlign={'left'}>
@@ -33,6 +34,7 @@ const PendingSuppliers = ({item,disable,navigation}) => {
             </FontText>
             <FontText
               name={'mont-medium'}
+              style={{maxWidth:wp(50)}}
               size={smallFont}
               color={'darkGray'}
               pTop={wp(2)}

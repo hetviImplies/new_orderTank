@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize(100),
     width: '47%',
     marginBottom: hp(3),
+    height:hp(6)
   },
   dashedLine: {
     borderTopWidth: 1,

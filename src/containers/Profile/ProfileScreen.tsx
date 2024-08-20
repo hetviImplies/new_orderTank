@@ -12,12 +12,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import commonStyle, {
   fontSize,
   iconSize,
+  largeFont,
   mediumFont,
   mediumLargeFont,
   smallFont,
   tabIcon,
 } from '../../styles';
-import {Button, FontText, Loader, Popup} from '../../components';
+import {Button, FontText, Input, Loader, Modal, Popup} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {PROFILE_LIST} from '../../helper/data';
@@ -27,9 +28,10 @@ import {resetNavigateTo} from '../../helper/navigationHelper';
 import {removeToken} from '../../helper/PushNotification';
 import {useGetCurrentUserQuery, useLogoutMutation} from '../../api/auth';
 import utils from '../../helper/utils';
-import {Images, SvgIcons} from '../../assets';
+import {fonts, Images, SvgIcons} from '../../assets';
 import {useFocusEffect} from '@react-navigation/native';
 import {getCartItems} from '../Cart/Carthelper';
+import { MaterialBottomTabView } from 'react-native-paper/lib/typescript/react-navigation';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -37,7 +39,7 @@ const ProfileScreen = ({navigation}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [logout, {isLoading}] = useLogoutMutation();
-
+  const [isOpenLogout, setIsOpenLogout] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
 
   const {data, isFetching} = useGetCurrentUserQuery(null, {
@@ -208,7 +210,7 @@ const ProfileScreen = ({navigation}: any) => {
   };
 
   const logoutPress = async () => {
-    setIsOpen(false);
+    setIsOpenLogout(false);
     const {data, error}: any = await logout({});
     if (!error && data.statusCode === 200) {
       setLoading(true);
@@ -255,12 +257,14 @@ const ProfileScreen = ({navigation}: any) => {
         <View style={{flexDirection:"column",justifyContent:"space-between",margin:wp(2.3)}}>
           <FontText
             color="black2"
+            style={{maxWidth:wp(50)}}
             name="mont-bold"
             size={mediumFont}
             textAlign={'left'}>
             {data?.result?.name}
           </FontText>
           <FontText
+          style={{maxWidth:wp(50)}}
             color="darkGray"
             name="mont-semibold"
             size={smallFont}
@@ -271,7 +275,7 @@ const ProfileScreen = ({navigation}: any) => {
         </View>
         <View>
           <TouchableOpacity onPress={()=> navigation.navigate(RootScreens.PersonalDetail)} style={{borderRadius:normalize(100),backgroundColor:colors.orange4,padding:wp(3)}}>
-            <SvgIcons._Edit_Yellow height={tabIcon} width={tabIcon} />
+            <SvgIcons._Edit_Yellow height={iconSize} width={iconSize} />
           </TouchableOpacity>
         </View>
       </View>
@@ -333,7 +337,7 @@ const ProfileScreen = ({navigation}: any) => {
       </View>
       </ScrollView>
       <Button
-        onPress={logoutPress}
+        onPress={()=>setIsOpenLogout(true)}
         bgColor={'orange'}
         flex={null}
         style={[styles.buttonStyle]}>
@@ -344,6 +348,61 @@ const ProfileScreen = ({navigation}: any) => {
           {'Logout'}
         </FontText>
       </Button>
+      <Modal
+        visible={isOpenLogout}
+        onBackPress={() => {
+          setIsOpenLogout(false);
+        }}
+        title={' '}
+        children={
+          <View style={{alignItems:"center",flexDirection:"column"}}>
+            <View style={{backgroundColor:colors.orange4,borderRadius:normalize(10),padding:normalize(20),alignItems:"center",justifyContent:"center"}}>
+            <SvgIcons.Logout_Profile  />
+            </View>
+            <FontText
+            style={{marginVertical:hp(2)}}
+          name={'mont-bold'}
+          size={largeFont}
+          color={'black'}>
+          {'Logout?'}
+        </FontText>
+        <FontText
+          name={'mont-semibold'}
+          size={mediumFont}
+          color={'black2'}>
+          {'Are you Sure, do you want to logout?'}
+        </FontText>
+      </View>
+        }
+        rightBtnText={'Yes'}
+        leftBtnText={'No'}
+        rightBtnColor={'orange'}
+        leftBtnColor={'orange4'}
+        rightBtnPress={logoutPress}
+        leftBtnPress={() => setIsOpenLogout(false)}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.orange4,
+          borderWidth: 0,
+          marginTop: wp(6),
+          borderRadius: normalize(100),
+        }}
+        rightBtnStyle={{
+          backgroundColor: colors.orange,
+          width: '48%',
+          marginTop: wp(6),
+        }}
+        leftBtnTextStyle={{
+          color: colors.orange,
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        rightBtnTextStyle={{
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+      />
     </View>
   );
 };

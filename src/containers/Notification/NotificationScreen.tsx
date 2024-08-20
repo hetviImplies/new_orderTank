@@ -194,7 +194,7 @@ const NotificationScreen = ({navigation}: any) => {
             <FontText
               name="mont-semibold"
               color={'black2'}
-              style={{textTransform: 'capitalize'}}
+              style={{textTransform: 'capitalize',maxWidth:wp(45)}}
               size={smallFont}>
               {item?.title}
             </FontText>
@@ -203,6 +203,7 @@ const NotificationScreen = ({navigation}: any) => {
                 color={'darkGray'}
                 name="mont-medium"
                 size={smallFont}
+                style={{maxWidth:wp(45)}}
                 pLeft={wp(2)}>
                 {convertedTimestamp}
               </FontText>

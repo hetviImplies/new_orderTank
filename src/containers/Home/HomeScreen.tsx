@@ -188,7 +188,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             <FontText name={'mont-semibold'} size={smallFont} color={'white'}>
               {'Welcome to OrderTank'}
             </FontText>
-            <FontText name={'mont-semibold'} size={mediumFont} color={'white'}>
+            <FontText style={{maxWidth:wp(50)}} name={'mont-semibold'} size={mediumFont} color={'white'}>
               {userInfo?.name}
             </FontText>
           </View>

@@ -136,7 +136,6 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
               <FloatingAction
                 actions={FLOATING_BTN_ACTION}
                 onPressItem={name => {
-                  console.log('name: ', name);
                   if (name === 'bt_supplier') {
                     setIsOpen(true)
                   } else {
@@ -198,7 +197,7 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
 
 
           </>
-          
+
         );
       })}
     </View>

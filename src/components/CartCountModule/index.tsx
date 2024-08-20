@@ -49,6 +49,7 @@ const CartCountModule = (props: any) => {
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}></View>
               <View style={[commonStyle.rowJB, {marginBottom: hp(1)}]}>
                 <FontText
+                style={{maxWidth:wp(40)}}
                   color="darkGray"
                   name="mont-medium"
                   size={mediumFont}
@@ -56,6 +57,7 @@ const CartCountModule = (props: any) => {
                   {`Tax`}
                 </FontText>
                 <FontText
+                style={{maxWidth:wp(40)}}
                   color="black2"
                   name="mont-semibold"
                   size={mediumFont}
@@ -74,6 +76,7 @@ const CartCountModule = (props: any) => {
                   {'Shipping Fee'}
                 </FontText>
                 <FontText
+                style={{maxWidth:wp(40)}}
                   color="black2"
                   name="mont-semibold"
                   size={mediumFont}
@@ -93,6 +96,7 @@ const CartCountModule = (props: any) => {
                 {`Total (${cartData?.length} items)`}
               </FontText>
               <FontText
+              style={{maxWidth:wp(40)}}
                 color="orange"
                 name="mont-bold"
                 size={mediumFont}

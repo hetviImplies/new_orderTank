@@ -18,6 +18,7 @@ import {
   TabBar_,
 } from '../../components';
 import commonStyle, {
+  fontSize,
   iconSize,
   mediumFont,
   mediumLargeFont,
@@ -30,18 +31,20 @@ import colors from '../../assets/colors';
 import {useGetOrdersQuery} from '../../api/order';
 import {RootScreens} from '../../types/type';
 import AddressComponent from '../../components/AddressComponent';
-import {SvgIcons} from '../../assets';
+import {fonts, SvgIcons} from '../../assets';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import { getCartItems } from '../Cart/Carthelper';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const OrderScreen = ({navigation, route}: any) => {
   const selectedType = route?.params?.type;
   const flatListRef: any = useRef(null);
-  const [selectOrder, setSelectOrder] = useState<any>({});
+  const [selectOrder, setSelectOrder] = useState<any>({"_index": 0, "label": "All", "value": "all"});
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
-
+  const [value, setValue] = useState(null);
+  const [isFocus, setIsFocus] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -153,19 +156,19 @@ const OrderScreen = ({navigation, route}: any) => {
     }, [refetch]),
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      flatListRef.current.scrollToIndex({animated: true, index: 0});
-      if (selectedType !== undefined) {
-        setSelectOrder(selectedType);
-      } else {
-        setSelectOrder({
-          label: 'All',
-          value: 'all',
-        });
-      }
-    }, [selectedType]),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     flatListRef.current.scrollToIndex({animated: true, index: 0});
+  //     if (selectedType !== undefined) {
+  //       setSelectOrder(selectedType);
+  //     } else {
+  //       setSelectOrder({
+  //         label: 'All',
+  //         value: 'all',
+  //       });
+  //     }
+  //   }, [selectedType]),
+  // );
 
   useEffect(() => {
     setOrderData(orderList?.result?.data);
@@ -193,34 +196,6 @@ const OrderScreen = ({navigation, route}: any) => {
     return <PendingOrderComponent item={item} navigation={navigation} />;
   };
 
-  // const FirstRoute = () => (
-  //   <View style={{flex: 1, backgroundColor: '#ff4081'}} />
-  // );
-
-  // const SecondRoute = () => (
-  //   <View style={{flex: 1, backgroundColor: '#673ab7'}} />
-  // );
-
-  // const renderScene = SceneMap({
-  //   All: FirstRoute,
-  //   Pending: SecondRoute,
-  //   Inprocess: FirstRoute,
-  //   PartialDelivered: SecondRoute,
-  //   Delivered: FirstRoute,
-  //   Cancelled: SecondRoute,
-  // });
-
-  // const layout = useWindowDimensions();
-
-  // const [index, setIndex] = React.useState(0);
-  // const [routes] = React.useState([
-  //   {key: 'All', title: `All (${orderList?.result?.data?.length})`},
-  //   {key: 'Pending', title: 'Pending'},
-  //   {key: 'Inprocess', title: 'In process'},
-  //   {key: 'PartialDelivered', title: 'Partial Delivered'},
-  //   {key: 'Delivered', title: 'Delivered'},
-  //   {key: 'Cancelled', title: 'Cancelled'},
-  // ]);
 
   return (
     <View style={commonStyle.container}>
@@ -243,7 +218,40 @@ const OrderScreen = ({navigation, route}: any) => {
       <Loader loading={isProcess} />
       <View style={{
     marginBottom:wp(4)}}>
-        <FlatList
+
+      {/* ************************************** DropDown ************************************** */}
+      <View style={{flexDirection:"row",alignItems:"center",justifyContent:"space-between",paddingHorizontal:wp(3),marginTop:hp(2)}}>
+      <FontText
+            name={'mont-semibold'}
+            size={fontSize}
+            color={'black2'}
+            textAlign={'center'}>
+            {selectOrder?.label}{' '}({orderList?.result?.data?.length})
+          </FontText>
+      <Dropdown
+          style={[styles.dropdown, isFocus && { borderColor: colors.lightGray }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={ORDERTYPE}
+          // search
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={!isFocus ? 'All' : '...'}
+          searchPlaceholder="Search..."
+          value={value}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setSelectOrder(item);
+            setIsFocus(false);
+          }}
+        />
+        </View>
+        {/* ************************************** Tabs ************************************** */}
+        {/* <FlatList
         style={{borderWidth:0}}
           horizontal
           ref={flatListRef}
@@ -285,7 +293,7 @@ const OrderScreen = ({navigation, route}: any) => {
               </TouchableOpacity>
             );
           }}
-        />
+        /> */}
       </View>
       {/* <TabView
         navigationState={{index, routes}}
@@ -358,5 +366,44 @@ const styles = StyleSheet.create({
   },
   paddingT1: {
     paddingTop: hp(1.5),
+  },container: {
+    backgroundColor: 'white',
+    padding: 16,
+  },
+  dropdown: {
+    height: hp(5.5),
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: normalize(100),
+    paddingHorizontal: wp(3),
+    width:wp(45)
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: smallFont,
+    color:colors.darkGray,
+    fontStyle:fonts["mont-medium"]
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 });

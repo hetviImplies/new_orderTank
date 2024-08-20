@@ -42,6 +42,7 @@ const PendingOrder = ({item,navigation}) => {
           <View style={[commonStyle.rowJB, commonStyle.paddingH4]}>
             <View>
               <FontText
+              style={{maxWidth:wp(50)}}
                 color={'black2'}
                 size={smallFont}
                 textAlign={'left'}
@@ -49,6 +50,7 @@ const PendingOrder = ({item,navigation}) => {
                 {item?.orderId}
               </FontText>
               <FontText
+              style={{maxWidth:wp(50)}}
                 color={'darkGray'}
                 size={smallFont}
                 textAlign={'left'}
@@ -105,6 +107,7 @@ const PendingOrder = ({item,navigation}) => {
           <View
             style={[commonStyle.rowJB, styles.paddingT1, commonStyle.paddingH4]}>
             <FontText
+            style={{maxWidth:wp(40)}}
               color={'orange'}
               size={fontSize}
               textAlign={'right'}

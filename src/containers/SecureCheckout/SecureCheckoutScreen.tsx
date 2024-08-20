@@ -498,7 +498,6 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                   backgroundColor: colors.red3,
                   borderRadius: normalize(100),
                   justifyContent: 'center',
-                  marginRight: wp(2),
                 }}
                 onPress={() => {
                   setIsOpen2(true);

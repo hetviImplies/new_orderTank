@@ -98,7 +98,7 @@ import AboutUs_Profile from "./svgs/new/icon_about us.svg"
 import Contact_Profile from "./svgs/new/icon_contact us.svg"
 import Privacy_Profile from "./svgs/new/icon_privacy.svg"
 import _Camera_Profile from "./svgs/new/icon_camera.svg"
-
+import Logout_Profile from "./svgs/new/icon_logout.svg"
 export default {
 
   BackRound,
@@ -190,5 +190,5 @@ export default {
   _DownArrow,
   OrderConfirm,
   _RightArrow,
-  _Edit_Yellow,Company_Profile,Address_Profile,Notification_Profile,Terms_Profile,AboutUs_Profile,Contact_Profile,Privacy_Profile,_Camera_Profile
+  _Edit_Yellow,Company_Profile,Address_Profile,Notification_Profile,Terms_Profile,AboutUs_Profile,Contact_Profile,Privacy_Profile,_Camera_Profile,Logout_Profile
 };

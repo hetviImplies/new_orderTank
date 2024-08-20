@@ -364,7 +364,7 @@ const CartScreen = ({navigation, route}: any) => {
               </View>
             </TouchableOpacity>
           </View> */}
-          <View style={{alignItems: 'center'}}>
+          <View>
             <CountNumberModule
               from={'cart'}
               cartItems={item}
@@ -379,7 +379,6 @@ const CartScreen = ({navigation, route}: any) => {
                 backgroundColor: colors.red3,
                 borderRadius: normalize(100),
                 justifyContent: 'center',
-                marginRight: wp(2),
               }}
               onPress={() => {
                 setIsOpen(true);
