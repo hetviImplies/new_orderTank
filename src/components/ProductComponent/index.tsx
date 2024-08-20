@@ -67,7 +67,9 @@ const ProductItem = ({
   return (
     <View
       style={[
-        isHorizontal ? styles.itemContainer : styles.itemVerticalContainer,
+        isHorizontal ? styles.itemContainer : styles.itemVerticalContainer,{
+          paddingVertical:isHorizontal ? isIOS ? hp(1) :hp(0.9) : isIOS ? item.image ? hp(0.6) :  hp(1.3) : hp(1.1),backgroundColor:colors.orange2
+        }
       ]}>
       <TouchableOpacity
         onPress={() => productPress(item)}
@@ -75,17 +77,21 @@ const ProductItem = ({
           isHorizontal ? null : commonStyle.rowAC,
           {width: wp(40), alignItems: isHorizontal ? "flex-start" : "center"},
         ]}>
-          <View style={{borderWidth:0,borderRadius:normalize(8),backgroundColor:colors.orange3,padding:item?.image ? null : wp(1.5) ,paddingHorizontal:isHorizontal ? item.image ? null : isIOS ? wp(12.8) : wp(12.1) : null,bottom:isHorizontal ? wp(1) : null}}>
+          <View style={{borderWidth:0,borderRadius:normalize(8),backgroundColor:colors.orange3,
+          padding:item?.image ? null : wp(1.5) ,
+          width:isHorizontal ? item.image ? null : isIOS ? wp(40) : wp(40) : null,alignItems:"center"
+            // paddingHorizontal:isHorizontal ? item.image ? null : isIOS ? wp(12.8) : wp(12) : null,bottom:isHorizontal ? wp(1) : null,
+            }}>
         {item?.image ? (
           <Image source={{uri: item.image}} style={[styles.productImg,{
             width: isHorizontal ? wp(40) : isIOS ? wp(12) : wp(13),
-            height: isHorizontal ? hp(9) : isIOS ? hp(6.5) : hp(6.3)}]} />
+            height: isHorizontal ? hp(9) : isIOS ? hp(6.5) : hp(6)}]} />
         ) : (
           <Image source={Images._productImg} style={[styles.productImg,{
             width: isHorizontal ? hp(8) : hp(5),
             height: isHorizontal ? hp(8) : hp(5)}]} />
         )}
-        </View>
+        </View>  
         <View
           style={{borderWidth:0,
             marginLeft: isHorizontal ? 0 : wp(4),
@@ -229,10 +235,10 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     alignItems: 'center',
-    paddingVertical: isIOS ? hp(1.5) :hp(1.3),
+    paddingVertical: isIOS ? hp(1) :hp(0.8),
     paddingHorizontal: hp(1),
     backgroundColor: colors.white,
-    borderRadius: normalize(10),
+    borderRadius: normalize(15),
     width: '48%',
     marginBottom: hp(1.5),borderStyle:"dashed",
     borderWidth:1,
@@ -242,8 +248,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: hp(1.5),
-    paddingHorizontal: wp(3),
+    paddingHorizontal: wp(2),
     backgroundColor: colors.white,
     borderRadius: normalize(15),
     borderStyle:"dashed",

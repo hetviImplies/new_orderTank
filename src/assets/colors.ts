@@ -21,6 +21,7 @@ const colors: any = {
   gray6:'#DADFE1',
   gray7:'#363F42',
   gray8:'#556267',
+  gray9:'#F6F7F8',
   line: '#272D2F1A',
   grayOpacity:'#B8B7B71A',
   // lightgray: '#FFFFFF99',
@@ -39,7 +40,8 @@ const colors: any = {
   black3:'rgba(39, 45, 47, 0.7)',
   yellow1:"#FFF4D3",
   yellow2:"#FCB500",
-  yellow3:"#FED3B0"
+  yellow3:"#FED3B0",
+
 
 };
 

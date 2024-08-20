@@ -145,7 +145,7 @@ const NotificationScreen = ({navigation}: any) => {
     const convertedTimestamp = moment(originalTimestamp).format(
       'DD-MM-YYYY, hh:mm A',
     );
-    const notiRead = item?.isSeen ? 'rgba(200, 207, 209, 0.3)' : colors.orangeOpacity;
+    const notiRead = item?.isSeen ? colors.gray9 : colors.orangeOpacity;
     const shadow = item?.isSeen && commonStyle.shadowContainer;
     return (
       // <View style={[styles.itemContainer, shadow, {backgroundColor: notiRead}]}>

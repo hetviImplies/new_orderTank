@@ -941,7 +941,7 @@ const CompanyDetail = (props: any) => {
                 }
               /> */}
               <OutLine_Input
-                style={{borderRadius: normalize(15)}}
+                style={{borderRadius: normalize(100)}}
                 setValue={(text: string) => setAddress(text.trimStart())}
                 fontSize={smallFont}
                 color={'darkGray'}
