@@ -86,8 +86,10 @@ const Input = forwardRef(
     }
 
     const _inputStyle = {
+      paddingBottom: multiline ?  hp(0) : null,
+      paddingTop: multiline ?  hp(1.8) : null,
       height: multiline ? multilineHeight : height,
-      fontSize,
+      fontSize : fontSize,
       fontFamily: fonts[fontName],
       color: colors[color],
     };
@@ -109,8 +111,7 @@ const Input = forwardRef(
           pointerEvents={pointerEvents}
           editable={editable}
           value={value}
-          textAlign={textAlign}
-          autoComplete="off"
+          // autoComplete="off"
           autoCorrect={!!(autoCorrect && autoCorrect === true)}
           allowFontScaling={false}
           placeholder={placeholder}
@@ -126,6 +127,7 @@ const Input = forwardRef(
           keyboardType={keyboardType}
           maxLength={maxLength}
           autoCapitalize={autoCapitalize}
+          numberOfLines={multiline ? null : 1}
           secureTextEntry={secureTextEntry}
           onFocus={onFocusHandler}
           onBlur={onBlur}
@@ -142,7 +144,7 @@ const Input = forwardRef(
             styles.input,
             _inputStyle,
             inputStyle,
-          {backgroundColor:color.white,fontSize:mediumFont,paddingRight:wp(13)}]}
+          {backgroundColor:color.white,fontSize:mediumFont,paddingRight:wp(5)}]}
         />
         {children}
       </View>
@@ -150,34 +152,34 @@ const Input = forwardRef(
   },
 );
 
-Input.defaultProps = {
-  height: 46,
-  fontSize: normalize(16),
-  fontName: 'default',
-  color: 'default',
-  placeholder: 'Type something...',
-  placeholderTextColor: colors.placeholder,
-  defaultValue: '',
-  clearOnSubmit: false,
-  blurOnSubmit: false,
-  returnKeyType: 'default',
-  multiline: false,
-  multilineHeight: wp(20),
-  autoCapitalize: null,
-  editable: true,
-  keyboardType: 'default',
-  maxLength: null,
-  secureTextEntry: false,
-  onFocus: null,
-  onBlur: null,
-  autoFocus: false,
-  textAlign: null,
-  onChangeText: null,
-  caretHidden: false,
-  contextMenuHidden: false,
-  selectTextOnFocus: false,
-  willCheckPosition: true,
-};
+// Input.defaultProps = {
+//   height: 46,
+//   fontSize: normalize(16),
+//   fontName: 'default',
+//   color: 'default',
+//   placeholder: 'Type something...',
+//   placeholderTextColor: colors.placeholder,
+//   defaultValue: '',
+//   clearOnSubmit: false,
+//   blurOnSubmit: false,
+//   returnKeyType: 'default',
+//   multiline: false,
+//   multilineHeight: hp(5),  
+//   autoCapitalize: null,
+//   editable: true,
+//   keyboardType: 'default',
+//   maxLength: null,
+//   secureTextEntry: false,
+//   onFocus: null,
+//   onBlur: null,
+//   autoFocus: false,
+//   textAlign: null,
+//   onChangeText: null,
+//   caretHidden: false,
+//   contextMenuHidden: false,
+//   selectTextOnFocus: false,
+//   willCheckPosition: true,
+// };
 
 const styles = StyleSheet.create({
   input: {
@@ -194,7 +196,6 @@ const styles = StyleSheet.create({
   },
   inputMultiline: {
     textAlignVertical: 'top',
-
   },
   wrapper: {
     width: '100%',

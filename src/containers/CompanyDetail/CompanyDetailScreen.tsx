@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,34 +20,6 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const [logout, {isLoading}] = useLogoutMutation();
 
-  React.useLayoutEffect(() => {
-    if (from === 'Profile') {
-      navigation.setOptions({
-        gestureEnabled: true,
-      });
-    } else {
-      navigation.setOptions({
-        headerLeft: () => <></>,
-        headerTitleAlign: 'left',
-        headerTitleStyle: {
-          width: 'auto', // Set width to 'auto' or a specific width
-          fontSize: 18,
-        },
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={() => setIsOpen(true)}
-            style={{marginRight: wp(2)}}>
-            <SvgIcons.PowerOff
-              width={wp(7)}
-              height={wp(7)}
-              fill={colors.orange}
-            />
-          </TouchableOpacity>
-        ),
-      });
-    }
-  }, [navigation, from]);
-
   const logoutPress = async () => {
     setIsOpen(false);
     const {data, error}: any = await logout({});
@@ -63,41 +35,22 @@ const CompanyDetailScreen = ({navigation, route}: any) => {
       utils.showErrorToast(error.data.message);
     }
   };
+  
 
   return (
-    <>
       <CompanyDetail
         from={from}
         navigation={navigation}
         loading={loading || isLoading}
         loginData={data}
       />
-      <Popup
-        visible={isOpen}
-        title={'Log out'}
-        description={`Are you sure you want to logout?`}
-        leftBtnText={'No'}
-        rightBtnText={'Yes'}
-        leftBtnPress={() => setIsOpen(false)}
-        rightBtnPress={() => logoutPress()}
-        onTouchPress={() => setIsOpen(false)}
-        leftBtnStyle={{
-          width: '48%',
-          backgroundColor: colors.white2,
-          borderWidth: 0,
-        }}
-        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
-        leftBtnTextStyle={{
-          color: colors.blue,
-          fontSize: mediumFont,
-        }}
-        rightBtnTextStyle={{fontSize: mediumFont}}
-        // style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
-      />
-    </>
   );
 };
 
 export default CompanyDetailScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

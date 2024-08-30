@@ -31,6 +31,7 @@ import {setCurrentUser} from '../redux/slices/authSlice';
 import {hp, isIOS, normalize, wp} from '../styles/responsiveScreen';
 import colors from '../assets/colors';
 import { fonts } from '../assets';
+import { ConditionProvider } from '../containers/ConditionProvider/ConditionContext';
 
 export const navigationRef: React.RefObject<any> = React.createRef();
 
@@ -53,12 +54,8 @@ function TabNavigator({route}: any) {
         component={HomeScreen}
         options={{
           title: '',
-
-          // headerTitleAlign: 'left',
           headerStyle: {height: isIOS ? hp(13) : hp(7),
-            // backgroundColor: colors.orange,
           },
-          // headerTitleStyle: styles.title,
         }}
       />
       <TabStack.Screen
@@ -115,6 +112,7 @@ const RootNavigator = () => {
   return (
     <>
     <StatusBar backgroundColor={colors.orange}/>
+    <ConditionProvider>
     <RootStack.Navigator
       initialRouteName={RootScreens.Splash}
       screenOptions={{
@@ -172,9 +170,11 @@ const RootNavigator = () => {
         component={CompanyDetailScreen}
         options={({route}: any) => ({
           title: '',
-          gestureEnabled: route.params.name === 'Profile' ? true : false,
+          // gestureEnabled: route.params.name === 'Profile' ? true : false,
           headerTitleStyle: styles.title,
           headerTitleAlign: 'center',
+            headerMode: 'screen', // Ensure the header is visible and fixed
+        
         })}
       />
       <RootStack.Screen
@@ -229,6 +229,7 @@ const RootNavigator = () => {
         options={{headerShown: false}}
       />
     </RootStack.Navigator>
+    </ConditionProvider>
     </>
   );
 };

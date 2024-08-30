@@ -7,7 +7,7 @@ import {
   View,
   Text,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import moment from 'moment';
 import {useDispatch, useSelector} from 'react-redux';
 import messaging from '@react-native-firebase/messaging';
@@ -26,6 +26,7 @@ import {
   CountCard,
   PendingOrderComponent,
   PendingSuppliersComponent,
+  BackModal,
 } from '../../components';
 import commonStyle, {
   fontSize,
@@ -50,6 +51,8 @@ import {
   useCompanyRequestMutation,
   useGetSupplierQuery,
 } from '../../api/companyRelation';
+import { ConditionContext } from '../ConditionProvider/ConditionContext';
+
 
 const HomeScreen = ({navigation, route, showNotification}: any) => {
   const dispatch = useDispatch();
@@ -110,7 +113,7 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
-
+  const {condition,setCondition, floatRef} = useContext(ConditionContext);
   useFocusEffect(
     React.useCallback(() => {
       refetch();
@@ -371,7 +374,8 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             count={supplierList?.result?.data.length}
             func={()=> navigation.navigate(RootScreens.Supplier)}
           />
-          <CountCard title={'Total Orders'} count={orderData?.length} func={()=> navigation.navigate(RootScreens.Order)}/>
+          <CountCard title={'Total Orders'} 
+          count={orderData?.length} func={()=> navigation.navigate(RootScreens.Order,{from : "Home"})}/>
         </View>
         {/* <NavigationBar
         hasLeft
@@ -477,6 +481,10 @@ const HomeScreen = ({navigation, route, showNotification}: any) => {
             </FontText>
           </View>
         )}
+         <BackModal onBackPress={async()=>{
+            floatRef.current.animateButton();
+           setCondition(false)
+          }} visible={condition}/>
         <Popup
           visible={isOpen}
           onBackPress={() => setIsOpen(false)}

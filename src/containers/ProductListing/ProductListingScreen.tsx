@@ -514,7 +514,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
           </View>
         )}
       </View>
-      <Popup
+      {/* <Popup
         visible={isOpen}
         // onBackPress={() => setIsOpen(false)}
         title={`Are you sure you want to discard items and add new or first place order existing one?`}
@@ -536,30 +536,7 @@ const ProductListingScreen = ({navigation, route}: any) => {
         }}
         rightBtnTextStyle={{fontSize: mediumFont}}
         style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
-      />
-      {/* <RBSheet
-        ref={filterRef}
-        height={hp(50)}
-        closeOnPressMask
-        closeOnPressBack
-        closeOnDragDown
-        dragFromTopOnly
-        customStyles={{
-          container: styles.btSheetContainer,
-        }}>
-        <FilterModal
-          onApplyPress={() => {
-            filterRef.current.close();
-            setSearch('');
-          }}
-          navigation={navigation}
-          id={id}
-          onApply={onSearch}
-          setSearch={setSearch}
-          filterItems={selectedItems}
-          category={category?.result}
-        />
-      </RBSheet> */}
+      /> */}
       <DrawerComponent isModalVisible={isModalVisible} toggleModal={toggleModal}>
       <FilterModal
           onApplyPress={() => {

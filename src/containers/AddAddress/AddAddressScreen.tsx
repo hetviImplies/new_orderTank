@@ -13,7 +13,7 @@ import {
 } from '../../components';
 import commonStyle, {iconSize, fontSize, mediumFont, mediumLargeFont, smallFont} from '../../styles';
 import {wp, hp, normalize} from '../../styles/responsiveScreen';
-import {colors, SvgIcons} from '../../assets';
+import {colors, fonts, SvgIcons} from '../../assets';
 import {STATES_DATA} from '../../helper/data';
 import {
   useCreateAddressMutation,
@@ -28,12 +28,15 @@ import {
 } from '../Cart/Carthelper';
 import {numRegx} from '../../helper/regex';
 import { RootScreens } from '../../types/type';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const AddAddressScreen = (props: any) => {
   const {navigation, route} = props;
   const item = route?.params?.data;
   const addressType = route?.params?.addressType;
-  const from = route.name
+  console.log('route?.params: ', route?.params);
+  const from = route?.params.name
+  console.log('from: ', from);  
 
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {data, isFetching} = useGetCompanyQuery(userInfo?.company?.id, {
@@ -60,8 +63,8 @@ const AddAddressScreen = (props: any) => {
   const [state, setState] = useState(item ? item?.state : '');
   const [selectedState, setSelectedState] = useState('');
   const [addressData, setAddressData] = useState([]);
+  const [isFocus, setIsFocus] = useState(false);
   // const [country, setCountry] = useState(item ? item?.country : '');
-
   const validationNumber = (val: any) => {
     const result = numRegx.test(val?.trim());
     return result;
@@ -95,7 +98,7 @@ const AddAddressScreen = (props: any) => {
             name={'mont-semibold'}
             size={mediumLargeFont}
             color={'white'}>
-            {from==='AddAddress' ? "Add Address" : "Edit Address"}
+            {from}
           </FontText>
         </View>
       ),
@@ -219,35 +222,12 @@ const AddAddressScreen = (props: any) => {
 
   return (
     <View style={commonStyle.container}>
-      {/* <NavigationBar
-        hasCenter
-        hasLeft
-        left={
-          <View style={[commonStyle.rowAC]}>
-            <TouchableOpacity
-              style={[commonStyle.iconView, {marginRight: wp(5)}]}
-              onPress={() => navigation.goBack()}>
-              <SvgIcons.BackArrow width={tabIcon} height={tabIcon} />
-            </TouchableOpacity>
-            <FontText
-              name={'lexend-semibold'}
-              size={mediumLargeFont}
-              color={'black'}
-              textAlign={'left'}>
-              {item ? 'Edit Address' : 'Add Address'}
-            </FontText>
-          </View>
-        }
-        leftStyle={{width: '100%'}}
-        hasRight
-        style={{marginHorizontal: wp(2.5)}}
-        borderBottomWidth={0}
-      /> */}
       <Loader loading={isFetching || isProcess || isLoading} />
       <View style={[commonStyle.paddingH4, commonStyle.flex]}>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.marginTopView}>
             <Input
+            height={hp(6)}
               ref={addressNameRef}
               value={addressName}
               onChangeText={(text: string) => setAddressName(text.trimStart())}
@@ -292,6 +272,7 @@ const AddAddressScreen = (props: any) => {
           </View>
           <View style={styles.marginTopView}>
             <Input
+            multilineHeight={hp(6)}
             fontName={"mont-medium"}
               ref={addressRef}
               value={address}
@@ -299,11 +280,15 @@ const AddAddressScreen = (props: any) => {
               placeholder={'Enter Address'}
               placeholderTextColor={'placeholder'}
               fontSize={smallFont}
+              // multilineHeight={hp(6)}
               color={'darkGray'}
-              inputStyle={[styles.inputText, {paddingTop: hp(2),borderRadius:normalize(15)}]}
-              style={[styles.input, {marginVertical: hp(2)}]}
+              inputStyle={[styles.inputText,{ borderRadius: normalize(25)}]}
+              style={{width: '100%',
+                borderRadius: 10,
+                justifyContent: 'center'}}
               returnKeyType={'next'}
-              multiline
+              multiline={true}
+              
               blurOnSubmit
               onSubmit={() => {
                 localityRef?.current.focus();
@@ -323,6 +308,7 @@ const AddAddressScreen = (props: any) => {
           <View style={styles.marginTopView}>
             <Input
               ref={localityRef}
+              height={hp(6)}
               value={locality}
               onChangeText={(text: string) => setLocality(text.trimStart())}
               placeholder={'Enter Locality'}
@@ -352,6 +338,7 @@ const AddAddressScreen = (props: any) => {
             <Input
               ref={pinCodeRef}
               value={pinCode}
+              height={hp(6)}
               onChangeText={(text: string) => setPinCode(text.trim())}
               placeholder={'Enter Pin Code'}
               autoCapitalize="none"
@@ -386,6 +373,7 @@ const AddAddressScreen = (props: any) => {
               value={city}
               onChangeText={(text: string) => setCity(text.trimStart())}
               placeholder={'Enter City'}
+              height={hp(6)}
               placeholderTextColor={'placeholder'}
               fontSize={smallFont}
               color={'darkGray'}
@@ -407,23 +395,36 @@ const AddAddressScreen = (props: any) => {
               </FontText>
             )}
           </View>
-          <View style={styles.marginTopView}>
-            <TouchableOpacity
-              onPress={() => stateRef?.current?.open()}
-              style={styles.dropdownView}>
-              {/* <View style={[commonStyle.abs, {left: wp(4)}]}>
-                <SvgIcons.State width={iconSize} height={iconSize} />
-              </View> */}
-              <FontText
-                name={'mont-medium'}
-                size={smallFont}
-                color={state ? 'darkGray' : 'gray'}
-                pLeft={wp(3)}
-                textAlign={'left'}>
-                {state ? state : 'Select State'}
-              </FontText>
-              <SvgIcons._DownArrow height={wp(3.5)} width={wp(3.5)} />
-            </TouchableOpacity>
+          <View style={{marginTop:hp(1)}}>
+              <Dropdown
+              dropdownPosition='bottom'
+                style={[styles.dropdown, isFocus && { borderColor: colors.lightGray }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={STATES_DATA}
+                showsVerticalScrollIndicator={false}
+                // search
+                containerStyle={{ borderRadius: normalize(20), marginTop: hp(1),borderWidth:1,borderColor:colors.lightGray}}
+                itemContainerStyle={{ borderRadius: normalize(20), backgroundColor: colors.transparent }}
+                maxHeight={hp(30)}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Select State' : '...'}
+                searchPlaceholder="Search..."
+                value={selectedState}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setSelectedState(item?.value);
+                  setState(item?.label);
+                  setIsFocus(false);
+                }}
+                renderRightIcon={() => (
+                  <SvgIcons._DownArrow height={wp(3.5)} width={wp(3.5)} />
+                )}
+              />
             {isValidState && (
               <FontText
                 size={normalize(12)}
@@ -494,7 +495,7 @@ const AddAddressScreen = (props: any) => {
             addressNameRef?.current?.close();
           }}
         /> */}
-        <BottomSheet
+        {/* <BottomSheet
           onPressCloseModal={() => stateRef?.current?.close()}
           refName={stateRef}
           modalHeight={hp(50)}
@@ -507,7 +508,7 @@ const AddAddressScreen = (props: any) => {
             setState(item?.label);
             stateRef?.current?.close();
           }}
-        />
+        /> */}
       </View>
     </View>
   );
@@ -521,21 +522,21 @@ const styles = StyleSheet.create({
     paddingLeft: wp(6),
     color: colors.darkGray,
     fontSize: smallFont,
-    fontFamily: 'mont-medium',
+    fontFamily: fonts['mont-medium'],
     backgroundColor: colors.gray2,
   },
   input: {
     width: '100%',
     borderRadius: 10,
     justifyContent: 'center',
-    height: hp(6),
+    // height: hp(6),
   },
   buttonContainer: {
     borderRadius: normalize(100),
     marginVertical: hp(2),
   },
   marginTopView: {
-    marginTop: hp(2),
+    marginTop: hp(1),
   },
   dropdownView: {
     borderRadius: normalize(100),
@@ -547,5 +548,47 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3),
     borderWidth:1,
     borderColor:colors.lightGray
+  },dropdown: {
+    height: hp(6),
+    borderColor: colors.lightGray,
+    borderWidth: 1,
+    borderRadius: normalize(100),
+    paddingHorizontal: wp(4),
+    // width:wp(90)
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: wp(3.5),
+    bottom: hp(4),
+    zIndex: 999,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: mediumFont,
+    color:colors.placeholder,
+    fontStyle: fonts["mont-medium"],
+    left:wp(2)
+  },
+  selectedTextStyle: {
+    color: colors.darkGray,
+    fontSize: mediumFont,
+    fontFamily: fonts['mont-medium'],
+    paddingLeft: wp(2)
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  container: {
+    backgroundColor: 'white',
+    padding: 16,
   },
 });

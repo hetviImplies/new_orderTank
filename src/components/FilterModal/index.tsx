@@ -15,7 +15,7 @@ import commonStyle, {
   smallFont,
   tabIcon,
 } from '../../styles';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {hp, isIOS, normalize, wp} from '../../styles/responsiveScreen';
 import {colors, SvgIcons} from '../../assets';
 
 const FilterModal = (props: any) => {
@@ -73,7 +73,7 @@ const FilterModal = (props: any) => {
 
   return (
     <View style={[commonStyle.container,{borderTopLeftRadius:30,borderBottomLeftRadius:30,width:wp(85)}]}>
-      <View style={[commonStyle.rowJB,{marginTop:wp(6)}, commonStyle.paddingH4]}>
+      <View style={[commonStyle.rowJB,{marginTop:isIOS ? wp(10) : wp(6)}, commonStyle.paddingH4]}>
       <FontText
           color="black2"
           name="mont-bold"

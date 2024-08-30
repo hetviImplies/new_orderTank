@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import commonStyle, {
@@ -18,7 +18,7 @@ import commonStyle, {
   smallFont,
   tabIcon,
 } from '../../styles';
-import {Button, FontText, Input, Loader, Modal, Popup} from '../../components';
+import {BackModal, Button, FontText, Input, Loader, Modal, Popup} from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import colors from '../../assets/colors';
 import {PROFILE_LIST} from '../../helper/data';
@@ -32,6 +32,7 @@ import {fonts, Images, SvgIcons} from '../../assets';
 import {useFocusEffect} from '@react-navigation/native';
 import {getCartItems} from '../Cart/Carthelper';
 import { MaterialBottomTabView } from 'react-native-paper/lib/typescript/react-navigation';
+import { ConditionContext } from '../ConditionProvider/ConditionContext';
 
 const ProfileScreen = ({navigation}: any) => {
   const dispatch = useDispatch();
@@ -41,12 +42,10 @@ const ProfileScreen = ({navigation}: any) => {
   const [logout, {isLoading}] = useLogoutMutation();
   const [isOpenLogout, setIsOpenLogout] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
-
+  const {condition,setCondition,floatRef} = useContext(ConditionContext);
   const {data, isFetching} = useGetCurrentUserQuery(null, {
     refetchOnMountOrArgChange: true,
   });
-
-  console.log('data: ', data.result.company.logo);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -228,22 +227,6 @@ const ProfileScreen = ({navigation}: any) => {
 
   return (
     <View style={commonStyle.container}>
-      {/* <NavigationBar
-        hasLeft
-        hasRight
-        hasCenter
-        style={{marginHorizontal: wp(2)}}
-        borderBottomWidth={0}
-        left={
-          <FontText
-            name={'lexend-semibold'}
-            size={mediumLargeFont}
-            color={'black'}
-            textAlign={'center'}>
-            {'Profile'}
-          </FontText>
-        }
-      /> */}
       <Loader loading={loading || isLoading} />
       <View style={{padding: wp(4), borderWidth: 0,flexDirection:"row",alignItems:'center',justifyContent:"space-between"}}>
         <View style={{flexDirection:"row"}}>
@@ -302,7 +285,7 @@ const ProfileScreen = ({navigation}: any) => {
           contentContainerStyle={{padding: wp(0.5)}}
         />
 
-        <Popup
+        {/* <Popup
           visible={isOpen}
           title={isDelete ? 'Delete Account' : 'Log out'}
           description={
@@ -333,7 +316,7 @@ const ProfileScreen = ({navigation}: any) => {
           }}
           rightBtnTextStyle={{fontSize: mediumFont}}
           // style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
-        />
+        /> */}
       </View>
       </ScrollView>
       <Button
@@ -380,7 +363,7 @@ const ProfileScreen = ({navigation}: any) => {
         leftBtnColor={'orange4'}
         rightBtnPress={logoutPress}
         leftBtnPress={() => setIsOpenLogout(false)}
-        onTouchPress={() => setIsOpen(false)}
+        onTouchPress={() => setIsOpenLogout(false)}
         leftBtnStyle={{
           width: '48%',
           backgroundColor: colors.orange4,
@@ -403,6 +386,10 @@ const ProfileScreen = ({navigation}: any) => {
           fontFamily: fonts['mont-bold'],
         }}
       />
+      <BackModal onBackPress={async()=>{
+            floatRef.current.animateButton();
+           setCondition(false)
+          }} visible={condition}/>
     </View>
   );
 };
@@ -428,6 +415,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     width: '90%',
     alignSelf: 'center',
-    position:'absolute',bottom:wp(10)
+    position:'absolute',bottom:wp(30)
   },
 });

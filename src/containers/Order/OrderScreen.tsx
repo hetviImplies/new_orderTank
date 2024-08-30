@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import moment from 'moment';
 import {useFocusEffect} from '@react-navigation/native';
 import {
@@ -16,6 +16,7 @@ import {
   Loader,
   PendingOrderComponent,
   TabBar_,
+  BackModal,
 } from '../../components';
 import commonStyle, {
   fontSize,
@@ -35,17 +36,28 @@ import {fonts, SvgIcons} from '../../assets';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import { getCartItems } from '../Cart/Carthelper';
 import { Dropdown } from 'react-native-element-dropdown';
+import { ConditionContext } from '../ConditionProvider/ConditionContext';
 
 const OrderScreen = ({navigation, route}: any) => {
   const selectedType = route?.params?.type;
+  const from = route?.params?.from;
   const flatListRef: any = useRef(null);
-  const [selectOrder, setSelectOrder] = useState<any>({"_index": 0, "label": "All", "value": "all"});
+
+const [selectOrder, setSelectOrder] = useState<any>(from === 'Home' ? {"_index": 0, "label": "Pending", "value": "pending"} : {"_index": 0, "label": "All", "value": "all"});
+console.log('selectOrder: ', selectOrder);
+  
+
   const [orderData, setOrderData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
+  const {condition,setCondition,floatRef} = useContext(ConditionContext);
 
+  useEffect(()=>{
+    setSelectOrder(from === 'Home' ? {"_index": 0, "label": "Pending", "value": "pending"} : {"_index": 0, "label": "All", "value": "all"});
+  },[navigation,route])
+ 
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
@@ -150,6 +162,7 @@ const OrderScreen = ({navigation, route}: any) => {
     },
   );
 
+
   useFocusEffect(
     useCallback(() => {
       refetch();
@@ -239,9 +252,9 @@ const OrderScreen = ({navigation, route}: any) => {
           maxHeight={300}
           labelField="label"
           valueField="value"
-          placeholder={!isFocus ? 'All' : '...'}
+          placeholder={!isFocus ? from==="Home" ? "Pending" : 'All' : '...'}
           searchPlaceholder="Search..."
-          value={value}
+          value={selectOrder.value} 
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
@@ -335,6 +348,10 @@ const OrderScreen = ({navigation, route}: any) => {
           }
         />
       )}
+      <BackModal onBackPress={async()=>{
+            floatRef.current.animateButton();
+           setCondition(false)
+          }} visible={condition}/>
     </View>
   );
 };

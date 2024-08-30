@@ -15,23 +15,6 @@ const AddressComponent = (props: any) => {
         styles.childContainer,
         {width: (type === 'Delivery address' ||  type === 'Billing address') ? '96%' : '100%'},
       ]}>
-        {/* <View style={{flexDirection:"row",alignItems:"center",marginTop:wp(2)}}>
-        {type==='Home' ? <SvgIcons.new_Home
-              width={iconSize}
-              height={iconSize}
-            /> : <SvgIcons.new_Company
-            width={iconSize}
-            height={iconSize}
-          />}
-            <FontText
-            name={'mont-semibold'}
-            size={smallFont}
-            color={'black2'}
-            pLeft={wp(2)}
-          >
-            {item.addressName}
-          </FontText>
-        </View> */}
       <View style={[commonStyle.rowJB, {marginBottom: wp(1), width: '100%',alignItems:"center"}]}>
         <View style={{flexDirection:"row",alignItems:"center",marginTop:wp(2)}}>
         {(type==='Delivery address' || type==="Home") ? <SvgIcons.new_Home

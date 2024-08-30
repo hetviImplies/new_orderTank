@@ -5,11 +5,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {useRegisterMutation} from '../../api/auth';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Input, Loader, Popup} from '../../components';
+import React, { useRef, useState } from 'react';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useRegisterMutation } from '../../api/auth';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { Button, FontText, Input, Loader, OutLine_Input, Popup } from '../../components';
 import commonStyle, {
   fontSize,
   iconSize,
@@ -18,18 +18,18 @@ import commonStyle, {
   mediumLarge2Font,
   smallFont,
 } from '../../styles';
-import {colors, SvgIcons, Images, fonts} from '../../assets';
-import {RootScreens} from '../../types/type';
+import { colors, SvgIcons, Images, fonts } from '../../assets';
+import { RootScreens } from '../../types/type';
 import utils from '../../helper/utils';
-import {resetNavigateTo} from '../../helper/navigationHelper';
-import {emailRegx, phoneRegx} from '../../helper/regex';
-import {DefaultTheme, TextInput} from 'react-native-paper';
+import { resetNavigateTo } from '../../helper/navigationHelper';
+import { emailRegx, phoneRegx } from '../../helper/regex';
+import { DefaultTheme, TextInput } from 'react-native-paper';
 
-const SignUpScreen = ({navigation}: any) => {
-  const [register, {isLoading}] = useRegisterMutation();
-  const emailRef: any = useRef();
-  const phonNoRef: any = useRef();
-  const passwordRef: any = useRef();
+const SignUpScreen = ({ navigation }: any) => {
+  const [register, { isLoading }] = useRegisterMutation();
+  let emailRef: any = useRef();
+  let phonNoRef: any = useRef();
+  let passwordRef: any = useRef();
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNo, setPhoneNo] = useState('');
@@ -92,7 +92,7 @@ const SignUpScreen = ({navigation}: any) => {
         phone: phoneNo,
         password: password,
       };
-      const {data, error}: any = await register(params);
+      const { data, error }: any = await register(params);
       if (!error && data?.statusCode === 200) {
         setCheckValid(false);
         setIsOpen(true);
@@ -106,6 +106,7 @@ const SignUpScreen = ({navigation}: any) => {
 
   const handleEyePress = () => {
     setEyeIcon(!eyeIcon);
+    Keyboard.dismiss();
   };
 
   return (
@@ -114,7 +115,7 @@ const SignUpScreen = ({navigation}: any) => {
       <SvgIcons.LogoBg
         width={wp(100)}
         height={wp(41)}
-        style={{alignSelf: 'center'}}
+        style={{ alignSelf: 'center' }}
       />
       <View style={styles.middleContainer}>
         <FontText
@@ -134,26 +135,22 @@ const SignUpScreen = ({navigation}: any) => {
           {'You have chance to create new account if you really want to.'}
         </FontText>
         <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
-          <View style={{marginTop: hp(3)}}>
-            <TextInput
-              label="Username"
-              value={userName}
-              blurOnSubmit={false}
-              onChangeText={value => setUserName(value.trimStart())}
-              mode="outlined"
-              autoCapitalize="none"
-              outlineColor={isValidUserName ? colors.red : colors.lightGray}
-              activeOutlineColor={isValidUserName ? colors.red : colors.black2}
-              outlineStyle={{borderWidth: 1, borderRadius: 25}}
+          <View style={{ marginTop: hp(3) }}>
+            <OutLine_Input
+              setValue={(text: string) => setUserName(text.trim())}
+              fontSize={smallFont}
+              color={'darkGray'}
+              // func={i => ( = i)}
+              onSubmitEditing={() => phonNoRef?.focus()}
               returnKeyType={'next'}
-              onSubmitEditing={() => {
-                phonNoRef?.current.focus();
-              }}
-              style={{backgroundColor: colors.white}}
-              textColor={colors.black4}
-              contentStyle={styles.inputText}
-              cursorColor={colors.darkGray}
-              theme={theme}
+              returnKeyLabel="next"
+              // keyboardType={"number-pad"}
+              value={userName}
+              label={'Username'}
+              fontName={'mont-medium'}
+              multiline={undefined}
+              height={undefined}
+              multilineHeight={undefined}
             />
             {isValidUserName && (
               <FontText
@@ -164,29 +161,27 @@ const SignUpScreen = ({navigation}: any) => {
                 name="regular">{`User Name is Required.`}</FontText>
             )}
           </View>
-          <View style={{marginTop: hp(1.5)}}>
-            <TextInput
-              label="Mobile Number"
-              ref={phonNoRef}
-              value={phoneNo}
-              blurOnSubmit={false}
-              onChangeText={value => setPhoneNo(value.trim())}
-              mode="outlined"
-              autoCapitalize="none"
-              outlineColor={isValidPhoneNo ? colors.red : colors.lightGray}
-              activeOutlineColor={isValidPhoneNo ? colors.red : colors.black2}
-              outlineStyle={{borderWidth: 1, borderRadius: 25}}
-              returnKeyType={'next'}
-              maxLength={10}
-              keyboardType="numeric"
-              onSubmitEditing={() => {
-                emailRef?.current.focus();
+          <View style={{ marginTop: hp(1.5) }}>
+            <OutLine_Input
+              setValue={(text: string) => {
+                if (text.length <= 10) {
+                  return setPhoneNo(text.trim())
+                }
               }}
-              style={{backgroundColor: colors.white}}
-              textColor={colors.black4}
-              contentStyle={styles.inputText}
-              cursorColor={colors.darkGray}
-              theme={theme}
+              fontSize={smallFont}
+              color={'darkGray'}
+              func={i => (phonNoRef = i)}
+              onSubmitEditing={() => emailRef?.focus()}
+              returnKeyType={'next'}
+              returnKeyLabel="next"
+              // keyboardType={"number-pad"}
+              value={phoneNo}
+              label={'Mobile Number'}
+              fontName={'mont-medium'}
+              multiline={undefined}
+              height={undefined}
+              keyboardType={"phone-pad"}
+              multilineHeight={undefined}
             />
             {isValidPhoneNo && (
               <FontText
@@ -201,28 +196,22 @@ const SignUpScreen = ({navigation}: any) => {
               </FontText>
             )}
           </View>
-          <View style={{marginTop: hp(1.5)}}>
-            <TextInput
-              label="Email"
-              ref={emailRef}
-              value={email}
-              blurOnSubmit={false}
-              onChangeText={value => setEmail(value.trimStart())}
-              mode="outlined"
-              autoCapitalize="none"
-              outlineColor={isValidEmail ? colors.red : colors.lightGray}
-              activeOutlineColor={isValidEmail ? colors.red : colors.black2}
-              outlineStyle={{borderWidth: 1, borderRadius: 25}}
+          <View style={{ marginTop: hp(1.5) }}>
+            <OutLine_Input
+              setValue={(text: string) => setEmail(text.trim())}
+              fontSize={smallFont}
+              color={'darkGray'}
+              func={i => (emailRef = i)}
+              onSubmitEditing={() => passwordRef?.focus()}
               returnKeyType={'next'}
-              keyboardType={'email-address'}
-              onSubmitEditing={() => {
-                passwordRef?.current.focus();
-              }}
-              style={{backgroundColor: colors.white}}
-              textColor={colors.black4}
-              contentStyle={styles.inputText}
-              cursorColor={colors.darkGray}
-              theme={theme}
+              returnKeyLabel="next"
+              // keyboardType={"number-pad"}
+              value={email}
+              label={'Email'}
+              fontName={'mont-medium'}
+              multiline={undefined}
+              height={undefined}
+              multilineHeight={undefined}
             />
             {isValidEmail && (
               <FontText
@@ -237,40 +226,37 @@ const SignUpScreen = ({navigation}: any) => {
               </FontText>
             )}
           </View>
-          <View style={{marginTop: hp(1.5)}}>
-            <TextInput
-              ref={passwordRef}
-              label="Password"
-              value={password}
-              onChangeText={(text: string) => setPassword(text.trim())}
-              mode="outlined"
-              outlineColor={
-                isValidPassword && password.length < 6
-                  ? colors.red
-                  : colors.lightGray
-              }
-              activeOutlineColor={
-                isValidPassword && password.length < 6
-                  ? colors.red
-                  : colors.black2
-              }
-              outlineStyle={{borderWidth: 1, borderRadius: 25}}
+          <View style={{ marginTop: hp(1.5) }}>
+            <OutLine_Input
+              setValue={(text: string) => setPassword(text.trim())}
+              fontSize={smallFont}
+              color={'darkGray'}
+              func={i => (passwordRef = i)}
+              returnKeyType={'done'}
               secureTextEntry={!eyeIcon}
+              returnKeyLabel="done"
+              onSubmitEditing={() => Keyboard.dismiss()}
+              // keyboardType={"number-pad"}
+              value={password}
               right={
                 <TextInput.Icon
                   color={colors.darkGray}
                   onPress={handleEyePress}
-                  icon={eyeIcon ? 'eye-outline' : 'eye-off-outline'}
+                  icon={() => {
+                    if (eyeIcon) {
+                      return <SvgIcons._Eyes_Open height={iconSize} width={iconSize} />
+                    } else {
+                      return <SvgIcons._Eyes_Close height={iconSize} width={iconSize} />
+                    }
+                  }}
                   size={wp(5)}
                 />
               }
-              returnKeyType={'done'}
-              onSubmitEditing={() => Keyboard.dismiss()}
-              style={{backgroundColor: colors.white}}
-              textColor={colors.black4}
-              contentStyle={styles.inputText}
-              cursorColor={colors.darkGray}
-              theme={theme}
+              label={'Password'}
+              fontName={'mont-medium'}
+              multiline={undefined}
+              height={undefined}
+              multilineHeight={undefined}
             />
             {isValidPassword && (
               <FontText
@@ -298,7 +284,7 @@ const SignUpScreen = ({navigation}: any) => {
           style={[
             commonStyle.rowC,
             commonStyle.marginT2,
-            {marginBottom: hp(2)},
+            { marginBottom: hp(2) },
           ]}>
           <FontText
             name={'mont-medium'}
@@ -328,7 +314,7 @@ const SignUpScreen = ({navigation}: any) => {
             setIsOpen(false);
           }}
           // btnConatiner={{width:'100%'}}
-          rightBtnStyle={{width: '100%', height: hp(6)}}
+          rightBtnStyle={{ width: '100%', height: hp(6) }}
         />
       </View>
     </View>

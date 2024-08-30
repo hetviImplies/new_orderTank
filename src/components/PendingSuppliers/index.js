@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     borderRadius: normalize(5),
     marginRight: wp(3),
-    borderWidth: 0.2,
     borderColor: colors.black2,
   },
   buttonContainer: {

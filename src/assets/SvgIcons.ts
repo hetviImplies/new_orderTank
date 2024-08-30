@@ -99,6 +99,11 @@ import Contact_Profile from "./svgs/new/icon_contact us.svg"
 import Privacy_Profile from "./svgs/new/icon_privacy.svg"
 import _Camera_Profile from "./svgs/new/icon_camera.svg"
 import Logout_Profile from "./svgs/new/icon_logout.svg"
+import _Eyes_Close from "./svgs/new/icon_eye.svg"
+import _Eyes_Open from "./svgs/new/icon_show.svg"
+import _Logout from "./svgs/new/logOut.svg"
+import _BackArrow from "./svgs/new/icon_back.svg"
+import _Close_Orange from "./svgs/new/Close-orange.svg"
 export default {
 
   BackRound,
@@ -190,5 +195,5 @@ export default {
   _DownArrow,
   OrderConfirm,
   _RightArrow,
-  _Edit_Yellow,Company_Profile,Address_Profile,Notification_Profile,Terms_Profile,AboutUs_Profile,Contact_Profile,Privacy_Profile,_Camera_Profile,Logout_Profile
+  _Edit_Yellow,_Close_Orange,_BackArrow,_Logout,_Eyes_Close,_Eyes_Open,Company_Profile,Address_Profile,Notification_Profile,Terms_Profile,AboutUs_Profile,Contact_Profile,Privacy_Profile,_Camera_Profile,Logout_Profile
 };

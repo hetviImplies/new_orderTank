@@ -131,8 +131,8 @@ import {
 
     return (
       <Modal transparent visible={visible}>
-      <View style={styles.fullScreen}>
-        <TouchableWithoutFeedback onPress={onBackPress}>
+      <View style={[styles.fullScreen]}>
+        <TouchableWithoutFeedback onPress={()=> null}>
           <Animated.View style={[styles.backdrop, {
             backgroundColor: from === 'Floating' ? 'rgba(52, 52, 52, 0.2)' : 'rgba(52, 52, 52, 0.5)'
           }]} />

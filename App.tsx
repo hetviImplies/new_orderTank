@@ -19,6 +19,7 @@ import RootNavigator from './src/navigation/RootNavigator';
 import colors from './src/assets/colors';
 import {requestPermission} from './src/helper/PushNotification';
 import {InAppNotificationProvider} from './src/components/Common/InAppNotification';
+import DatePickerExample from './TimePicker';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCox_mnUgKk88Xr-0iKqR5bR8QNUIkiFg0',
@@ -100,5 +101,6 @@ export default () => {
         </View>
       </InAppNotificationProvider>
     </Provider>
+    // <DatePickerExample/>
   );
 };

@@ -20,6 +20,7 @@ const FontText = ({
   textAlign,
   textDecoration,
   onLayout,
+  onPress
 }: any) => {
   
   const fontSize = size;
@@ -43,6 +44,7 @@ const FontText = ({
       allowFontScaling={false}
       numberOfLines={lines}
       onLayout={onLayout}
+      onPress={onPress}
       style={[textStyle, style]}>
       {children}
     </Text>

@@ -1,5 +1,5 @@
 //import liraries
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import {colors, fonts, SvgIcons} from '../../../assets';
 import {hp, normalize, wp} from '../../../styles/responsiveScreen';
@@ -12,12 +12,15 @@ import { Modal } from '../..';
 import utils from '../../../helper/utils';
 import Input from '../Input';
 import { useCompanyRequestMutation } from '../../../api/companyRelation';
+import { ConditionContext } from '../../../containers/ConditionProvider/ConditionContext';
 
 // create a component
 const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenBlur, setIsOpenBlur] = useState(false);
   const [code, setCode] = useState('');
+  const {condition,setCondition,floatRef} = useContext(ConditionContext);
   const [sendCompanyReq, {isLoading: isProcess}] = useCompanyRequestMutation();
   const applyCodePress = async () => {
     setIsOpen(false);
@@ -134,23 +137,28 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
           <>
           {index === 2 ? (
               <FloatingAction
+              ref={floatRef}
                 actions={FLOATING_BTN_ACTION}
                 onPressItem={name => {
                   if (name === 'bt_supplier') {
                     setIsOpen(true)
+                    setCondition(false)
                   } else {
                     navigation.navigate(RootScreens.Supplier);
+                    setCondition(false)
                   }
                 }}
-                onPressMain={() => console.log('main...')}
+                onClose={()=> console.log('close')}
+                onPressMain={() => setCondition(!condition)}
                 showBackground={false}
                 color={colors.orange}
-                buttonSize={hp(7)}
+                buttonSize={hp(7.5)}
                 iconHeight={hp(2.2)}
                 iconWidth={hp(2.2)}
                 position="center"
               />
             ) : null}
+            
             <Modal
             from={'Floating'}
         visible={isOpen}
@@ -184,6 +192,7 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
         rightBtnPress={applyCodePress}
         rightBtnStyle={{width: '100%'}}
       />
+     
             <TouchableOpacity
               key={index.toString()}
               accessibilityRole="button"
@@ -207,7 +216,7 @@ const CustomeBottomTab = ({state, descriptors, navigation, role}: any) => {
 // define your styles
 const styles = StyleSheet.create({
   container: {
-    zIndex:1000,
+    zIndex:2000,
     flexDirection: 'row',
     backgroundColor: colors.white,
     alignItems: 'center',
@@ -221,6 +230,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 8,
     paddingVertical: hp(1.5),
+    position:"absolute",bottom:0
   },
   icon: {alignSelf: 'center', alignItems: 'center'},
   inputText: {

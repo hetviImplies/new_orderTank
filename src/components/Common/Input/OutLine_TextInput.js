@@ -1,34 +1,34 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { createRef, useImperativeHandle, useState } from 'react'
-import { TextInput } from 'react-native-paper'
+import { Provider as PaperProvider, DefaultTheme, TextInput} from 'react-native-paper'
 import { colors, fonts } from '../../../assets'
-import { normalize, wp } from '../../../styles/responsiveScreen'
+import { hp, normalize, wp } from '../../../styles/responsiveScreen'
+import { FontText } from '../..'
+import { mediumFont } from '../../../styles'
 
-const OutLine_TextInput = ({value,label,editable,setValue,placeholder,fontSize,func,returnKeyLabel,fontName,color,returnKeyType,onSubmitEditing,multiline,height,multilineHeight,disabled,style}) => {
-
-
-  const [inputEditable, setEditable] = useState(editable);
+const OutLine_TextInput = ({value,secureTextEntry,label,right,editable,setValue,placeholder,fontSize,func,keyboardType,returnKeyLabel,fontName,color,returnKeyType,onSubmitEditing,multiline,height,multilineHeight,disabled,style}) => {
 
 
   const _inputStyle = {
-    marginBottom: multiline ? multilineHeight : height,
-    fontSize,
+    paddingBottom: multiline ? label==='Address' ? hp(0.6) :  multilineHeight : height,
+    paddingTop:label==='Address' ? hp(1.2) : null,
+    fontSize:fontSize,
     fontFamily: fonts[fontName],
     color: colors[color],
   };
-
-
 
   return (
     <TextInput
     disabled={disabled}
         mode="outlined"
+        textAlign="center"
+        keyboardType={keyboardType ? keyboardType : "default"}
         ref={func}
         multiline={multiline}
         dense
         placeholderTextColor={colors.placeholder}
         placeholder={placeholder}
-        label={label}
+        label={<FontText name={'mont-medium'} size={mediumFont}  color={'black2'}>{label}</FontText>}
         onSubmitEditing={onSubmitEditing}
         numberOfLines={multiline ? null : 1}
         returnKeyLabel={returnKeyLabel}
@@ -36,14 +36,15 @@ const OutLine_TextInput = ({value,label,editable,setValue,placeholder,fontSize,f
         outlineColor={colors.lightGray}
         selectionColor={colors.lightGray}
         returnKeyType={returnKeyType}
-        // enablesReturnKeyAutomatically={true}
         value={value}
         activeOutlineColor={[colors.lightGray]}
         outlineStyle={[style ? style : {borderRadius:normalize(100)}]}
-        style={[
-            _inputStyle,{backgroundColor:"white",textAlignVertical: "top",}]}
+        contentStyle={_inputStyle}
+        style={[{backgroundColor:"white",paddingLeft:wp(0.5)}]}
         editable={editable}
         onChangeText={setValue}
+        right={right ? right : null}
+        secureTextEntry={secureTextEntry}
       />
   )
 }

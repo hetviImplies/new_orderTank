@@ -6,8 +6,8 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useLoginMutation, useResendEmailMutation} from '../../api/auth';
 import {colors, fonts} from '../../assets';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Loader, Popup} from '../../components';
-import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
+import {Button, FontText, Loader, OutLine_Input, Popup} from '../../components';
+import commonStyle, {fontSize, iconSize, largeFont, mediumFont, smallFont} from '../../styles';
 import SvgIcons from '../../assets/SvgIcons';
 import {setCurrentUser} from '../../redux/slices/authSlice';
 import {RootScreens} from '../../types/type';
@@ -23,13 +23,13 @@ const LoginScreen = ({navigation}: any) => {
   const [login, {isLoading}] = useLoginMutation();
   const [resend, {isLoading: isFetching}] = useResendEmailMutation();
 
-  const passwordRef: any = useRef();
+  let passwordRef: any = useRef();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [eyeIcon, setEyeIcon] = useState(false);
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const [loading,setLoading]=useState(false)
   const theme = {
     ...DefaultTheme,
     fontSize: mediumFont,
@@ -88,7 +88,7 @@ const LoginScreen = ({navigation}: any) => {
       };
       const {data, error}: any = await login(body);
       if (!error && data?.statusCode === 200) {
-        clearData();
+        setLoading(true)
         await dispatch(setCurrentUser(data?.result));
         // await dispatch(setToken(data?.result?.token));
         await AsyncStorage.setItem('userData', JSON.stringify(body));
@@ -99,6 +99,8 @@ const LoginScreen = ({navigation}: any) => {
             name: 'Enter your company detail',
             data: data?.result,
           });
+          setLoading(false)
+          clearData();
         } else {
           navigation.reset({
             index: 0,
@@ -117,6 +119,8 @@ const LoginScreen = ({navigation}: any) => {
               },
             ],
           });
+          clearData();
+          setLoading(false)
         }
       } else {
         error?.data?.message === 'Please verify email...'
@@ -128,6 +132,7 @@ const LoginScreen = ({navigation}: any) => {
 
   const handleEyePress = () => {
     setEyeIcon(!eyeIcon);
+    Keyboard.dismiss();
   };
 
   const onForgotPress = () => {
@@ -153,7 +158,7 @@ const LoginScreen = ({navigation}: any) => {
   return (
     <>
       <View style={commonStyle.container}>
-        <Loader loading={isLoading || isFetching} />
+        <Loader loading={isLoading || isFetching || loading} />
         <SvgIcons.LogoBg
           width={wp(100)}
           height={wp(41)}
@@ -178,7 +183,7 @@ const LoginScreen = ({navigation}: any) => {
           </FontText>
           <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
             <View style={{marginTop: hp(3)}}>
-              <TextInput
+              {/* <TextInput
                 label="Email"
                 value={email}
                 blurOnSubmit={false}
@@ -198,6 +203,22 @@ const LoginScreen = ({navigation}: any) => {
                 contentStyle={styles.inputText}
                 cursorColor={colors.darkGray}
                 theme={theme}
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) =>  setEmail(text.trim())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                // func={i => (e = i)}
+                onSubmitEditing={() =>passwordRef?.focus()}
+                returnKeyType={'next'}
+                returnKeyLabel="next"
+                // keyboardType={"number-pad"}
+                value={email}
+                label={'Email'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidEmail && (
                 <FontText
@@ -213,7 +234,7 @@ const LoginScreen = ({navigation}: any) => {
               )}
             </View>
             <View style={{marginTop: hp(1.5)}}>
-              <TextInput
+              {/* <TextInput
                 ref={passwordRef}
                 label="Password"
                 value={password}
@@ -235,7 +256,13 @@ const LoginScreen = ({navigation}: any) => {
                   <TextInput.Icon
                     color={colors.darkGray}
                     onPress={handleEyePress}
-                    icon={eyeIcon ? 'eye-outline' : 'eye-off-outline'}
+                    icon={()=>{ 
+                      if(eyeIcon){
+                        return <SvgIcons._Eyes_Open height={iconSize} width={iconSize} />
+                      }else{
+                          return <SvgIcons._Eyes_Close height={iconSize} width={iconSize} />
+                      }
+                  }}
                     size={wp(5)}
                   />
                 }
@@ -246,6 +273,37 @@ const LoginScreen = ({navigation}: any) => {
                 contentStyle={styles.inputText}
                 cursorColor={colors.darkGray}
                 theme={theme}
+              /> */}
+              <OutLine_Input
+                setValue={(text: string) =>  setPassword(text.trim())}
+                fontSize={smallFont}
+                color={'darkGray'}
+                func={i => (passwordRef = i)}
+                returnKeyType={'done'}
+                secureTextEntry={!eyeIcon}
+                returnKeyLabel="done"
+                onSubmitEditing={() => Keyboard.dismiss()}
+                // keyboardType={"number-pad"}
+                value={password}
+                right={
+                  <TextInput.Icon
+                    color={colors.darkGray}
+                    onPress={handleEyePress}
+                    icon={()=>{ 
+                      if(eyeIcon){
+                        return <SvgIcons._Eyes_Open height={iconSize} width={iconSize} />
+                      }else{
+                          return <SvgIcons._Eyes_Close height={iconSize} width={iconSize} />
+                      }
+                  }}
+                    size={wp(5)}
+                  />
+                }
+                label={'Password'}
+                fontName={'mont-medium'}
+                multiline={undefined}
+                height={undefined}
+                multilineHeight={undefined}
               />
               {isValidPassword && (
                 <FontText

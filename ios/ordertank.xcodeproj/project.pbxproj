@@ -20,8 +20,7 @@
 		67A7396B09774FB7B205E439 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9FD5642E74A4E4E87E33A74 /* Montserrat-Medium.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-ordertank-ordertankTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-ordertank-ordertankTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		88B220D62B7359DE0097C735 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88B220D52B7359DE0097C735 /* GoogleService-Info.plist */; };
-		88B220D72B7359DE0097C735 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88B220D52B7359DE0097C735 /* GoogleService-Info.plist */; };
+		88281B022C784CA20063FD43 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88281B012C784CA20063FD43 /* GoogleService-Info.plist */; };
 		913E93FDBCE8492192839B72 /* Lexend-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8CDA28FE12C24F089C779111 /* Lexend-Regular.ttf */; };
 		A43EF90823BA4B378C10EC2C /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9768BF657F514E52992A0B4E /* Montserrat-Regular.ttf */; };
 		FEA28C523943461F876D5817 /* Lexend-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ECC82C0A25F4F499833B24A /* Lexend-ExtraBold.ttf */; };
@@ -56,8 +55,8 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-ordertank.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ordertank.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E212A8CDFF142979E6C11B6 /* Lexend-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lexend-Bold.ttf"; path = "../src/assets/fonts/Lexend-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ordertank/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		88281B012C784CA20063FD43 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		889011742B428F640062FE75 /* ordertank.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ordertank.entitlements; path = ordertank/ordertank.entitlements; sourceTree = "<group>"; };
-		88B220D52B7359DE0097C735 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../../../../Users/imac/Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-ordertank-ordertankTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ordertank-ordertankTests.release.xcconfig"; path = "Target Support Files/Pods-ordertank-ordertankTests/Pods-ordertank-ordertankTests.release.xcconfig"; sourceTree = "<group>"; };
 		8CDA28FE12C24F089C779111 /* Lexend-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lexend-Regular.ttf"; path = "../src/assets/fonts/Lexend-Regular.ttf"; sourceTree = "<group>"; };
 		9768BF657F514E52992A0B4E /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../src/assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
@@ -108,9 +107,9 @@
 		13B07FAE1A68108700A75B9A /* ordertank */ = {
 			isa = PBXGroup;
 			children = (
-				88B220D52B7359DE0097C735 /* GoogleService-Info.plist */,
 				889011742B428F640062FE75 /* ordertank.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
+				88281B012C784CA20063FD43 /* GoogleService-Info.plist */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -276,7 +275,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88B220D72B7359DE0097C735 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,11 +283,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				88B220D62B7359DE0097C735 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				4E8CB8A6C0C04542BA369B2D /* Lexend-Bold.ttf in Resources */,
 				FEA28C523943461F876D5817 /* Lexend-ExtraBold.ttf in Resources */,
 				33D802E66A594684A099DF0E /* Lexend-Medium.ttf in Resources */,
+				88281B022C784CA20063FD43 /* GoogleService-Info.plist in Resources */,
 				913E93FDBCE8492192839B72 /* Lexend-Regular.ttf in Resources */,
 				32DC85DA630049C3B2CEFCA9 /* Lexend-SemiBold.ttf in Resources */,
 				439CD7866149442F8EC4C66C /* Montserrat-Bold.ttf in Resources */,
@@ -479,6 +477,7 @@
 			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-ordertank-ordertankTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = UMF7249LB9;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -507,6 +506,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = UMF7249LB9;
 				INFOPLIST_FILE = ordertankTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -532,8 +532,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ordertank/ordertank.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_TEAM = UMF7249LB9;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ordertank/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -548,6 +550,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ordertank;
 				PRODUCT_NAME = ordertank;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -561,8 +564,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ordertank/ordertank.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_TEAM = UMF7249LB9;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ordertank/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -576,6 +581,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ordertank;
 				PRODUCT_NAME = ordertank;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

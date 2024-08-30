@@ -28,5 +28,6 @@
 	<string>1:374521811510:ios:fb60de56eab21e5d243e97</string>
 	<key>DATABASE_URL</key>
 	<string>https://order-tank-default-rtdb.firebaseio.com</string>
+	
 </dict>
 </plist>

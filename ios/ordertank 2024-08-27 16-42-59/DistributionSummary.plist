@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ordertank.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>4</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>42594284A81E2CB22E682BA09E41A86536BDB91E</string>
+				<key>dateExpires</key>
+				<string>20/08/25</string>
+				<key>type</key>
+				<string>Apple Development</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>0.12.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>42594284A81E2CB22E682BA09E41A86536BDB91E</string>
+						<key>dateExpires</key>
+						<string>20/08/25</string>
+						<key>type</key>
+						<string>Apple Development</string>
+					</dict>
+					<key>name</key>
+					<string>hermes.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>UMF7249LB9</string>
+						<key>name</key>
+						<string>Viral Bhadiyadra</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.12.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>UMF7249LB9.com.ordertank</string>
+				<key>aps-environment</key>
+				<string>development</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>UMF7249LB9</string>
+				<key>get-task-allow</key>
+				<true/>
+			</dict>
+			<key>name</key>
+			<string>ordertank.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>99290904-b991-4d09-9f40-16e951614542</string>
+				<key>dateExpires</key>
+				<string>20/08/25</string>
+				<key>name</key>
+				<string>iOS Team Provisioning Profile: com.ordertank</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>UMF7249LB9</string>
+				<key>name</key>
+				<string>Viral Bhadiyadra</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.2</string>
+		</dict>
+	</array>
+</dict>
+</plist>

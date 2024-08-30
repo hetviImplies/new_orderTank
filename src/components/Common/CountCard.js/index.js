@@ -15,7 +15,7 @@ const CountModule = ({count,title,func}) => {
           size={mediumLarge1Font}
           style={{maxWidth:wp(30)}}
           color={'black2'}>
-          {count}
+          {count===undefined ? 0 : count}
         </FontText>
         <FontText
           style={{marginTop: 4,maxWidth:wp(30)}}

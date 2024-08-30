@@ -24,6 +24,7 @@ import PendingSuppliers from './PendingSuppliers/index.js';
 import DrawerModal from './DrawerModal/index.js';
 import _IncrementDecrementModule from './IncrementDecrementComponent/index.js';
 import OutLine_TextInput from './Common/Input/OutLine_TextInput.js';
+import _BackModal from './Modal/BackModal.js';
 
 export const Button = _Button;
 export const FontText = _FontText;
@@ -51,3 +52,4 @@ export const PendingSuppliersComponent = PendingSuppliers
 export const DrawerComponent = DrawerModal
 export const CountNumberModule = _IncrementDecrementModule
 export const OutLine_Input = OutLine_TextInput
+export const BackModal = _BackModal

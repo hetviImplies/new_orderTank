@@ -1,11 +1,11 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import imageCompress, {getImageMetaData} from 'react-native-compressor';
+import imageCompress, { backgroundUpload, getImageMetaData } from 'react-native-compressor';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {colors, fonts, Images, SvgIcons} from '../../assets';
+import { colors, fonts, Images, SvgIcons } from '../../assets';
 import {
   Button,
   FontText,
@@ -14,6 +14,7 @@ import {
   RadioButton,
   BottomSheet,
   OutLine_Input,
+  Modal,
 } from '..';
 import commonStyle, {
   iconSize,
@@ -22,23 +23,34 @@ import commonStyle, {
   tabIcon,
   mediumLargeFont,
   smallFont,
+  largeFont,
+  smallest,
 } from '../../styles';
-import {wp, hp, normalize, isAndroid} from '../../styles/responsiveScreen';
-import {NUMBER_TYPE, STATES_DATA} from '../../helper/data';
+import { wp, hp, normalize, isAndroid } from '../../styles/responsiveScreen';
+import { NUMBER_TYPE, STATES_DATA } from '../../helper/data';
 import {
   useAddCompanyMutation,
   useGetCompanyQuery,
   useUpdateCompanyMutation,
 } from '../../api/company';
 import utils from '../../helper/utils';
-import {useGetCurrentUserQuery} from '../../api/auth';
-import {RootScreens} from '../../types/type';
-import {gstNoRegx, numRegx, panNoRegx, phoneRegx} from '../../helper/regex';
-import {setCurrentUser} from '../../redux/slices/authSlice';
-
+import { useGetCurrentUserQuery, useLogoutMutation } from '../../api/auth';
+import { RootScreens } from '../../types/type';
+import { gstNoRegx, numRegx, panNoRegx, phoneRegx } from '../../helper/regex';
+import { authReset, setCurrentUser } from '../../redux/slices/authSlice';
+import { resetNavigateTo } from '../../helper/navigationHelper';
+import { removeToken } from '../../helper/PushNotification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dropdown } from 'react-native-element-dropdown';
+import { positionStyle } from 'react-native-flash-message';
 const CompanyDetail = (props: any) => {
-  const {loading, from, navigation, loginData} = props;
+  const { navigation, from, loginData } = props;
+  const [loading, setLoading] = useState(false);
+  const [isOpenLogout, setIsOpenLogout] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
+  const [logout, { isgLoading }] = useLogoutMutation();
+  console.log('isLoading: ', isgLoading);
   const userInfo = useSelector((state: any) => state.auth.userInfo);
   const {
     data: userData,
@@ -58,9 +70,9 @@ const CompanyDetail = (props: any) => {
         <View
           style={[
             commonStyle.rowAC,
-            {marginLeft: wp(4), flexDirection: 'row'},
+            { marginLeft: wp(4), flexDirection: 'row' },
           ]}>
-          <TouchableOpacity
+          {from === "Profile" ? <TouchableOpacity
             style={{
               borderWidth: 1,
               borderRadius: 50,
@@ -71,7 +83,7 @@ const CompanyDetail = (props: any) => {
             // style={commonStyle.iconView}
             onPress={() => navigation.goBack()}>
             <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
-          </TouchableOpacity>
+          </TouchableOpacity> : null}
           <FontText
             name={'mont-semibold'}
             size={mediumLargeFont}
@@ -80,17 +92,33 @@ const CompanyDetail = (props: any) => {
           </FontText>
         </View>
       ),
+      headerRight: () => (
+        from === "Profile" ? <></> : <TouchableOpacity
+          onPress={() => setIsOpenLogout(true)}
+          style={{
+            borderWidth: 1,
+            borderRadius: 50,
+            padding: 8,
+            borderColor: colors.yellow3, marginRight: wp(4)
+          }}>
+          <SvgIcons._Logout
+            width={wp(4)}
+            height={wp(4)}
+            fill={colors.orange}
+          />
+        </TouchableOpacity>
+      ),
     });
   }, [navigation]);
 
-  const {data, isFetching} = useGetCompanyQuery(
+  const { data, isFetching } = useGetCompanyQuery(
     loginData ? loginData?.company?.id : userData?.result?.company?.id,
     {
       refetchOnMountOrArgChange: true,
     },
   );
-  const [addCompany, {isLoading}] = useAddCompanyMutation();
-  const [updateCompany, {isLoading: isProcess}] = useUpdateCompanyMutation();
+  const [addCompany, { isLoading }] = useAddCompanyMutation();
+  const [updateCompany, { isLoading: isProcess }] = useUpdateCompanyMutation();
   const [editInformation, setEditInformation] = React.useState(false);
   const [btnText, setBtnText] = React.useState('Edit Details');
 
@@ -119,6 +147,7 @@ const CompanyDetail = (props: any) => {
 
   const [checkValid, setCheckValid] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+
   const [imageRes, setImageRes] = useState<any>({});
   const [gstNo, setGstNo] = useState('');
   const [panNo, setPanNo] = useState('');
@@ -137,6 +166,7 @@ const CompanyDetail = (props: any) => {
   const [numberType, setNumberType] = useState(1);
   // const [search, setSearch] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [isFocus, setIsFocus] = useState(false);
 
   const validationPhnNumber = (val: any) => {
     const result = phoneRegx.test(val?.trim());
@@ -158,11 +188,7 @@ const CompanyDetail = (props: any) => {
     (phone?.length === 0 || phone?.length < 10 || !validationPhnNumber(phone));
   const isValidAddress = checkValid && address?.length === 0;
   // const isValidAddressName = checkValid && addressName?.length === 0;
-  const isValidPinCode =
-    checkValid &&
-    (pinCode?.length === 0 ||
-      pinCode?.length < 6 ||
-      !validationNumber(pinCode));
+  const isValidPinCode = checkValid && (pinCode?.length === 0 || pinCode?.length < 6 || pinCode?.length > 6 || !validationNumber(pinCode));
   const isValidLocality = checkValid && locality?.length === 0;
   const isValidCity = checkValid && city?.length === 0;
   const isValidState = checkValid && state?.length === 0;
@@ -181,8 +207,8 @@ const CompanyDetail = (props: any) => {
       data?.result?.name
         ? data?.result?.name
         : loginData?.name
-        ? loginData?.name
-        : userData?.result?.name,
+          ? loginData?.name
+          : userData?.result?.name,
     );
     setGstNo(data?.result?.gstNo ? data?.result?.gstNo : '');
     setPanNo(data?.result?.panNo ? data?.result?.panNo : '');
@@ -190,8 +216,8 @@ const CompanyDetail = (props: any) => {
       data?.result?.phone
         ? data?.result?.phone
         : loginData?.phone
-        ? loginData?.phone
-        : userData?.result?.phone,
+          ? loginData?.phone
+          : userData?.result?.phone,
     );
     setCompany(data?.result ? data?.result?.companyName : '');
     setAddress(data?.result ? data?.result?.addressLine : '');
@@ -208,8 +234,8 @@ const CompanyDetail = (props: any) => {
     // setCountry(data?.result ? data?.result?.country : '');
   }, [data, userInfo, loginData, userData]);
 
-  const imagePress = () => {
-    imageRef.current.open();
+  const imagePress = async() => {
+    await imageRef.current.open();
   };
 
   const onPhotoUploadUrlChangeHandler = async (
@@ -217,6 +243,10 @@ const CompanyDetail = (props: any) => {
     url: any,
     file: any,
   ) => {
+    console.log('res: ', res);
+    console.log('url: ', url);
+    console.log('file: ', file);
+
     const newUrl = isAndroid ? `file://${url}` : url;
     if (file >= 5000000) {
       utils.showWarningToast('Image size must be less than 5MB.');
@@ -282,18 +312,6 @@ const CompanyDetail = (props: any) => {
       // && country?.length !== 0
     ) {
       const formData = new FormData();
-      // const addressObj = [
-      //   {
-      //     isPriority: true,
-      //     addressName: 'Company Address',
-      //     addressLine: address,
-      //     locality: locality,
-      //     pincode: pinCode,
-      //     city: city,
-      //     state: state,
-      //     // country: country,
-      //   },
-      // ];
       formData.append('companyName', company);
       formData.append('name', name);
       formData.append('phone', phone);
@@ -306,16 +324,6 @@ const CompanyDetail = (props: any) => {
       numberType === 1
         ? formData.append('gstNo', gstNo)
         : formData.append('panNo', panNo);
-      // formData.append('isGst', numberType === 1 ? true : false);
-      // formData.append('isPan', numberType === 2 ? true : false);
-      // imageUrl !== '' &&
-      //   (Object.keys(imageRes).length !== 0
-      //     ? formData.append('logo', {
-      //         uri: imageUrl,
-      //         type: `image/${imageUrl.split('.').pop()}`,
-      //         name: 'image',
-      //       })
-      //     : formData.append('logo', imageUrl));
       if (imageUrl !== '') {
         if (Object.keys(imageRes).length !== 0) {
           formData.append('logo', {
@@ -338,7 +346,8 @@ const CompanyDetail = (props: any) => {
           params: formData,
           id: userInfo?.company?.id,
         };
-        const {data, error}: any = await updateCompany(body);
+        // console.log('body =================' ,formData.getParts());
+        const { data, error }: any = await updateCompany(body);
         if (!error && data?.statusCode === 200) {
           setCheckValid(false);
           utils.showSuccessToast(data.message);
@@ -352,7 +361,7 @@ const CompanyDetail = (props: any) => {
         setBtnText('Edit Details');
         setEditInformation(false);
       } else {
-        const {data, error}: any = await addCompany(formData);
+        const { data, error }: any = await addCompany(formData);
         if (!error && data?.statusCode === 201) {
           setCheckValid(false);
           navigation.reset({
@@ -365,7 +374,7 @@ const CompanyDetail = (props: any) => {
                   routes: [
                     {
                       name: RootScreens.Home,
-                      params: {data: data?.result},
+                      params: { data: data?.result },
                     },
                   ],
                 },
@@ -394,44 +403,47 @@ const CompanyDetail = (props: any) => {
     }
   };
 
+  const logoutPress = async () => {
+    setIsOpenLogout(false);
+    setLoading(true)
+    const { data, error }: any = await logout({});
+    if (!error && data.statusCode === 200) {
+      setLoading(true);
+      await dispatch(authReset());
+      await AsyncStorage.clear();
+      const keysToRemove = ['token', 'MyCart', 'MyAddressList', 'NotiToken'];
+      await AsyncStorage.multiRemove(keysToRemove);
+      await removeToken();
+      setLoading(false);
+      resetNavigateTo(navigation, RootScreens.Login);
+    } else {
+      setLoading(false)
+      utils.showErrorToast(error.data.message);
+    }
+  };
+
+  const renderLabel = () => {
+    if (selectedState || isFocus) {
+      return (
+        <FontText
+          style={styles.label}
+          name={'mont-medium'}
+          size={smallest}
+          color={'black2'}>
+          State
+        </FontText>
+      );
+    }
+    return null;
+  };
 
 
   return (
     <View style={commonStyle.container}>
-      {/* {from !== 'Profile' ? (
-        <NavigationBar
-          hasCenter
-          hasRight
-          hasLeft
-          left={
-            <View style={[commonStyle.rowAC, {paddingLeft: wp(1)}]}>
-              <FontText
-                name={'lexend-semibold'}
-                size={mediumLargeFont}
-                color={'black'}
-                textAlign={'left'}>
-                {'Enter your company detail'}
-              </FontText>
-            </View>
-          }
-          right={
-            <TouchableOpacity onPress={logoutPress}>
-              <SvgIcons.PowerOff
-                width={wp(7)}
-                height={wp(7)}
-                fill={colors.orange}
-              />
-            </TouchableOpacity>
-          }
-          leftStyle={{width: '75%'}}
-          style={{marginHorizontal: wp(2.5)}}
-          borderBottomWidth={0}
-        />
-      ) : null} */}
       <Loader loading={isFetching || isLoading || loading || isProcess} />
       <View
         style={[commonStyle.paddingH4, commonStyle.flex, commonStyle.marginT2]}>
-        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView  showsVerticalScrollIndicator={false}>
           <View>
             {imageUrl ? (
               <View
@@ -439,15 +451,9 @@ const CompanyDetail = (props: any) => {
                   marginBottom: hp(2), //2
                   alignSelf: 'center',
                 }}>
-                <Image source={{uri: imageUrl}} style={styles.avatar} />
-                {/* <TouchableOpacity
-                  onPress={() => setImageUrl('')}
-                  disabled={from === 'Profile' ? !editInformation : false}
-                  style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
-                  <SvgIcons.Close width={tabIcon} height={tabIcon} />
-                </TouchableOpacity> */}
+                <Image source={{ uri: imageUrl }} style={styles.avatar} />
                 <TouchableOpacity
-                  onPress={imagePress}
+                  onPress={()=>setIsOpen(true)}
                   disabled={from === 'Profile' ? !editInformation : false}
                   style={[
                     commonStyle.abs,
@@ -468,7 +474,7 @@ const CompanyDetail = (props: any) => {
                   <TouchableOpacity
                     disabled={from === 'Profile' ? !editInformation : false}
                     style={styles.uploadImgContainer}
-                    onPress={imagePress}>
+                    onPress={()=>setIsOpen(true)}>
                     <SvgIcons.Upload width={wp(8)} height={wp(8)} />
                     <FontText
                       name={'mont-medium'}
@@ -486,14 +492,8 @@ const CompanyDetail = (props: any) => {
                       alignSelf: 'center',
                     }}>
                     <Image source={Images.companyImg} style={styles.avatar} />
-                    {/* <TouchableOpacity
-                      onPress={() => setImageUrl('')}
-                      disabled={from === 'Profile' ? !editInformation : false}
-                      style={[commonStyle.abs, {top: hp(1), right: wp(1)}]}>
-                      <SvgIcons.Close width={tabIcon} height={tabIcon} />
-                    </TouchableOpacity> */}
                     <TouchableOpacity
-                      onPress={imagePress}
+                      onPress={()=>setIsOpen(true)}
                       disabled={from === 'Profile' ? !editInformation : false}
                       style={[
                         commonStyle.abs,
@@ -525,57 +525,6 @@ const CompanyDetail = (props: any) => {
                 userOption={numberType}
               />
             ) : null}
-
-            {/* <View
-              style={[
-                commonStyle.rowAC,
-                {
-                  marginBottom: hp(1),
-                },
-              ]}>
-              {from !== 'Profile' ? null : (
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {numberType === 1 ? 'GST Number:' : 'PAN Number:'}
-                </FontText>
-              )}
-            </View> */}
-            {/* <Input
-              editable={from === 'Profile' ? false : true}
-              ref={regRef}
-              value={numberType === 1 ? gstNo : panNo}
-              onChangeText={(text: string) => {
-                numberType === 1
-                  ? setGstNo(text.trim())
-                  : setPanNo(text.trim());
-              }}
-              placeholder={
-                numberType === 1 ? 'Enter GST Number' : 'Enter PAN Number'
-              }
-              autoCapitalize="none"
-              placeholderTextColor={'placeholder'}
-              fontSize={fontSize}
-              inputStyle={[
-                styles.inputText,
-                {color: from === 'Profile' ? colors.gray : colors.black2},
-              ]}
-              style={styles.input}
-              returnKeyType={'next'}
-              blurOnSubmit
-              onSubmit={() => {
-                nameRef?.current.focus();
-              }}
-              children={
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.PinCode width={iconSize} height={iconSize} />
-                </View>
-              }
-            /> */}
-
             <View
               style={{
                 height: checkValid ? numberType === 1 ? !validationGstNo(gstNo) ? wp(16) : wp(12) : !validationGstNo(panNo) ? wp(16) : wp(12) : wp(12)
@@ -597,7 +546,7 @@ const CompanyDetail = (props: any) => {
                     ? 'Enter your GST Number'
                     : 'Enter your PAN Number'
                 }
-                editable={false}
+                editable={from === 'Profile' ? false : true}
                 value={numberType === 1 ? gstNo : panNo}
                 label={numberType === 1 ? 'GST Number' : 'PAN Number'}
                 fontName={'mont-medium'}
@@ -629,46 +578,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Full name:'}
-                </FontText>
-              </View> */}
-              {/* <Input
-                ref={nameRef}
-                editable={from === 'Profile' ? editInformation : true}
-                value={name}
-                onChangeText={(text: string) => {
-                  setName(text.trimStart()), setNameTemp(text.trimStart());
-                }}
-                autoCapitalize="none"
-                placeholder={'Enter Full Name'}
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                color={'black'}
-                returnKeyType={'next'}
-                style={[styles.input]}
-                onSubmit={() => {
-                  phoneRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.User width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
                 setValue={(text: string) => {
                   setName(text.trimStart()), setNameTemp(text.trimStart());
@@ -680,7 +590,7 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'next'}
                 returnKeyLabel="next"
                 placeholder={'Enter Your Name'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={name}
                 label={'Full Name'}
                 fontName={'mont-medium'}
@@ -698,60 +608,11 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Mobile Number:'}
-                </FontText>
-              </View> */}
-              {/* <Input
-                ref={phoneRef}
-                editable={from === 'Profile' ? editInformation : true}
-                value={phone}
-                onChangeText={(text: string) => {
-                  setPhone(text.trim()), setPhoneTemp(text.trim());
-                }}
-                placeholder={'Enter Mobile Number'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={[styles.inputText, {paddingLeft: wp(20)}]}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'done'}
-                maxLength={10}
-                keyboardType={'numeric'}
-                onSubmit={() => {
-                  companyRef?.current.focus();
-                }}
-                children={
-                  <View
-                    style={[commonStyle.abs, commonStyle.rowAC, {left: wp(4)}]}>
-                    <SvgIcons.Phone width={iconSize} height={iconSize} />
-                    <FontText
-                      name={'lexend-regular'}
-                      size={mediumFont}
-                      color={'black2'}
-                      pLeft={wp(4)}
-                      textAlign={'left'}>
-                      {'+91'}
-                    </FontText>
-                  </View>
-                }
-              /> */}
               <OutLine_Input
                 setValue={(text: string) => {
-                  setPhone(text.trim()), setPhoneTemp(text.trim());
+                  if (text.length <= 10) {
+                    return setPhone(text.trim()), setPhoneTemp(text.trim());
+                  }
                 }}
                 fontSize={smallFont}
                 color={'darkGray'}
@@ -760,8 +621,9 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'next'}
                 returnKeyLabel="next"
                 placeholder={'Enter Your Mobile Number'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={phone}
+                keyboardType={"phone-pad"}
                 label={'Mobile Number'}
                 fontName={'mont-medium'}
                 multiline={undefined}
@@ -782,44 +644,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Company name:'}
-                </FontText>
-              </View> */}
-              {/* <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={companyRef}
-                value={company}
-                onChangeText={(text: string) => setCompany(text.trimStart())}
-                placeholder={'Enter Company Name'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'next'}
-                onSubmit={() => {
-                  addressRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.Company width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
                 setValue={(text: string) => setCompany(text.trimStart())}
                 fontSize={smallFont}
@@ -829,7 +654,7 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'next'}
                 returnKeyLabel="next"
                 placeholder={'Enter Your Company name'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={company}
                 label={'Company name'}
                 fontName={'mont-medium'}
@@ -848,100 +673,11 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               )}
             </View>
-            {/* <View style={styles.marginTopView}>
-              <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Address Name:'}
-                </FontText>
-              </View>
-              <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={addressNameRef}
-                value={addressName}
-                onChangeText={(text: string) =>
-                  setAddressName(text.trimStart())
-                }
-                placeholder={'Enter Address Name'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'next'}
-                onSubmit={() => {
-                  addressRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.Location width={iconSize} height={iconSize} />
-                  </View>
-                }
-              />
-              {isValidAddressName && (
-                <FontText
-                  size={normalize(12)}
-                  color={'red'}
-                  pTop={wp(1)}
-                  textAlign="right"
-                  name="regular">
-                  {'Address Name is required.'}
-                </FontText>
-              )}
-            </View> */}
+
             <View style={styles.marginTopView}>
-              {/* <View
-                style={[
-                  commonStyle.rowAC,
-                  {
-                    marginBottom: hp(1),
-                  },
-                ]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Address:'}
-                </FontText>
-              </View>
-              <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={addressRef}
-                value={address}
-                onChangeText={(text: string) => setAddress(text.trimStart())}
-                placeholder={'Enter Address'}
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                color={'black'}
-                inputStyle={[styles.inputText, {paddingTop: hp(2)}]}
-                style={[styles.input, {marginVertical: hp(2)}]}
-                returnKeyType={'next'}
-                multiline
-                blurOnSubmit
-                onSubmit={() => {
-                  localityRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4), top: 0}]}>
-                    <SvgIcons.Location width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
-                style={{borderRadius: normalize(100)}}
+                style={{ borderRadius: normalize(20) }}
                 setValue={(text: string) => setAddress(text.trimStart())}
                 fontSize={smallFont}
                 color={'darkGray'}
@@ -950,13 +686,12 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'next'}
                 returnKeyLabel="next"
                 placeholder={'Enter Your Address'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={address}
                 label={'Address'}
                 fontName={'mont-medium'}
                 multiline={true}
                 height={undefined}
-                multilineHeight={wp(0)}
               />
 
               {isValidAddress && (
@@ -971,38 +706,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View style={commonStyle.rowACMB1}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Locality:'}
-                </FontText>
-              </View>
-              <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={localityRef}
-                value={locality}
-                onChangeText={(text: string) => setLocality(text.trimStart())}
-                placeholder={'Enter Locality'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'next'}
-                onSubmit={() => {
-                  pinCodeRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.Location width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
                 setValue={(text: string) => setLocality(text.trimStart())}
                 fontSize={smallFont}
@@ -1012,7 +716,7 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'next'}
                 returnKeyLabel="next"
                 placeholder={'Enter Your Locality'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={locality}
                 label={'Locality'}
                 fontName={'mont-medium'}
@@ -1032,50 +736,18 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View style={commonStyle.rowACMB1}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Pin Code:'}
-                </FontText>
-              </View>
-              <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={pinCodeRef}
-                value={pinCode}
-                onChangeText={(text: string) => setPinCode(text.trim())}
-                placeholder={'Enter Pin Code'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'next'}
-                keyboardType={'numeric'}
-                maxLength={6}
-                onSubmit={() => {
-                  cityRef?.current.focus();
-                }}
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.PinCode width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
-                setValue={(text: string) => setPinCode(text.trim())}
+                setValue={(text: string) => { if (text.length <= 6) { return setPinCode(text.trim()) } }}
                 fontSize={smallFont}
                 color={'darkGray'}
                 func={i => (pinCodeRef = i)}
                 onSubmitEditing={() => cityRef.focus()}
                 returnKeyType={'next'}
                 returnKeyLabel="next"
+                keyboardType={"number-pad"}
                 placeholder={'Enter Your Pin Code'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={pinCode}
                 label={'Pin Code'}
                 fontName={'mont-medium'}
@@ -1097,36 +769,7 @@ const CompanyDetail = (props: any) => {
               )}
             </View>
             <View style={styles.marginTopView}>
-              {/* <View style={commonStyle.rowACMB1}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'City:'}
-                </FontText>
-              </View>
-              <Input
-                editable={from === 'Profile' ? editInformation : true}
-                ref={cityRef}
-                value={city}
-                onChangeText={(text: string) => setCity(text.trimStart())}
-                placeholder={'Enter City'}
-                autoCapitalize="none"
-                placeholderTextColor={'placeholder'}
-                fontSize={fontSize}
-                inputStyle={styles.inputText}
-                style={styles.input}
-                color={'black'}
-                returnKeyType={'done'}
-                blurOnSubmit
-                children={
-                  <View style={[commonStyle.abs, {left: wp(4)}]}>
-                    <SvgIcons.City width={iconSize} height={iconSize} />
-                  </View>
-                }
-              /> */}
+
               <OutLine_Input
                 setValue={(text: string) => setCity(text.trimStart())}
                 fontSize={smallFont}
@@ -1136,7 +779,7 @@ const CompanyDetail = (props: any) => {
                 returnKeyType={'done'}
                 returnKeyLabel="done"
                 placeholder={'Enter Your City'}
-                editable={editInformation}
+                editable={from === 'Profile' ? editInformation : true}
                 value={city}
                 label={'City'}
                 fontName={'mont-medium'}
@@ -1155,47 +798,40 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               )}
             </View>
-            <View style={styles.marginTopView}>
-              {/* <View style={[commonStyle.rowACMB1]}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'State:'}
-                </FontText>
-              </View> */}
-              <TouchableOpacity
-                onPress={() => stateRef?.current?.open()}
-                disabled={from === 'Profile' ? !editInformation : false}
-                style={styles.dropdownView}>
-                {/* <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={state ? 'black' : 'gray'}
-                  pLeft={wp(9)}
-                  textAlign={'left'}>
-                  {state ? state : 'Select State'}
-                </FontText> */}
-                <OutLine_Input
-                  editable={false}
-                  fontSize={smallFont}
-                  color={'darkGray'}
-                  placeholder={'Enter Your City'}
-                  value={state ? state : 'Select State'}
-                  label={'State'}
-                  fontName={'mont-medium'}
-                  multiline={undefined}
-                  height={undefined}
-                  multilineHeight={undefined}
-                />
 
-                <View
-                  style={{position: 'absolute', right: wp(5), bottom: wp(3.3)}}>
+            <View style={{ marginVertical: hp(1.5) }}>
+              {renderLabel()}
+              <Dropdown
+                disable={from === 'Profile' ? !editInformation : false}
+                dropdownPosition='top'
+                style={[styles.dropdown, isFocus && { borderColor: colors.lightGray }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={STATES_DATA}
+                showsVerticalScrollIndicator={false}
+                // search
+                inverted={false}
+                containerStyle={{ borderRadius: normalize(20), marginBottom: hp(1.5) ,borderWidth:1,borderColor:colors.lightGray}}
+                itemContainerStyle={{ borderRadius: normalize(20), backgroundColor: colors.transparent }}
+                maxHeight={hp(30)}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'State' : '...'}
+                searchPlaceholder="Search..."
+                value={selectedState}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setSelectedState(item?.value);
+                  setState(item?.label);
+                  setIsFocus(false);
+                }}
+                renderRightIcon={() => (
                   <SvgIcons._DownArrow height={wp(3.5)} width={wp(3.5)} />
-                </View>
-              </TouchableOpacity>
+                )}
+              />
               {isValidState && (
                 <FontText
                   size={normalize(12)}
@@ -1207,45 +843,7 @@ const CompanyDetail = (props: any) => {
                 </FontText>
               )}
             </View>
-            {/* <View style={styles.marginTopView}>
-              <View style={commonStyle.rowACMB1}>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={'gray3'}
-                  pLeft={wp(1)}
-                  textAlign={'left'}>
-                  {'Country:'}
-                </FontText>
-              </View>
-              <TouchableOpacity
-                onPress={() => dropdownPress(countryRef)}
-                disabled={from === 'Profile' ? !editInformation : false}
-                style={styles.dropdownView}>
-                <View style={[commonStyle.abs, {left: wp(4)}]}>
-                  <SvgIcons.Country width={iconSize} height={iconSize} />
-                </View>
-                <FontText
-                  name={'lexend-regular'}
-                  size={mediumFont}
-                  color={country ? 'black' : 'gray'}
-                  pLeft={wp(9)}
-                  textAlign={'left'}>
-                  {country ? country : 'Select Country'}
-                </FontText>
-                <SvgIcons.DownArrow height={wp(3.5)} width={wp(3.5)} />
-              </TouchableOpacity>
-              {isValidCountry && (
-                <FontText
-                  size={normalize(12)}
-                  color={'red'}
-                  pTop={wp(1)}
-                  textAlign="right"
-                  name="regular">
-                  {'Country is required.'}
-                </FontText>
-              )}
-            </View> */}
+
           </View>
         </KeyboardAwareScrollView>
         {from === 'Profile' ? (
@@ -1269,20 +867,7 @@ const CompanyDetail = (props: any) => {
             </FontText>
           </Button>
         )}
-        <BottomSheet
-          onPressCloseModal={() => stateRef?.current?.close()}
-          refName={stateRef}
-          modalHeight={hp(50)}
-          title={'Select State'}
-          searcheble
-          data={STATES_DATA}
-          selectedIndex={selectedState}
-          onPress={(item: any, index: any) => {
-            setSelectedState(item?.value);
-            setState(item?.label);
-            stateRef?.current?.close();
-          }}
-        />
+
         <RBSheet
           ref={imageRef}
           height={hp(20)}
@@ -1290,29 +875,131 @@ const CompanyDetail = (props: any) => {
           closeOnPressBack
           closeOnDragDown
           dragFromTopOnly>
-          <View style={[commonStyle.rowJEC, {marginTop: hp(2)}]}>
-            <TouchableOpacity onPress={openCamera}>
-              <SvgIcons.Camera width={wp(15)} height={wp(15)} />
-              <FontText
-                name={'mont-medium'}
-                size={fontSize}
-                color={'orange'}>
-                {'camera'}
-              </FontText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              // style={styles.iconView}
-              onPress={openPhotoBrowser}>
-              <SvgIcons.Gallery width={wp(15)} height={wp(15)} />
-              <FontText
-                name={'mont-medium'}
-                size={fontSize}
-                color={'orange'}>
-                {'Gallery'}
-              </FontText>
-            </TouchableOpacity>
+          <View style={[commonStyle.rowJEC, { marginTop: hp(2) }]}>
+            <View style={{ borderWidth: 1, borderStyle: "dashed", borderColor: colors.orange, borderRadius: normalize(15) }}>
+              <TouchableOpacity style={{ backgroundColor: colors.orange2, justifyContent: "center", alignItems: "center", height: hp(12), width: wp(27), borderRadius: normalize(15) }} onPress={openCamera}>
+                <SvgIcons.Camera width={wp(15)} height={wp(15)} />
+                <FontText
+                  name={'mont-medium'}
+                  size={fontSize}
+                  color={'orange'}>
+                  {'camera'}
+                </FontText>
+              </TouchableOpacity>
+            </View>
+            <View style={{ borderWidth: 1, borderStyle: "dashed", borderColor: colors.orange, borderRadius: normalize(15) }}>
+              <TouchableOpacity
+                style={{ backgroundColor: colors.orange2, justifyContent: "center", alignItems: "center", height: hp(12), width: wp(27), borderRadius: normalize(15) }}
+                onPress={openPhotoBrowser}>
+                <SvgIcons.Gallery width={wp(15)} height={wp(15)} />
+                <FontText
+                  name={'mont-medium'}
+                  size={fontSize}
+                  color={'orange'}>
+                  {'Gallery'}
+                </FontText>
+              </TouchableOpacity>
+            </View>
           </View>
         </RBSheet>
+        <Modal
+        visible={isOpen}
+        onBackPress={() => setIsOpen(false)}
+        description={`You want to Remove or Edit\n Profile picture?`}
+        title={' '}
+        titleStyle={{ fontSize: normalize(14) }}
+        rightBtnText={'Edit'}
+        leftBtnText={'Remove'}
+        rightBtnPress={() => {
+          setIsOpen(false)
+           imageRef.current.open();
+        }}
+        leftBtnPress={() => {
+          setImageUrl('')
+          setIsOpen(false)
+        }}
+        onTouchPress={() => setIsOpen(false)}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.orange4,
+          borderWidth: 0,
+          marginTop: wp(6),
+          borderRadius: normalize(100),
+        }}
+        rightBtnStyle={{
+          backgroundColor: colors.orange,
+          width: '48%',
+          marginTop: wp(6),
+        }}
+        leftBtnTextStyle={{
+          color: colors.orange,
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        rightBtnTextStyle={{
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
+      />
+        <Modal
+          visible={isOpenLogout}
+          onBackPress={() => {
+            setIsOpenLogout(false);
+          }}
+          title={' '}
+          children={
+            <View style={{ alignItems: "center", flexDirection: "column" }}>
+              <View style={{ backgroundColor: colors.orange4, borderRadius: normalize(10), padding: normalize(20), alignItems: "center", justifyContent: "center" }}>
+                <SvgIcons.Logout_Profile />
+              </View>
+              <FontText
+                style={{ marginVertical: hp(2) }}
+                name={'mont-bold'}
+                size={largeFont}
+                color={'black'}>
+                {'Logout?'}
+              </FontText>
+              <FontText
+                name={'mont-semibold'}
+                size={mediumFont}
+                color={'black2'}>
+                {'Are you Sure, do you want to logout?'}
+              </FontText>
+            </View>
+          }
+          rightBtnText={'Yes'}
+          leftBtnText={'No'}
+          rightBtnColor={'orange'}
+          leftBtnColor={'orange4'}
+          rightBtnPress={logoutPress}
+          leftBtnPress={() => setIsOpenLogout(false)}
+          onTouchPress={() => setIsOpenLogout(false)}
+          leftBtnStyle={{
+            width: '48%',
+            backgroundColor: colors.orange4,
+            borderWidth: 0,
+            marginTop: wp(6),
+            borderRadius: normalize(100),
+          }}
+          rightBtnStyle={{
+            backgroundColor: colors.orange,
+            width: '48%',
+            marginTop: wp(6),
+          }}
+          leftBtnTextStyle={{
+            color: colors.orange,
+            fontSize: mediumFont,
+            fontFamily: fonts['mont-bold'],
+          }}
+          rightBtnTextStyle={{
+            fontSize: mediumFont,
+            fontFamily: fonts['mont-bold'],
+          }}
+        />
+
+
+
       </View>
     </View>
   );
@@ -1337,10 +1024,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: normalize(100),
-    marginVertical: hp(2),
+    marginBottom: hp(2),
+    marginTop:hp(1)
   },
   marginTopView: {
-    marginTop: hp(1.5),
+    marginTop: hp(0.8),
   },
   dropdownView: {
     // borderRadius: 10,
@@ -1372,5 +1060,49 @@ const styles = StyleSheet.create({
     padding: wp(3),
     borderRadius: normalize(5),
     backgroundColor: colors.white,
+  },
+  dropdown: {
+    height: hp(5),
+    borderColor: colors.lightGray,
+    borderWidth: 1,
+    borderRadius: normalize(100),
+    paddingHorizontal: wp(2),
+    // width:wp(90)
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    left: wp(3.5),
+    bottom: hp(4),
+    zIndex: 999,
+    backgroundColor:"white",
+    width:wp(10),
+    textAlign:"center"
+  },
+  placeholderStyle: {
+    fontSize: mediumFont,
+    color: colors.darkGray,
+    fontStyle: fonts["mont-medium"],
+    left: wp(2)
+  },
+  selectedTextStyle: {
+    fontSize: smallFont,
+    color: colors.darkGray,
+    fontStyle: fonts["mont-medium"],
+    paddingLeft: wp(1.5)
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  container: {
+    backgroundColor: 'white',
+    padding: 16,
   },
 });

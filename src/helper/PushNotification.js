@@ -2,6 +2,7 @@ import PushNotification from 'react-native-push-notification';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import utils from './utils';
+import { isIOS } from '../styles/responsiveScreen';
 
 PushNotification.createChannel({
   channelId: 'default-channel-id',
@@ -36,6 +37,7 @@ export const removeToken = async () => {
 };
 
 export function requestPermission() {
+  if(!isIOS)
   messaging()
     .requestPermission()
     .then(() => {

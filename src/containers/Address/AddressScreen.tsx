@@ -18,10 +18,11 @@ import {
   Popup,
   AddressComponent,
   NavigationBar,
+  Modal,
 } from '../../components';
 import commonStyle, {fontSize, iconSize, mediumFont, mediumLargeFont} from '../../styles';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {SvgIcons, colors} from '../../assets';
+import {SvgIcons, colors, fonts} from '../../assets';
 import {RootScreens} from '../../types/type';
 import {useGetCompanyQuery, useRemoveAddressMutation} from '../../api/company';
 import utils from '../../helper/utils';
@@ -294,8 +295,6 @@ const AddressScreen = ({navigation, route, props}: any) => {
           <SvgIcons.Plus width={tabIcon} height={tabIcon} fill={colors.white} />
         </TouchableOpacity> */}
       </View>
-      {from === RootScreens.SecureCheckout ? (
-        <>
         <Button
         onPress={() => {
           navigation.navigate(RootScreens.AddAddress, {
@@ -314,6 +313,8 @@ const AddressScreen = ({navigation, route, props}: any) => {
           {'Add New Address'}
         </FontText>
       </Button>
+      {from === RootScreens.SecureCheckout ? (
+        <>
         <Button
           onPress={continuePress}
           bgColor={'orange'}
@@ -324,11 +325,12 @@ const AddressScreen = ({navigation, route, props}: any) => {
         </Button>
         </>
       ) : null}
-      <Popup
+      <Modal
         visible={isOpen}
-        // onBackPress={() => setIsOpen(false)}
-        title={`Are you sure you want to Remove\n this Address?`}
-        titleStyle={{fontSize: normalize(14)}}
+        onBackPress={() => setIsOpen(false)}
+        description={`Are you sure you want to Remove\n this Address?`}
+        title={' '}
+        titleStyle={{ fontSize: normalize(14) }}
         leftBtnText={'No'}
         rightBtnText={'Yes'}
         leftBtnPress={() => setIsOpen(false)}
@@ -336,16 +338,26 @@ const AddressScreen = ({navigation, route, props}: any) => {
         onTouchPress={() => setIsOpen(false)}
         leftBtnStyle={{
           width: '48%',
-          backgroundColor: colors.white2,
+          backgroundColor: colors.orange4,
           borderWidth: 0,
+          marginTop: wp(6),
+          borderRadius: normalize(100),
         }}
-        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        rightBtnStyle={{
+          backgroundColor: colors.orange,
+          width: '48%',
+          marginTop: wp(6),
+        }}
         leftBtnTextStyle={{
-          color: colors.blue,
+          color: colors.orange,
           fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
         }}
-        rightBtnTextStyle={{fontSize: mediumFont}}
-        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+        rightBtnTextStyle={{
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
       />
     </View>
   );

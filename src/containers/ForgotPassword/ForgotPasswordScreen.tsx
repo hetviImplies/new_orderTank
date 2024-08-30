@@ -1,19 +1,19 @@
-import {Keyboard, StyleSheet, View} from 'react-native';
-import React, {useState} from 'react';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {Button, FontText, Loader, Popup} from '../../components';
-import commonStyle, {fontSize, largeFont, mediumFont} from '../../styles';
-import {colors, fonts, SvgIcons} from '../../assets';
-import {useForgotPasswordMutation} from '../../api/auth';
+import { Alert, Keyboard, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { hp, isIOS, normalize, wp } from '../../styles/responsiveScreen';
+import { Button, FontText, Loader, Popup } from '../../components';
+import commonStyle, { fontSize, largeFont, mediumFont, tabIcon } from '../../styles';
+import { colors, fonts, SvgIcons } from '../../assets';
+import { useForgotPasswordMutation } from '../../api/auth';
 import utils from '../../helper/utils';
-import {RootScreens} from '../../types/type';
-import {resetNavigateTo} from '../../helper/navigationHelper';
-import {emailRegx} from '../../helper/regex';
-import {DefaultTheme, TextInput} from 'react-native-paper';
+import { RootScreens } from '../../types/type';
+import { resetNavigateTo } from '../../helper/navigationHelper';
+import { emailRegx } from '../../helper/regex';
+import { DefaultTheme, TextInput } from 'react-native-paper';
 
-const ForgotPasswordScreen = ({navigation}: any) => {
-  const [forgotPassword, {isLoading}] = useForgotPasswordMutation();
+const ForgotPasswordScreen = ({ navigation }: any) => {
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const [email, setEmail] = useState('');
   const [checkValid, setCheckValid] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
     setCheckValid(true);
     if (email.length !== 0 && validationEmail(email)) {
       setCheckValid(false);
-      const {data, error}: any = await forgotPassword({
+      const { data, error }: any = await forgotPassword({
         email: email,
       });
       if (!error && data?.statusCode === 200) {
@@ -54,6 +54,19 @@ const ForgotPasswordScreen = ({navigation}: any) => {
       }
     }
   };
+  const openGmail = async () => {
+    try {
+      const supported = await Linking.canOpenURL('https://gmail.app.goo.gl');
+      console.log('supported: ', supported); 
+      if (supported) {
+        await Linking.openURL('https://gmail.app.goo.gl');
+      } else {
+        Alert.alert('Error', 'Email client is not available.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while opening the email client.');
+    }
+  };
 
   return (
     <View style={commonStyle.container}>
@@ -61,8 +74,14 @@ const ForgotPasswordScreen = ({navigation}: any) => {
       <SvgIcons.LogoBg
         width={wp(100)}
         height={wp(41)}
-        style={{alignSelf: 'center'}}
+        style={{ alignSelf: 'center' }}
       />
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: "absolute", top:isIOS ? hp(4) : hp(2), left: wp(4.5) ,padding:wp(1)}}>
+        <SvgIcons._BackArrow
+          width={wp(7)}
+          height={wp(7)}
+        />
+      </TouchableOpacity>
       <View style={styles.middleContainer}>
         <FontText
           name={'mont-bold'}
@@ -70,7 +89,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
           color={'black2'}
           pTop={wp(7)}
           textAlign={'left'}>
-          {'Forgot Password?'}
+          {isOpen ? "Check Your Mail" : 'Forgot Password?'}
         </FontText>
         <FontText
           name={'mont-medium'}
@@ -79,11 +98,12 @@ const ForgotPasswordScreen = ({navigation}: any) => {
           pTop={wp(2)}
           textAlign={'left'}>
           {
-            "Enter the email associated with your account and we'll send an email with instructions to reset your password."
+            isOpen ? `We have sent a password recover instruction 
+to your email.` : "Enter the email associated with your account and we'll send an email with instructions to reset your password."
           }
         </FontText>
         <KeyboardAwareScrollView>
-          <View style={{marginTop: hp(3)}}>
+          {!isOpen ? <View style={{ marginTop: hp(3) }}>
             <TextInput
               label="Email"
               value={email}
@@ -93,13 +113,13 @@ const ForgotPasswordScreen = ({navigation}: any) => {
               autoCapitalize="none"
               outlineColor={isValidEmail ? colors.red : colors.lightGray}
               activeOutlineColor={isValidEmail ? colors.red : colors.black2}
-              outlineStyle={{borderWidth: 1, borderRadius: 25}}
+              outlineStyle={{ borderWidth: 1, borderRadius: 25 }}
               returnKeyType={'next'}
               keyboardType={'email-address'}
               onSubmitEditing={() => {
                 Keyboard.dismiss();
               }}
-              style={{backgroundColor: colors.white}}
+              style={{ backgroundColor: colors.white }}
               textColor={colors.black4}
               contentStyle={styles.inputText}
               cursorColor={colors.darkGray}
@@ -117,8 +137,27 @@ const ForgotPasswordScreen = ({navigation}: any) => {
                   : 'Invalid Email.'}
               </FontText>
             )}
-          </View>
+          </View> :
+            <View style={{ marginTop: hp(3) }}>
+              <Button
+                onPress={openGmail}
+                bgColor={'orange'}
+                style={{ borderRadius: normalize(25), marginBottom: hp(1) }}>
+                <FontText name={'mont-bold'} size={fontSize} color={'white'}>
+                  {'Open Email App'}
+                </FontText>
+              </Button>
+              <Button
+                onPress={() => resetNavigateTo(navigation, RootScreens.Login)}
+                bgColor={'white'}
+                style={styles.buttonContainer}>
+                <FontText name={'mont-bold'} size={fontSize} color={'orange'}>
+                  {'Skip i’ll Confirm later'}
+                </FontText>
+              </Button>
+            </View>}
         </KeyboardAwareScrollView>
+        {!isOpen ? 
         <Button
           onPress={onContinuePress}
           bgColor={'orange'}
@@ -126,9 +165,19 @@ const ForgotPasswordScreen = ({navigation}: any) => {
           <FontText name={'mont-bold'} size={fontSize} color={'white'}>
             {'Send Instructions'}
           </FontText>
-        </Button>
+        </Button> :
+          <FontText name={'mont-semibold'} size={mediumFont} style={{ textAlign: "center",marginBottom: hp(6),}} color={'darkGray'}>
+            Did not receive the email? Check your spam filter,or {
+              // <TouchableOpacity>
+                <FontText onPress={()=> {
+                  setEmail('')
+                  setIsOpen(false)}} name={'mont-semibold'} size={mediumFont} color={'orange'}>
+                  {'try another email address'}
+                </FontText>
+            }
+          </FontText>}
       </View>
-      <Popup
+      {/* <Popup
         visible={isOpen}
         // onBackPress={() => setIsOpen(false)}
         // title={'OrderTank'}
@@ -141,7 +190,7 @@ const ForgotPasswordScreen = ({navigation}: any) => {
         // onTouchPress={() => setIsOpen(false)}
         // btnConatiner={{width:'100%'}}
         rightBtnStyle={{width: '100%', height: hp(6)}}
-      />
+      /> */}
     </View>
   );
 };

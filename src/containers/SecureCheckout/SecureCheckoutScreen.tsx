@@ -10,9 +10,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   FontText,
@@ -28,6 +28,7 @@ import {
 } from '../../components';
 import commonStyle, {
   iconSize,
+  largeFont,
   mediumFont,
   mediumLarge1Font,
   mediumLargeFont,
@@ -35,9 +36,9 @@ import commonStyle, {
   smallFont,
   tabIcon,
 } from '../../styles';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {colors, SvgIcons, Images, fonts} from '../../assets';
-import {RootScreens} from '../../types/type';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { colors, SvgIcons, Images, fonts } from '../../assets';
+import { RootScreens } from '../../types/type';
 import {
   useAddOrderMutation,
   useDeleteOrderMutation,
@@ -59,6 +60,8 @@ import {resetNavigateTo} from '../../helper/navigationHelper';
 import ModalComponente from '../../components/Modal';
 
 const SecureCheckoutScreen = ({navigation, route}: any) => {
+  console.log('route: ', route);
+  
   const [createOrder, {isLoading}] = useAddOrderMutation();
   const [updateOrder, {isLoading: isProcessing}] = useUpdateOrderMutation();
   const [cancleOrder, {isLoading: isFetching}] = useDeleteOrderMutation();
@@ -83,20 +86,19 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isClick, setIsClick] = useState(false);
-  const [isOpen1, setIsOpen1] = useState(false);
-  const [isOpen2, setIsOpen2] = useState(false);
+  const [isOpenConfirmOrder, setIsOpenConfirmOrder] = useState(false);
+  const [isOpenCancelOrder, setIsCancelOrder] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
   const [orderId, setOrderId] = useState();
   const [selectedItem, setSelectedItem] = useState<any>({});
   const product = isOrder
     ? orderDetails?.orderDetails?.map((item: any) => {
-        return {
-          ...item,
+      return {
+        ...item,
           company: {...orderDetails?.company},
         };
       })
     : cartData;
-
   useFocusEffect(
     React.useCallback(() => {
       const fetchCartItems = async () => {
@@ -108,7 +110,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
   );
 
   React.useLayoutEffect(() => {
-    // *******************************  Hetvi ********************************
+    
     navigation.setOptions({
       headerStyle: {
         backgroundColor: colors.orange,
@@ -132,7 +134,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <SvgIcons.Back_Arrow width={iconSize} height={iconSize} />
           </TouchableOpacity>
           <FontText
-            name={'mont-semibold'}
+            name={'mont-semibold'} 
             size={mediumLargeFont}
             color={'white'}>
             {from === 'Order' ? 'Order Detail' : 'Checkout'}
@@ -308,8 +310,53 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     Platform.OS !== 'ios' && setDate(currentDate);
     setSelectedDate(currentDate);
   };
+  const showDatepicker = () => {
+    setShow(true);
+  };
+  const backActionOrderPlaced = () => {
+    resetNavigateTo(navigation, RootScreens.DashBoard);
+    return true;
+  };
 
-  useEffect(() => {
+
+
+
+  const handleIncrement = async (cartId: any) => {
+    const data = await incrementCartItem(cartId, cartType);
+    await setCartData(data);
+    await fetchCartItems()
+  };
+
+  const handleDecrement = async (cartId: any) => {
+    const data = await decrementCartItem(cartId, 'Cart', cartType);
+    await setCartData(data);
+    await fetchCartItems();
+  };
+
+  const handleRemoveItem = async (cartId: any) => {
+    const data = await removeCartItem(cartId, cartType);
+    await setCartData(data);
+    await fetchCartItems();
+    await setIsCancelOrder(false);
+  };
+
+    // *******************************  Hetvi ********************************
+    // useEffect(() => {
+    //   const fetchCartItems = async () => {
+    //     let items: any;
+    //     if (cartType && cartType === 'updateOrder') {
+    //       items = await getCartItems('updateOrder');
+    //     } else {
+    //       items = await getCartItems();
+    //     }
+    //     // const items = await getCartItems();
+    //     setCartData(items);
+    //     const price = await calculateTotalPrice(cartType);
+    //     setTotalPrice(price);
+    //   };
+    //   fetchCartItems();
+    // }, [handleDecrement,handleIncrement,handleRemoveItem]);
+  
     const fetchCartItems = async () => {
       let items: any;
       if (cartType && cartType === 'updateOrder') {
@@ -322,88 +369,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
       const price = await calculateTotalPrice(cartType);
       setTotalPrice(price);
     };
-    fetchCartItems();
-  }, [cartData]);
 
-  const showDatepicker = () => {
-    setShow(true);
-  };
-  const backActionOrderPlaced = () => {
-    resetNavigateTo(navigation, RootScreens.DashBoard);
-    return true;
-  };
-
-  const handleIncrement = async (cartId: any) => {
-    const data = await incrementCartItem(cartId, cartType);
-    setCartData(data);
-  };
-
-  const handleDecrement = async (cartId: any) => {
-    const data = await decrementCartItem(cartId, 'Cart', cartType);
-    setCartData(data);
-  };
-
-  const handleRemoveItem = async (cartId: any) => {
-    const data = await removeCartItem(cartId, cartType);
-    setCartData(data);
-    setIsOpen2(false);
-  };
-
-  const _renderItem = ({item, index}: any) => {
+  const _renderItem = ({ item, index }: any) => {
     return (
-      //  <>
-      //    <View key={item.id} style={[styles.itemContainer]}>
-      //     <View style={[commonStyle.rowJB, commonStyle.flex]}>
-      //       {item?.product?.image ? (
-      //         <Image source={{uri: item?.product?.image}} style={styles.logo} />
-      //       ) : (
-      //         <Image source={Images.productImg} style={styles.logo} />
-      //       )}
-      //       <View style={{width: '50%'}}>
-      //         <FontText
-      //           name={'lexend-regular'}
-      //           size={mediumFont}
-      //           color={'gray4'}
-      //           textAlign={'left'}>
-      //           {item?.product?.productName}
-      //         </FontText>
-      //         <FontText
-      //           name={'lexend-regular'}
-      //           size={mediumFont}
-      //           color={'black2'}
-      //           pTop={wp(1)}
-      //           pBottom={wp(1)}
-      //           textAlign={'left'}>
-      //           {'₹'}
-      //           {item?.price}
-      //           {item?.product?.unit && `${'/'}${item?.product?.unit}`} (
-      //           {item?.quantity} qty)
-      //         </FontText>
-      //         {item?.product?.minOrderQuantity == 0 &&
-      //         item?.product?.maxOrderQuantity == 0 ? null : (
-      //           <FontText
-      //             name={'lexend-regular'}
-      //             size={mediumFont}
-      //             color={'gray4'}
-      //             textAlign={'left'}>
-      //             {`Range : ${item?.product?.minOrderQuantity} - ${item?.product?.maxOrderQuantity}`}
-      //           </FontText>
-      //         )}
-      //       </View>
-      //       <View style={{width: '20%'}}>
-      //         <FontText
-      //           name={'lexend-regular'}
-      //           size={mediumFont}
-      //           textAlign={'right'}
-      //           color={'orange'}>
-      //           {'₹'}
-      //           {(item?.price * item?.quantity).toFixed(2)}
-      //         </FontText>
-      //       </View>
-      //     </View>
-      //   </View>
-      //   {product?.length !== index + 1 ? <View style={[styles.line]} /> : null}
-      // </>
       <View style={[styles.itemContainer]}>
         <View style={[commonStyle.rowAC, commonStyle.flex]}>
           <View
@@ -411,20 +379,20 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               borderWidth: 0,
               borderRadius: normalize(8),
               backgroundColor: colors.orange3,
-              padding: item?.product?.image ? null : '3%',
+              padding: item?.product?.image ? null : '2%',
 
             }}>
             {item?.product?.image ? (
-              <Image source={{uri: item?.product?.image}} style={styles.logo} />
+              <Image source={{ uri: item?.product?.image }} style={styles.logo} />
             ) : (
               <Image
                 source={Images._productImg}
-                style={[styles.logo, {width: hp(5), height: hp(5)}]}
+                style={[styles.logo, { width: hp(5), height: hp(5) }]}
               />
             )}
           </View>
-          <View style={{marginLeft: wp(4), width: '78%'}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ marginLeft: wp(4), width: '78%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <FontText
                 name={'mont-semibold'}
                 size={smallFont}
@@ -443,7 +411,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               )}
             </View>
             {item?.product?.minOrderQuantity == 0 &&
-            item?.product?.maxOrderQuantity == 0 ? null : (
+              item?.product?.maxOrderQuantity == 0 ? null : (
               <FontText
                 name={'mont-medium'}
                 size={smallest}
@@ -457,6 +425,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                marginTop: item?.product?.minOrderQuantity == 0 &&
+                  item?.product?.maxOrderQuantity == 0 ? hp(0.5) : null
               }}>
               <FontText
                 name={isOrder ? 'mont-semibold' : 'mont-bold'}
@@ -483,7 +453,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         </View>
         <View>
           {isOrder ? null : (
-            <View style={{alignItems: 'center'}}>
+            <View style={{ alignItems: 'center' }}>
               <CountNumberModule
                 from={'cart'}
                 cartItems={item}
@@ -500,7 +470,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                   justifyContent: 'center',
                 }}
                 onPress={() => {
-                  setIsOpen2(true);
+                  setIsCancelOrder(true);
                   setSelectedItem(item.id);
                   // handleRemoveItem(item.id);
                 }}>
@@ -513,11 +483,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
     );
   };
 
-  const addressRenderItem = ({item, index}: any) => {
+  const addressRenderItem = ({ item, index }: any) => {
     let delivery = addressData?.find((d: any) => d?.deliveryAdd);
     let billing = addressData?.find((d: any) => d?.billingAdd);
     return (
-      <View style={{flexDirection: 'column'}} key={index}>
+      <View style={{ flexDirection: 'column' }} key={index}>
         <IconHeader
           label={index === 0 ? 'Delivery address' : 'Billing address'}
           isEdit={isOrder ? false : true}
@@ -536,7 +506,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               data:
                 cartType === undefined
                   ? params
-                  : {...params, addressType: 'updateAddress'},
+                  : { ...params, addressType: 'updateAddress' },
               onGoBack: (param: any) => {
                 setDeliAdd(param?.deliveryAdd);
                 setBillAdd(param?.billingAdd);
@@ -661,7 +631,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           data: params,
           id: orderDetails.id,
         };
-        const {data: order, error}: any = await updateOrder(body);
+        const { data: order, error }: any = await updateOrder(body);
         if (!error && order?.statusCode === 200) {
           await updateCartItems([], 'updateOrder');
           let updatedCartItems = await getCartItems('updateOrder');
@@ -692,8 +662,8 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           );
         }
       } else {
-        const {data: order, error}: any = await createOrder(params);
-        setIsOpen1(true);
+        const { data: order, error }: any = await createOrder(params);
+        setIsOpenConfirmOrder(true);
         if (!error && order?.statusCode === 201) {
           await updateCartItems([]);
           let updatedCartItems = await getCartItems();
@@ -716,7 +686,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
 
   const cancelOrder = async () => {
     setIsOpen(false);
-    const {data, error}: any = await cancleOrder(orderDetails.id);
+    const { data, error }: any = await cancleOrder(orderDetails.id);
     if (!error && data?.statusCode === 200) {
       utils.showSuccessToast('Order Cancel Successfully.');
       navigation.goBack();
@@ -786,9 +756,9 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         }}
         nestedScrollEnabled
         style={[commonStyle.paddingH4]}>
-        <View style={[styles.addressContainer, {marginTop: from==="Cart" ? wp(4) : wp(0)}]}>
+        <View style={[styles.addressContainer, { marginTop: from === "Cart" ? wp(4) : wp(0) }]}>
           {isOrder ? (
-            <View style={{alignItems: 'flex-start'}}>
+            <View style={{ alignItems: 'flex-start' }}>
               <FontText
                 name={'mont-semibold'}
                 size={mediumFont}
@@ -845,7 +815,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
               return _renderItem({item, index});
             })}
           </ScrollView> */}
-          <View style={{maxHeight: hp(32), paddingVertical: wp(2)}}>
+          <View style={{ maxHeight: hp(32), paddingVertical: wp(2) }}>
             <FlatList
               data={product}
               renderItem={_renderItem}
@@ -964,12 +934,12 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                     orderDetails?.status === 'pending'
                       ? colors.yellow1
                       : orderDetails?.status === 'cancelled'
-                      ? colors.red3
-                      : orderDetails?.status === 'delivered'
-                      ? colors.green1
-                      : orderDetails?.status === 'processing'
-                      ? colors.orange3
-                      : colors.gray5,
+                        ? colors.red3
+                        : orderDetails?.status === 'delivered'
+                          ? colors.green1
+                          : orderDetails?.status === 'processing'
+                            ? colors.orange3
+                            : colors.gray5,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
@@ -978,12 +948,12 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                     orderDetails?.status === 'pending'
                       ? 'yellow2'
                       : orderDetails?.status === 'cancelled'
-                      ? 'red'
-                      : orderDetails?.status === 'delivered'
-                      ? 'green'
-                      : orderDetails?.status === 'processing'
-                      ? 'orange'
-                      : 'tabGray1'
+                        ? 'red'
+                        : orderDetails?.status === 'delivered'
+                          ? 'green'
+                          : orderDetails?.status === 'processing'
+                            ? 'orange'
+                            : 'tabGray1'
                   }
                   size={smallFont}
                   textAlign={'left'}
@@ -1002,14 +972,14 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             </FontText>
           </View>
         )}
-        <View style={[{bottom: wp(3)}]}>
+        <View style={[{ bottom: wp(3) }]}>
           {[1, 2].map((item, index) => {
-            return addressRenderItem({item, index});
+            return addressRenderItem({ item, index });
           })}
         </View>
 
         {isOrder && notes === '' ? null : (
-          <View style={[styles.addressContainer, {marginBottom: wp(4)}]}>
+          <View style={[styles.addressContainer, { marginBottom: wp(4) }]}>
             {isOrder ? (
               <View style={[styles.inputText]}>
                 <FontText
@@ -1039,7 +1009,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         )}
         <View style={styles.addressContainer}>
           {isOrder ? (
-            <View style={[styles.quantityBtn, {paddingVertical: wp(4)}]}>
+            <View style={[styles.quantityBtn, { paddingVertical: wp(4) }]}>
               <FontText
                 name={'mont-medium'}
                 size={mediumFont}
@@ -1054,7 +1024,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
             <Button
               onPress={() => showDatepicker()}
               bgColor={'white2'}
-              style={[styles.quantityBtn, {alignSelf: 'center'}]}>
+              style={[styles.quantityBtn, { alignSelf: 'center' }]}>
               <FontText
                 name={'mont-medium'}
                 size={mediumFont}
@@ -1063,11 +1033,11 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
                 color={'black2'}>
                 {date
                   ? `${moment(date).format('DD')} / ${moment(date).format(
-                      'MM',
-                    )} / ${moment(date).format('YYYY')}`
+                    'MM',
+                  )} / ${moment(date).format('YYYY')}`
                   : 'Expected date'}
               </FontText>
-              <View style={{paddingRight: wp(4)}}>
+              <View style={{ paddingRight: wp(4) }}>
                 <SvgIcons.Caledar_1
                   height={iconSize}
                   width={iconSize}
@@ -1108,7 +1078,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
         onBackPress={() => setIsOpen(false)}
         description={`Are you sure you want to Cancel\n this Order?`}
         title={' '}
-        titleStyle={{fontSize: normalize(14)}}
+        titleStyle={{ fontSize: normalize(14) }}
         leftBtnText={'No, don’t cancel'}
         rightBtnText={'Yes, cancel'}
         leftBtnPress={() => setIsOpen(false)}
@@ -1135,7 +1105,7 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           fontSize: mediumFont,
           fontFamily: fonts['mont-bold'],
         }}
-        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
       />
       {show && (
         <View style={styles.datePickerStyle}>
@@ -1159,21 +1129,21 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           )}
           <DateTimePicker
             value={new Date(date)}
-            mode="date"
             is24Hour={true}
             minimumDate={new Date()}
             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={onChange}
             themeVariant="light"
-            style={{backgroundColor: colors.white}}
+            style={{ backgroundColor: colors.white }}
+            mode={'date'}
           />
         </View>
       )}
-      <Popup
+      {/* <Popup
         visible={isOpen2}
         // onBackPress={() => setIsOpen(false)}
         title={`Are you sure you want to Cancel\nthis item?`}
-        titleStyle={{fontSize: normalize(14)}}
+        titleStyle={{ fontSize: normalize(14) }}
         leftBtnText={'No, don’t cancel'}
         rightBtnText={'Yes, cancel'}
         leftBtnPress={() => setIsOpen2(false)}
@@ -1184,25 +1154,59 @@ const SecureCheckoutScreen = ({navigation, route}: any) => {
           backgroundColor: colors.white2,
           borderWidth: 0,
         }}
-        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        rightBtnStyle={{ backgroundColor: colors.red2, width: '48%' }}
         leftBtnTextStyle={{
           color: colors.blue,
           fontSize: mediumFont,
         }}
-        rightBtnTextStyle={{fontSize: mediumFont}}
-        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+        rightBtnTextStyle={{ fontSize: mediumFont }}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
+      /> */}
+      <Modal
+        visible={isOpenCancelOrder}
+        onBackPress={() => setIsCancelOrder(false)}
+        description={`Are you sure you want to Cancel\nthis item?`}
+        title={' '}
+        titleStyle={{ fontSize: normalize(14) }}
+        leftBtnText={'No, don’t cancel'}
+        rightBtnText={'Yes, cancel'}
+        leftBtnPress={() => setIsCancelOrder(false)}
+        rightBtnPress={() => handleRemoveItem(selectedItem)}
+        onTouchPress={() => setIsCancelOrder(false)}
+        leftBtnStyle={{
+          width: '48%',
+          backgroundColor: colors.orange4,
+          borderWidth: 0,
+          marginTop: wp(6),
+          borderRadius: normalize(100),
+        }}
+        rightBtnStyle={{
+          backgroundColor: colors.orange,
+          width: '48%',
+          marginTop: wp(6),
+        }}
+        leftBtnTextStyle={{
+          color: colors.orange,
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        rightBtnTextStyle={{
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
       />
 
       <Modal
-      from={'checkout'}
-        visible={isOpen1}
+        from={'checkout'}
+        visible={isOpenConfirmOrder}
         onBackPress={() => {
-          setIsOpen1(false);
+          setIsOpenConfirmOrder(false);
         }}
         title={' '}
         titleStyle={{}}
         children={
-          <View style={{alignItems: 'center'}}>
+          <View style={{ alignItems: 'center' }}>
             <SvgIcons.OrderConfirm />
             <FontText
               color="black2"
@@ -1260,7 +1264,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lightGray,
     // paddingHorizontal: wp(5),
-    paddingLeft:wp(6)
+    paddingLeft: wp(6)
   },
   quantityBtn: {
     width: '100%',
@@ -1310,7 +1314,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: hp(1.2),
+    padding: hp(1),
     backgroundColor: colors.white,
     borderRadius: normalize(15),
     borderStyle: 'dashed',

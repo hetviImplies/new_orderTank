@@ -99,51 +99,6 @@ const CartScreen = ({navigation, route}: any) => {
           </FontText>
         </View>
       ),
-      headerRight: () => (
-        <View
-          style={[
-            commonStyle.row,
-            {
-              marginRight: wp(4),
-              width: wp(10),
-              justifyContent: 'space-between',
-            },
-          ]}>
-          {/* <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 50,
-              padding: 5,
-              borderColor: colors.yellow3,
-            }}
-            // style={commonStyle.iconView}
-            onPress={() => setIsOpen(true)}>
-            <SvgIcons.Icon_code width={tabIcon} height={tabIcon} />
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            style={{
-              borderWidth: 1,
-              borderRadius: 50,
-              padding: 5,
-              borderColor: colors.yellow3,
-            }}
-            // style={commonStyle.iconView}
-            onPress={() => navigation.navigate(RootScreens.Cart)}>
-            <SvgIcons.Cart width={tabIcon} height={tabIcon} />
-            {cartItems?.length ? (
-              <View style={commonStyle.cartCountView}>
-                <FontText
-                  color="orange"
-                  name="mont-semibold"
-                  size={normalize(10)}
-                  textAlign={'center'}>
-                  {cartItems?.length}
-                </FontText>
-              </View>
-            ) : null}
-          </TouchableOpacity>
-        </View>
-      ),
     });
   }, [navigation, cartItems]);
 
@@ -256,19 +211,6 @@ const CartScreen = ({navigation, route}: any) => {
     setIsOpen(false);
   };
 
-  // <TouchableOpacity
-  //           style={{
-  //             padding:wp(2),
-  //             alignSelf: 'flex-end',
-  //             backgroundColor:colors.red3,borderRadius:normalize(100),justifyContent:"center",marginRight:wp(2)
-  //           }}
-  //           onPress={() => {
-  //             setIsOpen(true);
-  //             setSelectedItem(item.id);
-  //             // handleRemoveItem(item.id);
-  //           }}>
-  //           <SvgIcons._Trash width={wp(4)} height={wp(4)} />
-  //         </TouchableOpacity>
 
   const _renderItem = ({item, index}: any) => {
     return (
@@ -285,7 +227,7 @@ const CartScreen = ({navigation, route}: any) => {
               <Image source={{uri: item?.product?.image}} style={styles.logo} />
             ) : (
               <Image
-                source={Images.productImg}
+                source={Images._productImg}
                 style={[styles.logo, {width: hp(5), height: hp(5)}]}
               />
             )}
@@ -469,11 +411,12 @@ const CartScreen = ({navigation, route}: any) => {
           total={totalPrice.toFixed(2)}
         />
       </View>
-      <Popup
+      <Modal
         visible={isOpen}
-        // onBackPress={() => setIsOpen(false)}
-        title={`Are you sure you want to Cancel\nthis item?`}
-        titleStyle={{fontSize: normalize(14)}}
+        onBackPress={() => setIsOpen(false)}
+        description={`Are you sure you want to Cancel\nthis item?`}
+        title={' '}
+        titleStyle={{ fontSize: normalize(14) }}
         leftBtnText={'No, don’t cancel'}
         rightBtnText={'Yes, cancel'}
         leftBtnPress={() => setIsOpen(false)}
@@ -481,16 +424,26 @@ const CartScreen = ({navigation, route}: any) => {
         onTouchPress={() => setIsOpen(false)}
         leftBtnStyle={{
           width: '48%',
-          backgroundColor: colors.white2,
+          backgroundColor: colors.orange4,
           borderWidth: 0,
+          marginTop: wp(6),
+          borderRadius: normalize(100),
         }}
-        rightBtnStyle={{backgroundColor: colors.red2, width: '48%'}}
+        rightBtnStyle={{
+          backgroundColor: colors.orange,
+          width: '48%',
+          marginTop: wp(6),
+        }}
         leftBtnTextStyle={{
-          color: colors.blue,
+          color: colors.orange,
           fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
         }}
-        rightBtnTextStyle={{fontSize: mediumFont}}
-        style={{paddingHorizontal: wp(4), paddingVertical: wp(5)}}
+        rightBtnTextStyle={{
+          fontSize: mediumFont,
+          fontFamily: fonts['mont-bold'],
+        }}
+        style={{ paddingHorizontal: wp(4), paddingVertical: wp(5) }}
       />
     </View>
   );

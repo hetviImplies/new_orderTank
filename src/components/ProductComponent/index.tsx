@@ -68,7 +68,7 @@ const ProductItem = ({
     <View
       style={[
         isHorizontal ? styles.itemContainer : styles.itemVerticalContainer,{
-          paddingVertical:isHorizontal ? isIOS ? hp(1) :hp(0.9) : isIOS ? item.image ? hp(0.6) :  hp(1.3) : hp(1.1),backgroundColor:colors.orange2
+          paddingVertical: item.image ? hp(0.7) :  hp(0.8),backgroundColor:colors.orange2
         }
       ]}>
       <TouchableOpacity
@@ -77,14 +77,15 @@ const ProductItem = ({
           isHorizontal ? null : commonStyle.rowAC,
           {width: wp(40), alignItems: isHorizontal ? "flex-start" : "center"},
         ]}>
-          <View style={{borderWidth:0,borderRadius:normalize(8),backgroundColor:colors.orange3,
+          <View style={{borderRadius:normalize(8),backgroundColor:colors.orange3,
+          marginVertical:item?.image ? isHorizontal ? null : isIOS ? hp(0.4) : null : null,
           padding:item?.image ? null : wp(1.5) ,
           width:isHorizontal ? item.image ? null : isIOS ? wp(40) : wp(40) : null,alignItems:"center"
             // paddingHorizontal:isHorizontal ? item.image ? null : isIOS ? wp(12.8) : wp(12) : null,bottom:isHorizontal ? wp(1) : null,
             }}>
         {item?.image ? (
-          <Image source={{uri: item.image}} style={[styles.productImg,{
-            width: isHorizontal ? wp(40) : isIOS ? wp(12) : wp(13),
+          <Image source={{uri:item.image}} style={[styles.productImg,{
+            width: isHorizontal ? wp(40) : isIOS ? wp(14) : wp(13),
             height: isHorizontal ? hp(9) : isIOS ? hp(6.5) : hp(6)}]} />
         ) : (
           <Image source={Images._productImg} style={[styles.productImg,{

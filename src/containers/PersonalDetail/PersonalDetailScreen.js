@@ -273,11 +273,16 @@ const PersonalDetailScreen = ({navigation}) => {
           fontName={'mont-medium'}
           returnKeyType={'done'}
           returnKeyLabel="done"
+          keyboardType={'phone-pad'}
           placeholder={'Enter Your PhoneNumber'}
           editable={editInformation}
           value={phoneNo}
           label={'Mobile Number'}
-          setValue={(text)=>setPhoneNo(text.trim())}
+          setValue={(text)=>{
+            if (text.length <= 10) {
+                    return setPhoneNo(text.trim())
+                  }
+          }}
           />
             {isValidPhoneNo && (
               <FontText

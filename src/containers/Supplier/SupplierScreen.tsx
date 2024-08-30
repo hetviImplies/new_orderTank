@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import commonStyle, {
   fontSize,
@@ -30,6 +30,7 @@ import {
   TabBar_,
   Modal,
   PendingSuppliersComponent,
+  BackModal,
 } from '../../components';
 import {hp, normalize, wp} from '../../styles/responsiveScreen';
 import {RootScreens} from '../../types/type';
@@ -41,6 +42,8 @@ import {
 } from '../../api/companyRelation';
 import {TabView, SceneMap,TabBar} from 'react-native-tab-view';
 import { getCartItems } from '../Cart/Carthelper';
+import { ConditionContext } from '../ConditionProvider/ConditionContext';
+
 const SupplierScreen = ({navigation,route}: any) => {
   // const {
   //   data: supplierList,
@@ -86,6 +89,7 @@ const SupplierScreen = ({navigation,route}: any) => {
   const [pendingSuppplierData, setPendingSupplierData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [cartItems, setCartItems] = useState<any>([]);
+  const {condition,setCondition,floatRef} = useContext(ConditionContext);
   useFocusEffect(
     React.useCallback(() => {
       setSearch('');
@@ -443,6 +447,7 @@ const SupplierScreen = ({navigation,route}: any) => {
         />
       </View>
       <>
+     
       <View style={[commonStyle.paddingH4, {marginTop: hp(0), flex: 1}]}>
         {
           selectOrder.label==='Suppliers' ? _renderSupplierFunction() : _renderPendingSupplierFunction()
@@ -514,6 +519,10 @@ const SupplierScreen = ({navigation,route}: any) => {
         rightBtnPress={applyCodePress}
         rightBtnStyle={{width: '100%'}}
       />
+      <BackModal onBackPress={async()=>{
+            floatRef.current.animateButton();
+           setCondition(false)
+          }} visible={condition}/>
     </View>
   );
 };
